@@ -236,4 +236,154 @@ mod tests {
             }
         );
     }
+
+    #[test]
+    fn adding_a_node_and_keeping_other_unchanged() {
+        let base = ASTNode {
+            kind: String::from("class_declaration"),
+            identifier: String::from("Main"),
+            body: String::from("public class Main { public static void main(){int x = 10;} }"),
+            children: vec![ASTNode {
+                kind: String::from("method_declaration"),
+                identifier: String::from("main"),
+                body: String::from("public static void main(){int x = 10;}"),
+                children: vec![],
+            }],
+        };
+        let parent = ASTNode {
+            kind: String::from("class_declaration"),
+            identifier: String::from("Main"),
+            body: String::from("public class Main { public static void main(){int x = 10;} public static void test(){} }"),
+            children: vec![ASTNode {
+                kind: String::from("method_declaration"),
+                identifier: String::from("main"),
+                body: String::from("public static void main(){int x = 10;}"),
+                children: vec![],
+            },
+            ASTNode {
+                kind: String::from("method_declaration"),
+                identifier: String::from("test"),
+                body: String::from("public static void test(){}"),
+                children: vec![],
+            }],
+        };
+
+        let result = compute_changes_tree(Some(&base), Some(&parent));
+
+        assert_eq!(
+            result,
+            ChangesTreeNode {
+                kind: "class_declaration",
+                identifier: "Main",
+                body: "public class Main { public static void main(){int x = 10;} public static void test(){} }",
+                modification: Modification::Changed,
+                children: vec![
+                    ChangesTreeNode {
+                        kind: "method_declaration",
+                        identifier: "main",
+                        body: "public static void main(){int x = 10;}",
+                        modification: Modification::Unchanged,
+                        children: vec![]
+                    },
+                    ChangesTreeNode {
+                        kind: "method_declaration",
+                        identifier: "test",
+                        body: "public static void test(){}",
+                        modification: Modification::Added,
+                        children: vec![]
+                    }
+                ]
+            }
+        );
+    }
+
+    #[test]
+    fn test_adding_a_node_in_an_inner_node() {
+        let base = ASTNode {
+            kind: String::from("class_declaration"),
+            identifier: String::from("Main"),
+            body: String::from(
+                "public class Main { public static class Inner{} public static void main(){} }",
+            ),
+            children: vec![
+                ASTNode {
+                    kind: String::from("class_declaration"),
+                    identifier: String::from("Inner"),
+                    body: String::from("public static class Inner{}"),
+                    children: vec![],
+                },
+                ASTNode {
+                    kind: String::from("method_declaration"),
+                    identifier: String::from("main"),
+                    body: String::from("public static void main(){}"),
+                    children: vec![],
+                },
+            ],
+        };
+
+        let parent = ASTNode {
+            kind: String::from("class_declaration"),
+            identifier: String::from("Main"),
+            body: String::from(
+                "public class Main { public static class Inner{public static void main(){}} public static void main(){} }",
+            ),
+            children: vec![
+                ASTNode {
+                    kind: String::from("class_declaration"),
+                    identifier: String::from("Inner"),
+                    body: String::from("public static class Inner{public static void main(){}}"),
+                    children: vec![
+                        ASTNode {
+                            kind: String::from("method_declaration"),
+                            identifier: String::from("main"),
+                            body: String::from("public static void main(){}"),
+                            children: vec![],
+                        },
+                    ],
+                },
+                ASTNode {
+                    kind: String::from("method_declaration"),
+                    identifier: String::from("main"),
+                    body: String::from("public static void main(){}"),
+                    children: vec![],
+                },
+            ],
+        };
+
+        let result = compute_changes_tree(Some(&base), Some(&parent));
+
+        assert_eq!(
+            result,
+            ChangesTreeNode {
+                kind: "class_declaration",
+                identifier: "Main",
+                body: "public class Main { public static class Inner{public static void main(){}} public static void main(){} }",
+                modification: Modification::Changed,
+                children: vec![
+                    ChangesTreeNode {
+                        kind: "class_declaration",
+                        identifier: "Inner",
+                        body: "public static class Inner{public static void main(){}}",
+                        modification: Modification::Changed,
+                        children: vec![
+                            ChangesTreeNode {
+                                kind: "method_declaration",
+                                identifier: "main",
+                                body: "public static void main(){}",
+                                modification: Modification::Added,
+                                children: vec![]
+                            },
+                        ]
+                    },
+                    ChangesTreeNode {
+                        kind: "method_declaration",
+                        identifier: "main",
+                        body: "public static void main(){}",
+                        modification: Modification::Unchanged,
+                        children: vec![]
+                    }
+                ]
+            }
+        );
+    }
 }
