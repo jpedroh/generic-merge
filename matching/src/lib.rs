@@ -10,27 +10,19 @@ fn get_children_tuples_to_evaluate<'a>(
 ) -> Vec<(Option<&'a ASTNode>, Option<&'a ASTNode>)> {
     use itertools::Itertools;
 
-    let base_children_in_parent: Vec<(Option<&'a ASTNode>, Option<&'a ASTNode>)> = base
-        .children
-        .iter()
-        .map(|base_node| {
-            let node_in_parent = parent.children.iter().find(|parent_node| {
-                base_node.kind == parent_node.kind && base_node.identifier == parent_node.identifier
-            });
-            (Some(base_node), node_in_parent)
-        })
-        .collect();
+    let base_children_in_parent = base.children.iter().map(|base_node| {
+        let node_in_parent = parent.children.iter().find(|parent_node| {
+            base_node.kind == parent_node.kind && base_node.identifier == parent_node.identifier
+        });
+        (Some(base_node), node_in_parent)
+    });
 
-    let parent_children_in_base: Vec<(Option<&'a ASTNode>, Option<&'a ASTNode>)> = parent
-        .children
-        .iter()
-        .map(|parent_node| {
-            let node_in_base = base.children.iter().find(|base_node| {
-                parent_node.kind == base_node.kind && parent_node.identifier == base_node.identifier
-            });
-            (node_in_base, Some(parent_node))
-        })
-        .collect();
+    let parent_children_in_base = parent.children.iter().map(|parent_node| {
+        let node_in_base = base.children.iter().find(|base_node| {
+            parent_node.kind == base_node.kind && parent_node.identifier == base_node.identifier
+        });
+        (node_in_base, Some(parent_node))
+    });
 
     parent_children_in_base
         .into_iter()
