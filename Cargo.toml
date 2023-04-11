@@ -3,5 +3,6 @@
 members = [
     "bin",
     "matching",
-    "parsing"
+    "parsing",
+    "model"
 ]

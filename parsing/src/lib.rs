@@ -1,16 +1,5 @@
+use model::CSTNode;
 use tree_sitter::{Node, Parser};
-
-#[derive(Debug, PartialEq, Clone, Eq, Hash)]
-pub enum CSTNode {
-    Terminal {
-        kind: String,
-        value: String,
-    },
-    NonTerminal {
-        kind: String,
-        children: Vec<CSTNode>,
-    },
-}
 
 fn explore_node(node: Node, src: &str) -> CSTNode {
     if node.child_count() == 0 {
@@ -30,18 +19,11 @@ fn explore_node(node: Node, src: &str) -> CSTNode {
     }
 }
 
-pub fn parse_string(src: &str, parser: &mut Parser) -> CSTNode {
-    let parsed = parser.parse(src, None).unwrap();
-    let mut cursor = parsed.root_node().walk();
-
-    CSTNode::NonTerminal {
-        kind: "program".into(),
-        children: parsed
-            .root_node()
-            .children(&mut cursor)
-            .into_iter()
-            .map(|child| explore_node(child, src))
-            .collect(),
+pub fn parse_string(src: &str, parser: &mut Parser) -> Result<CSTNode, &'static str> {
+    let parsed = parser.parse(src, None);
+    match parsed {
+        Some(parsed) => Result::Ok(explore_node(parsed.root_node(), src)),
+        None => Result::Err("It was not possible to parse the tree."),
     }
 }
 
@@ -148,6 +130,6 @@ mod tests {
                 ],
             }],
         };
-        assert_eq!(expected, result)
+        assert_eq!(expected, result.unwrap())
     }
 }
