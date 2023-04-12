@@ -2,7 +2,6 @@ use model::CSTNode;
 use tree_sitter::Node;
 use tree_sitter_parser::TreeSitterParserConfiguration;
 
-pub mod language;
 pub mod tree_sitter_parser;
 
 fn explore_node(node: Node, src: &str, config: &TreeSitterParserConfiguration) -> CSTNode {
