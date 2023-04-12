@@ -1,3 +1,3 @@
 pub enum Language {
-    Java
+    Java,
 }
