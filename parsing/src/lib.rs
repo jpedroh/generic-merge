@@ -1,8 +1,17 @@
 use model::CSTNode;
-use tree_sitter::{Node, Parser};
+use tree_sitter::Node;
+use tree_sitter_parser::TreeSitterParserConfiguration;
 
-fn explore_node(node: Node, src: &str) -> CSTNode {
+pub mod language;
+pub mod tree_sitter_parser;
+
+fn explore_node(node: Node, src: &str, config: &TreeSitterParserConfiguration) -> CSTNode {
     if node.child_count() == 0 {
+        CSTNode::Terminal {
+            kind: node.kind().into(),
+            value: src[node.byte_range()].into(),
+        }
+    } else if config.stop_compilation_at.contains(node.kind()) {
         CSTNode::Terminal {
             kind: node.kind().into(),
             value: src[node.byte_range()].into(),
@@ -13,24 +22,30 @@ fn explore_node(node: Node, src: &str) -> CSTNode {
             kind: node.kind().into(),
             children: node
                 .children(&mut cursor)
-                .map(|child| explore_node(child, src))
+                .map(|child| explore_node(child, src, config))
                 .collect(),
         }
     }
 }
 
-pub fn parse_string(src: &str, parser: &mut Parser) -> Result<CSTNode, &'static str> {
+pub fn parse_string(
+    src: &str,
+    config: TreeSitterParserConfiguration,
+) -> Result<CSTNode, &'static str> {
+    let mut parser = tree_sitter::Parser::new();
+    parser
+        .set_language(config.language)
+        .map_err(|_| "There was an error while setting the parser language")?;
+
     let parsed = parser.parse(src, None);
     match parsed {
-        Some(parsed) => Result::Ok(explore_node(parsed.root_node(), src)),
+        Some(parsed) => Result::Ok(explore_node(parsed.root_node(), src, &config)),
         None => Result::Err("It was not possible to parse the tree."),
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use tree_sitter::Parser;
-
     use super::*;
 
     #[test]
@@ -40,11 +55,13 @@ mod tests {
                 void sayHello(String name);
             }
         "#;
-        let mut parser = Parser::new();
-        parser
-            .set_language(tree_sitter_java::language())
-            .expect("Error loading Java grammar");
-        let result = parse_string(code, &mut parser);
+        let result = parse_string(
+            code,
+            TreeSitterParserConfiguration {
+                language: tree_sitter_java::language(),
+                stop_compilation_at: [].into_iter().collect(),
+            },
+        );
         let expected = CSTNode::NonTerminal {
             kind: "program".into(),
             children: vec![CSTNode::NonTerminal {
@@ -126,6 +143,53 @@ mod tests {
                                 value: "}".into(),
                             },
                         ],
+                    },
+                ],
+            }],
+        };
+        assert_eq!(expected, result.unwrap())
+    }
+
+    #[test]
+    fn it_stops_the_compilation_when_reach_a_configured_node() {
+        let code = "public static interface HelloWorld {void sayHello(String name);}";
+        let result = parse_string(
+            code,
+            TreeSitterParserConfiguration {
+                language: tree_sitter_java::language(),
+                stop_compilation_at: ["interface_body"].into_iter().collect(),
+            },
+        );
+
+        let expected = CSTNode::NonTerminal {
+            kind: "program".into(),
+            children: vec![CSTNode::NonTerminal {
+                kind: "interface_declaration".into(),
+                children: vec![
+                    CSTNode::NonTerminal {
+                        kind: "modifiers".into(),
+                        children: vec![
+                            CSTNode::Terminal {
+                                kind: "public".into(),
+                                value: "public".into(),
+                            },
+                            CSTNode::Terminal {
+                                kind: "static".into(),
+                                value: "static".into(),
+                            },
+                        ],
+                    },
+                    CSTNode::Terminal {
+                        kind: "interface".into(),
+                        value: "interface".into(),
+                    },
+                    CSTNode::Terminal {
+                        kind: "identifier".into(),
+                        value: "HelloWorld".into(),
+                    },
+                    CSTNode::Terminal {
+                        kind: "interface_body".into(),
+                        value: "{void sayHello(String name);}".into(),
                     },
                 ],
             }],
