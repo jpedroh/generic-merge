@@ -3,12 +3,7 @@ use model::CSTNode;
 use tree_sitter::Node;
 
 fn explore_node(node: Node, src: &str, config: &ParserConfiguration) -> CSTNode {
-    if node.child_count() == 0 {
-        CSTNode::Terminal {
-            kind: node.kind().into(),
-            value: src[node.byte_range()].into(),
-        }
-    } else if config.stop_compilation_at.contains(node.kind()) {
+    if node.child_count() == 0 || config.stop_compilation_at.contains(node.kind()) {
         CSTNode::Terminal {
             kind: node.kind().into(),
             value: src[node.byte_range()].into(),
