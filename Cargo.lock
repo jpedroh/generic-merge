@@ -15,8 +15,10 @@ dependencies = [
 name = "bin"
 version = "0.1.0"
 dependencies = [
+ "matching",
  "model",
  "parsing",
+ "utils",
 ]
 
 [[package]]
@@ -45,6 +47,8 @@ name = "matching"
 version = "0.1.0"
 dependencies = [
  "itertools",
+ "model",
+ "utils",
 ]
 
 [[package]]
@@ -102,3 +106,7 @@ dependencies = [
  "cc",
  "tree-sitter",
 ]
+
+[[package]]
+name = "utils"
+version = "0.1.0"
