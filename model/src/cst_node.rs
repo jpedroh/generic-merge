@@ -1,4 +1,4 @@
-#[derive(Debug, PartialEq, Clone, Eq, Hash)]
+#[derive(Debug, PartialEq, Clone, Eq, Hash, PartialOrd, Ord)]
 pub enum CSTNode {
     Terminal {
         kind: String,
