@@ -140,47 +140,95 @@ pub fn ordered_tree_matching(
 
 #[cfg(test)]
 mod tests {
+    use crate::{matching::Matching, *};
     use model::CSTNode;
     use utils::unordered_pair::UnorderedPair;
-    use crate::{*, matching::Matching};
 
     #[test]
     fn two_terminal_nodes_matches_with_a_score_of_one_if_they_have_the_same_kind_and_value() {
-        let left = CSTNode::Terminal { kind: "kind".to_owned(), value: "value".to_owned() };
-        let right = CSTNode::Terminal { kind: "kind".to_owned(), value: "value".to_owned() };
+        let left = CSTNode::Terminal {
+            kind: "kind".to_owned(),
+            value: "value".to_owned(),
+        };
+        let right = CSTNode::Terminal {
+            kind: "kind".to_owned(),
+            value: "value".to_owned(),
+        };
 
         let matchings = ordered_tree_matching(&left, &right);
 
-        assert_eq!(Matching { score: 1 }, matchings.get(&UnorderedPair{left, right}).unwrap().to_owned())
+        assert_eq!(
+            Matching { score: 1 },
+            matchings
+                .get(&UnorderedPair { left, right })
+                .unwrap()
+                .to_owned()
+        )
     }
 
     #[test]
     fn two_terminal_nodes_have_a_match_with_score_zero_if_they_have_different_value() {
-        let left = CSTNode::Terminal { kind: "kind".to_owned(), value: "value_a".to_owned() };
-        let right = CSTNode::Terminal { kind: "kind".to_owned(), value: "value_b".to_owned() };
+        let left = CSTNode::Terminal {
+            kind: "kind".to_owned(),
+            value: "value_a".to_owned(),
+        };
+        let right = CSTNode::Terminal {
+            kind: "kind".to_owned(),
+            value: "value_b".to_owned(),
+        };
 
         let matchings = ordered_tree_matching(&left, &right);
 
-        assert_eq!(Matching { score: 0 }, matchings.get(&UnorderedPair{left, right}).unwrap().to_owned())
+        assert_eq!(
+            Matching { score: 0 },
+            matchings
+                .get(&UnorderedPair { left, right })
+                .unwrap()
+                .to_owned()
+        )
     }
 
     #[test]
     fn two_terminal_nodes_have_a_match_with_score_zero_if_they_have_different_kind() {
-        let left = CSTNode::Terminal { kind: "kind_a".to_owned(), value: "value".to_owned() };
-        let right = CSTNode::Terminal { kind: "kind_b".to_owned(), value: "value".to_owned() };
+        let left = CSTNode::Terminal {
+            kind: "kind_a".to_owned(),
+            value: "value".to_owned(),
+        };
+        let right = CSTNode::Terminal {
+            kind: "kind_b".to_owned(),
+            value: "value".to_owned(),
+        };
 
         let matchings = ordered_tree_matching(&left, &right);
 
-        assert_eq!(Matching { score: 0 }, matchings.get(&UnorderedPair{left, right}).unwrap().to_owned())
+        assert_eq!(
+            Matching { score: 0 },
+            matchings
+                .get(&UnorderedPair { left, right })
+                .unwrap()
+                .to_owned()
+        )
     }
 
     #[test]
     fn two_terminal_nodes_have_a_match_with_score_zero_if_they_have_different_kind_and_value() {
-        let left = CSTNode::Terminal { kind: "kind_a".to_owned(), value: "value_a".to_owned() };
-        let right = CSTNode::Terminal { kind: "kind_b".to_owned(), value: "value_a".to_owned() };
+        let left = CSTNode::Terminal {
+            kind: "kind_a".to_owned(),
+            value: "value_a".to_owned(),
+        };
+        let right = CSTNode::Terminal {
+            kind: "kind_b".to_owned(),
+            value: "value_a".to_owned(),
+        };
 
         let matchings = ordered_tree_matching(&left, &right);
 
-        assert_eq!(Matching { score: 0 }, matchings.get(&UnorderedPair{left, right}).unwrap().to_owned())
+        assert_eq!(
+            Matching { score: 0 },
+            matchings
+                .get(&UnorderedPair { left, right })
+                .unwrap()
+                .to_owned()
+        )
     }
 }
