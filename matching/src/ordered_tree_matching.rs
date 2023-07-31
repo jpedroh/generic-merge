@@ -231,4 +231,83 @@ mod tests {
                 .to_owned()
         )
     }
+
+    #[test]
+    fn it_matches_deep_nodes_as_well() {
+        let child = CSTNode::Terminal {
+            kind: "kind_b".into(),
+            value: "value_b".into(),
+        };
+        let left = CSTNode::NonTerminal {
+            kind: "kind_a".to_owned(),
+            children: vec![child.clone()],
+        };
+        let right = CSTNode::NonTerminal {
+            kind: "kind_a".to_owned(),
+            children: vec![child.clone()],
+        };
+
+        let matchings = ordered_tree_matching(&left, &right);
+
+        assert_eq!(
+            Matching { score: 1 },
+            matchings
+                .get(&UnorderedPair(child.clone(), child))
+                .unwrap()
+                .to_owned()
+        )
+    }
+
+    #[test]
+    fn if_no_match_is_found_it_returns_none() {
+        let left_child = CSTNode::Terminal {
+            kind: "kind_b".into(),
+            value: "value_b".into(),
+        };
+        let right_child = CSTNode::Terminal {
+            kind: "kind_c".into(),
+            value: "value_c".into(),
+        };
+
+        let left = CSTNode::NonTerminal {
+            kind: "kind_a".to_owned(),
+            children: vec![left_child.clone()],
+        };
+        let right = CSTNode::NonTerminal {
+            kind: "kind_a".to_owned(),
+            children: vec![right_child.clone()],
+        };
+
+        let matchings = ordered_tree_matching(&left, &right);
+
+        assert_eq!(None, matchings.get(&UnorderedPair(left_child, right_child)))
+    }
+
+    #[test]
+    fn the_matching_between_two_subtrees_is_the_sum_of_the_matchings_plus_the_root() {
+        let common_child = CSTNode::Terminal {
+            kind: "kind_b".into(),
+            value: "value_b".into(),
+        };
+        let unique_right_child = CSTNode::Terminal {
+            kind: "kind_c".into(),
+            value: "value_c".into(),
+        };
+
+        let left = CSTNode::NonTerminal {
+            kind: "kind_a".to_owned(),
+            children: vec![common_child.clone()],
+        };
+        let right = CSTNode::NonTerminal {
+            kind: "kind_a".to_owned(),
+            children: vec![common_child.clone(), unique_right_child],
+        };
+
+        let matchings = ordered_tree_matching(&left, &right);
+
+        assert_eq!(
+            &Matching { score: 2 },
+            matchings.get(&UnorderedPair(left, right)).unwrap()
+        )
+    }
 }
