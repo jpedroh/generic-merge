@@ -160,7 +160,7 @@ mod tests {
         assert_eq!(
             Matching { score: 1 },
             matchings
-                .get(&UnorderedPair { left, right })
+                .get(&UnorderedPair(left, right))
                 .unwrap()
                 .to_owned()
         )
@@ -182,7 +182,7 @@ mod tests {
         assert_eq!(
             Matching { score: 0 },
             matchings
-                .get(&UnorderedPair { left, right })
+                .get(&UnorderedPair(left, right))
                 .unwrap()
                 .to_owned()
         )
@@ -204,7 +204,7 @@ mod tests {
         assert_eq!(
             Matching { score: 0 },
             matchings
-                .get(&UnorderedPair { left, right })
+                .get(&UnorderedPair(left, right))
                 .unwrap()
                 .to_owned()
         )
@@ -226,7 +226,7 @@ mod tests {
         assert_eq!(
             Matching { score: 0 },
             matchings
-                .get(&UnorderedPair { left, right })
+                .get(&UnorderedPair(left, right))
                 .unwrap()
                 .to_owned()
         )
