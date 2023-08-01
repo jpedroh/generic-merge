@@ -33,8 +33,8 @@ fn main() {
 
     let result = ordered_tree_matching(&left, &base);
 
-    result.into_iter().for_each(|(pair, matching)| {
-        println!("{:#?}", pair);
-        println!("{:?}", matching);
-    });
+    // result.into_iter().for_each(|(pair, matching)| {
+    //     println!("{:#?}", pair);
+    //     println!("{:?}", matching);
+    // });
 }

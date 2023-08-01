@@ -1,4 +1,4 @@
-use crate::matching::Matching;
+use crate::{matching_entry::MatchingEntry, Matchings};
 use model::CSTNode;
 use std::collections::HashMap;
 use utils::unordered_pair::UnorderedPair;
@@ -11,7 +11,10 @@ enum Direction {
 }
 
 #[derive(Clone)]
-struct Entry(pub Direction, pub HashMap<UnorderedPair<CSTNode>, Matching>);
+struct Entry(
+    pub Direction,
+    pub HashMap<UnorderedPair<CSTNode>, MatchingEntry>,
+);
 
 impl Default for Entry {
     fn default() -> Self {
@@ -19,10 +22,14 @@ impl Default for Entry {
     }
 }
 
-pub fn ordered_tree_matching(
+pub fn ordered_tree_matching(left: &CSTNode, right: &CSTNode) -> Matchings {
+    return Matchings::new(ordered_tree_matching_helper(left, right));
+}
+
+fn ordered_tree_matching_helper(
     left: &CSTNode,
     right: &CSTNode,
-) -> HashMap<UnorderedPair<CSTNode>, Matching> {
+) -> HashMap<UnorderedPair<CSTNode>, MatchingEntry> {
     match (left, right) {
         (
             CSTNode::NonTerminal {
@@ -47,7 +54,7 @@ pub fn ordered_tree_matching(
                     let left_child = children_left.get(i - 1).unwrap();
                     let right_child = children_right.get(j - 1).unwrap();
 
-                    let w = ordered_tree_matching(left_child, right_child);
+                    let w = ordered_tree_matching_helper(left_child, right_child);
                     let matching = w
                         .get(&UnorderedPair::new(
                             left_child.to_owned(),
@@ -77,7 +84,7 @@ pub fn ordered_tree_matching(
 
             let mut i = m;
             let mut j = n;
-            let mut children = Vec::<&HashMap<UnorderedPair<CSTNode>, Matching>>::new();
+            let mut children = Vec::<&HashMap<UnorderedPair<CSTNode>, MatchingEntry>>::new();
 
             while i >= 1 && j >= 1 {
                 match matrix_t.get(i).unwrap().get(j).unwrap().0 {
@@ -93,7 +100,7 @@ pub fn ordered_tree_matching(
                 }
             }
 
-            let matching = Matching {
+            let matching = MatchingEntry {
                 score: matrix_m[m][n] + root_matching,
             };
             let mut result = HashMap::new();
@@ -121,7 +128,7 @@ pub fn ordered_tree_matching(
             let mut result = HashMap::new();
             result.insert(
                 UnorderedPair::new(left.to_owned(), right.to_owned()),
-                Matching {
+                MatchingEntry {
                     score: (kind_left == kind_right && value_left == value_right).into(),
                 },
             );
@@ -131,7 +138,7 @@ pub fn ordered_tree_matching(
             let mut result = HashMap::new();
             result.insert(
                 UnorderedPair::new(left.to_owned(), right.to_owned()),
-                Matching { score: 0 },
+                MatchingEntry { score: 0 },
             );
             result
         }
@@ -140,9 +147,8 @@ pub fn ordered_tree_matching(
 
 #[cfg(test)]
 mod tests {
-    use crate::{matching::Matching, *};
+    use crate::{matching_entry::MatchingEntry, *};
     use model::CSTNode;
-    use utils::unordered_pair::UnorderedPair;
 
     #[test]
     fn two_terminal_nodes_matches_with_a_score_of_one_if_they_have_the_same_kind_and_value() {
@@ -158,11 +164,8 @@ mod tests {
         let matchings = ordered_tree_matching(&left, &right);
 
         assert_eq!(
-            Matching { score: 1 },
-            matchings
-                .get(&UnorderedPair(left, right))
-                .unwrap()
-                .to_owned()
+            Some(&MatchingEntry::with_score(1)),
+            matchings.get_matching_entry(left, right)
         )
     }
 
@@ -180,11 +183,8 @@ mod tests {
         let matchings = ordered_tree_matching(&left, &right);
 
         assert_eq!(
-            Matching { score: 0 },
-            matchings
-                .get(&UnorderedPair(left, right))
-                .unwrap()
-                .to_owned()
+            Some(&MatchingEntry::with_score(0)),
+            matchings.get_matching_entry(left, right)
         )
     }
 
@@ -202,11 +202,8 @@ mod tests {
         let matchings = ordered_tree_matching(&left, &right);
 
         assert_eq!(
-            Matching { score: 0 },
-            matchings
-                .get(&UnorderedPair(left, right))
-                .unwrap()
-                .to_owned()
+            Some(&MatchingEntry::with_score(0)),
+            matchings.get_matching_entry(left, right)
         )
     }
 
@@ -224,11 +221,8 @@ mod tests {
         let matchings = ordered_tree_matching(&left, &right);
 
         assert_eq!(
-            Matching { score: 0 },
-            matchings
-                .get(&UnorderedPair(left, right))
-                .unwrap()
-                .to_owned()
+            Some(&MatchingEntry::with_score(0)),
+            matchings.get_matching_entry(left, right)
         )
     }
 
@@ -250,11 +244,8 @@ mod tests {
         let matchings = ordered_tree_matching(&left, &right);
 
         assert_eq!(
-            Matching { score: 1 },
-            matchings
-                .get(&UnorderedPair(child.clone(), child))
-                .unwrap()
-                .to_owned()
+            Some(&MatchingEntry::with_score(1)),
+            matchings.get_matching_entry(child.clone(), child)
         )
     }
 
@@ -280,7 +271,7 @@ mod tests {
 
         let matchings = ordered_tree_matching(&left, &right);
 
-        assert_eq!(None, matchings.get(&UnorderedPair(left_child, right_child)))
+        assert_eq!(None, matchings.get_matching_entry(left_child, right_child))
     }
 
     #[test]
@@ -306,8 +297,8 @@ mod tests {
         let matchings = ordered_tree_matching(&left, &right);
 
         assert_eq!(
-            &Matching { score: 2 },
-            matchings.get(&UnorderedPair(left, right)).unwrap()
+            Some(&MatchingEntry::with_score(2)),
+            matchings.get_matching_entry(left, right)
         )
     }
 }
