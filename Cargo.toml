@@ -3,6 +3,7 @@
 members = [
     "bin",
     "matching",
+    "merge",
     "parsing",
     "model",
     "utils"
