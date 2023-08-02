@@ -4,4 +4,5 @@ use model::CSTNode;
 pub struct Matching<'a> {
     pub matching_node: &'a CSTNode,
     pub score: usize,
+    pub is_perfect_match: bool,
 }

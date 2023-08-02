@@ -1,4 +1,6 @@
 use matching::ordered_tree_matching;
+use merge::merge;
+use model::CSTNode;
 
 fn main() {
     let base = parsing::parse_string(
@@ -31,10 +33,31 @@ fn main() {
     )
     .unwrap();
 
-    let result = ordered_tree_matching(&left, &base);
+    let matchings_left_base = ordered_tree_matching(&left, &base);
+    let matchings_right_base = ordered_tree_matching(&right, &base);
+    let matchings_lef_right = ordered_tree_matching(&left, &right);
+    let result = merge(
+        &base,
+        &left,
+        &right,
+        &matchings_left_base,
+        &matchings_right_base,
+        &matchings_lef_right,
+    );
 
-    // result.into_iter().for_each(|(pair, matching)| {
-    //     println!("{:#?}", pair);
-    //     println!("{:?}", matching);
-    // });
+    println!("{:#?}", pretty_print(result))
+}
+
+pub fn pretty_print(node: CSTNode) -> String {
+    match node {
+        CSTNode::Terminal { value, .. } => value,
+        CSTNode::NonTerminal { children, .. } => {
+            children.iter().fold(String::new(), |acc, current| {
+                let mut result = acc.to_owned();
+                result.push_str(" ");
+                result.push_str(&pretty_print(current.clone()));
+                result
+            })
+        }
+    }
 }

@@ -100,9 +100,10 @@ fn ordered_tree_matching_helper(
                 }
             }
 
-            let matching = MatchingEntry {
-                score: matrix_m[m][n] + root_matching,
-            };
+            let matching = MatchingEntry::new(
+                matrix_m[m][n] + root_matching,
+                2 * matrix_m[m][n] / (m + n) == 1,
+            );
             let mut result = HashMap::new();
             result.insert(
                 UnorderedPair::new(left.to_owned(), right.to_owned()),
@@ -126,11 +127,10 @@ fn ordered_tree_matching_helper(
             },
         ) => {
             let mut result = HashMap::new();
+            let is_perfetch_match = kind_left == kind_right && value_left == value_right;
             result.insert(
                 UnorderedPair::new(left.to_owned(), right.to_owned()),
-                MatchingEntry {
-                    score: (kind_left == kind_right && value_left == value_right).into(),
-                },
+                MatchingEntry::new(is_perfetch_match.into(), is_perfetch_match),
             );
             result
         }
@@ -138,7 +138,7 @@ fn ordered_tree_matching_helper(
             let mut result = HashMap::new();
             result.insert(
                 UnorderedPair::new(left.to_owned(), right.to_owned()),
-                MatchingEntry { score: 0 },
+                MatchingEntry::new(0, false),
             );
             result
         }
@@ -164,7 +164,7 @@ mod tests {
         let matchings = ordered_tree_matching(&left, &right);
 
         assert_eq!(
-            Some(&MatchingEntry::with_score(1)),
+            Some(&MatchingEntry::new(1, true)),
             matchings.get_matching_entry(left, right)
         )
     }
@@ -183,7 +183,7 @@ mod tests {
         let matchings = ordered_tree_matching(&left, &right);
 
         assert_eq!(
-            Some(&MatchingEntry::with_score(0)),
+            Some(&MatchingEntry::new(0, false)),
             matchings.get_matching_entry(left, right)
         )
     }
@@ -202,7 +202,7 @@ mod tests {
         let matchings = ordered_tree_matching(&left, &right);
 
         assert_eq!(
-            Some(&MatchingEntry::with_score(0)),
+            Some(&MatchingEntry::new(0, false)),
             matchings.get_matching_entry(left, right)
         )
     }
@@ -221,7 +221,7 @@ mod tests {
         let matchings = ordered_tree_matching(&left, &right);
 
         assert_eq!(
-            Some(&MatchingEntry::with_score(0)),
+            Some(&MatchingEntry::new(0, false)),
             matchings.get_matching_entry(left, right)
         )
     }
@@ -244,7 +244,7 @@ mod tests {
         let matchings = ordered_tree_matching(&left, &right);
 
         assert_eq!(
-            Some(&MatchingEntry::with_score(1)),
+            Some(&MatchingEntry::new(1, true)),
             matchings.get_matching_entry(child.clone(), child)
         )
     }
@@ -297,7 +297,31 @@ mod tests {
         let matchings = ordered_tree_matching(&left, &right);
 
         assert_eq!(
-            Some(&MatchingEntry::with_score(2)),
+            Some(&MatchingEntry::new(2, false)),
+            matchings.get_matching_entry(left, right)
+        )
+    }
+
+    #[test]
+    fn perfect_matching_deep_nodes() {
+        let common_child = CSTNode::Terminal {
+            kind: "kind_b".into(),
+            value: "value_b".into(),
+        };
+
+        let left = CSTNode::NonTerminal {
+            kind: "kind_a".to_owned(),
+            children: vec![common_child.clone()],
+        };
+        let right = CSTNode::NonTerminal {
+            kind: "kind_a".to_owned(),
+            children: vec![common_child.clone()],
+        };
+
+        let matchings = ordered_tree_matching(&left, &right);
+
+        assert_eq!(
+            Some(&MatchingEntry::new(2, true)),
             matchings.get_matching_entry(left, right)
         )
     }

@@ -31,6 +31,7 @@ impl Matchings {
                 Matching {
                     matching_node,
                     score: matching.score,
+                    is_perfect_match: matching.is_perfect_match,
                 }
             })
     }
@@ -64,13 +65,14 @@ mod tests {
         let mut matchings = HashMap::new();
         matchings.insert(
             UnorderedPair(a_node.clone(), a_node.clone()),
-            MatchingEntry::with_score(1),
+            MatchingEntry::new(1, true),
         );
 
         assert_eq!(
             Some(Matching {
                 matching_node: &a_node,
-                score: 1
+                score: 1,
+                is_perfect_match: true
             }),
             Matchings::new(matchings).find_matching_for(&a_node)
         )
