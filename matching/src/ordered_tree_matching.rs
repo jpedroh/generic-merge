@@ -102,7 +102,7 @@ fn ordered_tree_matching_helper(
 
             let matching = MatchingEntry::new(
                 matrix_m[m][n] + root_matching,
-                2 * matrix_m[m][n] / (m + n) == 1,
+                left == right,
             );
             let mut result = HashMap::new();
             result.insert(
@@ -322,6 +322,40 @@ mod tests {
 
         assert_eq!(
             Some(&MatchingEntry::new(2, true)),
+            matchings.get_matching_entry(left, right)
+        )
+    }
+
+    #[test]
+    fn perfect_matching_deeper_nodes() {
+        let leaf = CSTNode::Terminal {
+            kind: "kind_b".into(),
+            value: "value_b".into(),
+        };
+
+        let intermediate = CSTNode::NonTerminal {
+            kind: "intermediate".into(),
+            children: vec![leaf],
+        };
+
+        let left = CSTNode::NonTerminal {
+            kind: "kind_a".to_owned(),
+            children: vec![intermediate.clone()],
+        };
+        let right = CSTNode::NonTerminal {
+            kind: "kind_a".to_owned(),
+            children: vec![intermediate.clone()],
+        };
+
+        let matchings = ordered_tree_matching(&left, &right);
+
+        assert_eq!(
+            Some(&MatchingEntry::new(2, true)),
+            matchings.get_matching_entry(intermediate.clone(), intermediate)
+        );
+
+        assert_eq!(
+            Some(&MatchingEntry::new(3, true)),
             matchings.get_matching_entry(left, right)
         )
     }
