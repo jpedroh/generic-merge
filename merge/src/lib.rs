@@ -1,4 +1,4 @@
-use std::borrow::BorrowMut;
+use std::result;
 
 use matching::Matchings;
 use model::CSTNode;
@@ -64,65 +64,62 @@ pub fn merge(
         ) => {
             let mut result_children = vec![];
 
-            // Mutually modified
-            let mut mutually_modified_children: Vec<CSTNode> = base_children
-                .iter()
-                .map(|node| {
-                    return (
-                        node,
-                        base_left_matchings.find_matching_for(node),
-                        base_right_matchings.find_matching_for(node),
-                    );
-                })
-                .filter(|(_, left_match, right_match)| {
-                    return left_match.is_some() && right_match.is_some();
-                })
-                .map(|(base, left_match, right_match)| {
-                    return merge(
-                        &base,
-                        left_match.unwrap().matching_node,
-                        right_match.unwrap().matching_node,
+            let mut children_left_it = children_left.iter();
+            let mut children_right_it = children_right.iter();
+
+            let mut cur_left = children_left_it.next();
+            let mut cur_right = children_right_it.next();
+
+            while cur_left.is_some() && cur_right.is_some() {
+                let has_matching_base_left = base_left_matchings
+                    .find_matching_for(cur_left.unwrap())
+                    .is_some();
+                let has_matching_base_right = base_right_matchings
+                    .find_matching_for(cur_right.unwrap())
+                    .is_some();
+                let matching_left_right = left_right_matchings.get_matching_entry(
+                    cur_left.unwrap().to_owned(),
+                    cur_right.unwrap().to_owned(),
+                );
+
+                // The nodes are unchanged
+                if has_matching_base_left
+                    && has_matching_base_right
+                    && matching_left_right.is_some()
+                    && matching_left_right.unwrap().is_perfect_match
+                {
+                    result_children.push(merge(
+                        &cur_left.unwrap(),
+                        &cur_left.unwrap(),
+                        &cur_right.unwrap(),
                         &base_left_matchings,
                         &base_right_matchings,
                         &left_right_matchings,
-                    );
-                })
-                .collect();
+                    ))
+                }
 
-            result_children.append(&mut mutually_modified_children);
+                // This is the case where left and right both add the same nodes
+                if !has_matching_base_left
+                    && !has_matching_base_right
+                    && matching_left_right.is_some()
+                    && matching_left_right.unwrap().is_perfect_match
+                {
+                    result_children.push(merge(
+                        &cur_left.unwrap(),
+                        &cur_left.unwrap(),
+                        &cur_right.unwrap(),
+                        &base_left_matchings,
+                        &base_right_matchings,
+                        &left_right_matchings,
+                    ))
+                }
 
-            // Nodes added only in left
-            result_children.append(
-                children_left
-                    .iter()
-                    .filter(|left_child| {
-                        return base_left_matchings.find_matching_for(left_child).is_none();
-                        // && left_right_matchings.find_matching_for(left_child).is_none();
-                    })
-                    .map(|node| node.to_owned())
-                    .collect::<Vec<CSTNode>>()
-                    .borrow_mut(),
-            );
-
-            // Nodes added only in right
-            result_children.append(
-                children_right
-                    .iter()
-                    .filter(|right_child| {
-                        return base_right_matchings
-                            .find_matching_for(right_child)
-                            .is_none();
-                        // && left_right_matchings
-                        //     .find_matching_for(right_child)
-                        //     .is_none();
-                    })
-                    .map(|node| node.to_owned())
-                    .collect::<Vec<CSTNode>>()
-                    .borrow_mut(),
-            );
+                cur_left = children_left_it.next();
+                cur_right = children_right_it.next();
+            }
 
             CSTNode::NonTerminal {
-                kind: kind.to_owned(),
+                kind: kind.to_string(),
                 children: result_children,
             }
         }
@@ -283,229 +280,58 @@ mod tests {
     }
 
     #[test]
-    fn merge_puts_added_nodes_in_left_only() {
-        let left = CSTNode::NonTerminal {
+    fn it_merges_non_terminals_if_there_are_non_changes() {
+        let tree = CSTNode::NonTerminal {
             kind: "kind".into(),
             children: vec![
                 CSTNode::Terminal {
-                    kind: "another_kind".into(),
-                    value: "another_value".into(),
+                    kind: "kind_a".into(),
+                    value: "value_a".into(),
                 },
                 CSTNode::Terminal {
-                    kind: "kind_left".into(),
-                    value: "value_left".into(),
+                    kind: "kind_b".into(),
+                    value: "value_b".into(),
                 },
             ],
         };
-        let base_and_right = CSTNode::NonTerminal {
-            kind: "kind".into(),
-            children: vec![CSTNode::Terminal {
-                kind: "another_kind".into(),
-                value: "another_value".into(),
-            }],
-        };
 
-        let matchings_left_base = ordered_tree_matching(&left, &base_and_right);
+        let matchings = ordered_tree_matching(&tree, &tree);
+        let merged_tree = merge(&tree, &tree, &tree, &matchings, &matchings, &matchings);
 
-        assert_eq!(
-            CSTNode::NonTerminal {
-                kind: "kind".into(),
-                children: vec![
-                    CSTNode::Terminal {
-                        kind: "kind_left".into(),
-                        value: "value_left".into(),
-                    },
-                    CSTNode::Terminal {
-                        kind: "another_kind".into(),
-                        value: "another_value".into(),
-                    }
-                ],
-            },
-            merge(
-                &base_and_right,
-                &left,
-                &base_and_right,
-                &matchings_left_base,
-                &Matchings::empty(),
-                &Matchings::empty()
-            )
-        );
+        assert_eq!(tree, merged_tree)
     }
 
     #[test]
-    fn merge_removes_nodes_deleted_in_left_only() {
-        let base_and_right = CSTNode::NonTerminal {
-            kind: "kind".into(),
-            children: vec![
-                CSTNode::Terminal {
-                    kind: "kind".into(),
-                    value: "value".into(),
-                },
-                CSTNode::Terminal {
-                    kind: "deleted_in_left".into(),
-                    value: "deleted_in_left".into(),
-                },
-            ],
-        };
-        let left = CSTNode::NonTerminal {
-            kind: "kind".into(),
-            children: vec![CSTNode::Terminal {
-                kind: "kind".into(),
-                value: "value".into(),
-            }],
-        };
-
-        let matchings_left_base = ordered_tree_matching(&left, &base_and_right);
-        let matchings_right_base = ordered_tree_matching(&base_and_right, &base_and_right);
-        let matchings_left_right = ordered_tree_matching(&base_and_right, &base_and_right);
-
-        assert_eq!(
-            CSTNode::NonTerminal {
-                kind: "kind".into(),
-                children: vec![CSTNode::Terminal {
-                    kind: "kind".into(),
-                    value: "value".into(),
-                }],
-            },
-            merge(
-                &base_and_right,
-                &left,
-                &base_and_right,
-                &matchings_left_base,
-                &matchings_right_base,
-                &matchings_left_right
-            )
-        );
-    }
-
-    #[test]
-    fn merge_independent_nodes_added_in_left_and_right() {
+    fn it_merges_non_terminals_if_both_left_and_right_add_the_same_things() {
         let base = CSTNode::NonTerminal {
             kind: "kind".into(),
-            children: vec![CSTNode::Terminal {
-                kind: "kind".into(),
-                value: "value".into(),
-            }],
+            children: vec![],
         };
-        let left = CSTNode::NonTerminal {
+        let parent = CSTNode::NonTerminal {
             kind: "kind".into(),
             children: vec![
                 CSTNode::Terminal {
-                    kind: "kind".into(),
-                    value: "value".into(),
+                    kind: "kind_a".into(),
+                    value: "value_a".into(),
                 },
                 CSTNode::Terminal {
-                    kind: "added_in_left".into(),
-                    value: "added_in_left".into(),
-                },
-            ],
-        };
-        let right = CSTNode::NonTerminal {
-            kind: "kind".into(),
-            children: vec![
-                CSTNode::Terminal {
-                    kind: "kind".into(),
-                    value: "value".into(),
-                },
-                CSTNode::Terminal {
-                    kind: "added_in_right".into(),
-                    value: "added_in_right".into(),
+                    kind: "kind_b".into(),
+                    value: "value_b".into(),
                 },
             ],
         };
 
-        let matchings_left_base = ordered_tree_matching(&left, &base);
-        let matchings_right_base = ordered_tree_matching(&right, &base);
-        let matchings_left_right = ordered_tree_matching(&left, &right);
-
-        assert_eq!(
-            CSTNode::NonTerminal {
-                kind: "kind".into(),
-                children: vec![
-                    CSTNode::Terminal {
-                        kind: "kind".into(),
-                        value: "value".into(),
-                    },
-                    CSTNode::Terminal {
-                        kind: "added_in_left".into(),
-                        value: "added_in_left".into(),
-                    },
-                    CSTNode::Terminal {
-                        kind: "added_in_right".into(),
-                        value: "added_in_right".into(),
-                    }
-                ],
-            },
-            merge(
-                &base,
-                &left,
-                &right,
-                &matchings_left_base,
-                &matchings_right_base,
-                &matchings_left_right
-            )
+        let matchings_base_parent = ordered_tree_matching(&base, &parent);
+        let matchings_parents = ordered_tree_matching(&parent, &parent);
+        let merged_tree = merge(
+            &base,
+            &parent,
+            &parent,
+            &matchings_base_parent,
+            &matchings_base_parent,
+            &matchings_parents,
         );
-    }
 
-    #[test]
-    fn merge_deep_nodes_additions() {
-        let base = CSTNode::NonTerminal {
-            kind: "kind".into(),
-            children: vec![CSTNode::NonTerminal {
-                kind: "kind".into(),
-                children: vec![],
-            }],
-        };
-        let left = CSTNode::NonTerminal {
-            kind: "kind".into(),
-            children: vec![CSTNode::NonTerminal {
-                kind: "kind".into(),
-                children: vec![CSTNode::Terminal {
-                    kind: "added_in_left".into(),
-                    value: "added_in_left".into(),
-                }],
-            }],
-        };
-        let right = CSTNode::NonTerminal {
-            kind: "kind".into(),
-            children: vec![CSTNode::NonTerminal {
-                kind: "kind".into(),
-                children: vec![CSTNode::Terminal {
-                    kind: "added_in_right".into(),
-                    value: "added_in_right".into(),
-                }],
-            }],
-        };
-
-        let matchings_left_base = ordered_tree_matching(&left, &base);
-        let matchings_right_base = ordered_tree_matching(&right, &base);
-        let matchings_left_right = ordered_tree_matching(&left, &right);
-
-        assert_eq!(
-            CSTNode::NonTerminal {
-                kind: "kind".into(),
-                children: vec![CSTNode::NonTerminal {
-                    kind: "kind".into(),
-                    children: vec![
-                        CSTNode::Terminal {
-                            kind: "added_in_left".into(),
-                            value: "added_in_left".into(),
-                        },
-                        CSTNode::Terminal {
-                            kind: "added_in_right".into(),
-                            value: "added_in_right".into(),
-                        }
-                    ]
-                }]
-            },
-            merge(
-                &base,
-                &left,
-                &right,
-                &matchings_left_base,
-                &matchings_right_base,
-                &matchings_left_right
-            )
-        );
+        assert_eq!(parent, merged_tree)
     }
 }
