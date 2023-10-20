@@ -150,27 +150,54 @@ mod tests {
 
     use crate::merge;
 
+    fn assert_merge_is_correct_and_idempotent_with_respect_to_parent_side(
+        base: CSTNode,
+        parent_a: CSTNode,
+        parent_b: CSTNode,
+        expected_merge: CSTNode,
+    ) {
+        let matchings_base_parent_a = ordered_tree_matching(&base, &parent_a);
+        let matchings_base_parent_b = ordered_tree_matching(&base, &parent_b);
+        let matchings_parents = ordered_tree_matching(&parent_a, &parent_b);
+
+        let merged_tree = merge(
+            &base,
+            &parent_a,
+            &parent_b,
+            &matchings_base_parent_a,
+            &matchings_base_parent_b,
+            &matchings_parents,
+        );
+        let merged_tree_swap = merge(
+            &base,
+            &parent_b,
+            &parent_a,
+            &matchings_base_parent_b,
+            &matchings_base_parent_a,
+            &matchings_parents,
+        );
+
+        assert_eq!(expected_merge, merged_tree);
+        assert_eq!(expected_merge, merged_tree_swap)
+    }
+
     #[test]
     fn if_i_am_merging_three_unchanged_nodes_it_is_a_success() {
         let node = CSTNode::Terminal {
             kind: "kind".into(),
             value: "value".into(),
         };
-        assert_eq!(
-            merge(
-                &node,
-                &node,
-                &node,
-                &Matchings::empty(),
-                &Matchings::empty(),
-                &Matchings::empty()
-            ),
-            node
+
+        assert_merge_is_correct_and_idempotent_with_respect_to_parent_side(
+            node.clone(),
+            node.clone(),
+            node.clone(),
+            node,
         )
     }
 
     #[test]
-    fn returns_success_if_there_are_changes_in_both_left_and_right_and_they_are_not_conflicting() {
+    fn returns_success_if_there_are_changes_in_both_parents_and_they_are_not_conflicting() {
         let base = CSTNode::Terminal {
             kind: "kind".into(),
             value: "\nvalue\n".into(),
@@ -184,24 +211,19 @@ mod tests {
             value: "\nvalue\nright".into(),
         };
 
-        assert_eq!(
-            merge(
-                &base,
-                &left,
-                &right,
-                &Matchings::empty(),
-                &Matchings::empty(),
-                &Matchings::empty()
-            ),
+        assert_merge_is_correct_and_idempotent_with_respect_to_parent_side(
+            base,
+            left,
+            right,
             CSTNode::Terminal {
                 kind: "kind".into(),
-                value: "left\nvalue\nright".into()
-            }
+                value: "left\nvalue\nright".into(),
+            },
         )
     }
 
     #[test]
-    fn returns_conflict_if_there_are_changes_in_both_left_and_right_and_they_are_conflicting() {
+    fn returns_conflict_if_there_are_changes_in_both_parents_and_they_are_conflicting() {
         let base = CSTNode::Terminal {
             kind: "kind".into(),
             value: "value".into(),
@@ -226,48 +248,21 @@ mod tests {
     }
 
     #[test]
-    fn if_there_is_a_change_only_in_left_it_returns_the_changes_from_left() {
-        let base_and_right = CSTNode::Terminal {
-            kind: "kind".into(),
-            value: "value".into(),
-        };
-        let left = CSTNode::Terminal {
-            kind: "kind".into(),
-            value: "value_left".into(),
-        };
-        assert_eq!(
-            merge(
-                &base_and_right,
-                &left,
-                &base_and_right,
-                &Matchings::empty(),
-                &Matchings::empty(),
-                &Matchings::empty()
-            ),
-            left
-        )
-    }
-
-    #[test]
-    fn if_there_is_a_change_only_in_right_it_returns_the_changes_from_right() {
+    fn if_there_is_a_change_only_in_one_parent_it_returns_the_changes_from_this_parent() {
         let base_and_left = CSTNode::Terminal {
             kind: "kind".into(),
             value: "value".into(),
         };
-        let right = CSTNode::Terminal {
+        let changed_parent = CSTNode::Terminal {
             kind: "kind".into(),
             value: "value_right".into(),
         };
-        assert_eq!(
-            merge(
-                &base_and_left,
-                &base_and_left,
-                &right,
-                &Matchings::empty(),
-                &Matchings::empty(),
-                &Matchings::empty()
-            ),
-            right,
+
+        assert_merge_is_correct_and_idempotent_with_respect_to_parent_side(
+            base_and_left.clone(),
+            base_and_left.clone(),
+            changed_parent.clone(),
+            changed_parent,
         )
     }
 
@@ -309,10 +304,12 @@ mod tests {
             ],
         };
 
-        let matchings = ordered_tree_matching(&tree, &tree);
-        let merged_tree = merge(&tree, &tree, &tree, &matchings, &matchings, &matchings);
-
-        assert_eq!(tree, merged_tree)
+        assert_merge_is_correct_and_idempotent_with_respect_to_parent_side(
+            tree.clone(),
+            tree.clone(),
+            tree.clone(),
+            tree,
+        )
     }
 
     #[test]
@@ -335,18 +332,12 @@ mod tests {
             ],
         };
 
-        let matchings_base_parent = ordered_tree_matching(&base, &parent);
-        let matchings_parents = ordered_tree_matching(&parent, &parent);
-        let merged_tree = merge(
-            &base,
-            &parent,
-            &parent,
-            &matchings_base_parent,
-            &matchings_base_parent,
-            &matchings_parents,
-        );
-
-        assert_eq!(parent, merged_tree)
+        assert_merge_is_correct_and_idempotent_with_respect_to_parent_side(
+            base,
+            parent.clone(),
+            parent.clone(),
+            parent,
+        )
     }
 
     #[test]
@@ -378,29 +369,12 @@ mod tests {
             }],
         };
 
-        let matchings_base_parent_that_added = ordered_tree_matching(&base, &parent_that_added);
-        let matchings_base_initially_empty_parent =
-            ordered_tree_matching(&base, &initially_empty_parent);
-        let matchings_parents = ordered_tree_matching(&parent_that_added, &initially_empty_parent);
-        let merged_tree = super::merge(
-            &base,
-            &parent_that_added,
-            &initially_empty_parent,
-            &matchings_base_parent_that_added,
-            &matchings_base_initially_empty_parent,
-            &matchings_parents,
-        );
-        let merged_tree_swap = super::merge(
-            &base,
-            &initially_empty_parent,
-            &parent_that_added,
-            &matchings_base_initially_empty_parent,
-            &matchings_base_parent_that_added,
-            &matchings_parents,
-        );
-
-        assert_eq!(merge, merged_tree);
-        assert_eq!(merge, merged_tree_swap)
+        assert_merge_is_correct_and_idempotent_with_respect_to_parent_side(
+            base,
+            initially_empty_parent,
+            parent_that_added,
+            merge,
+        )
     }
 
     #[test]
@@ -449,27 +423,11 @@ mod tests {
             ],
         };
 
-        let matchings_base_parent_that_added = ordered_tree_matching(&base, &parent_that_added);
-        let matchings_base_unchangend_parent = ordered_tree_matching(&base, &unchanged_parent);
-        let matchings_parents = ordered_tree_matching(&parent_that_added, &unchanged_parent);
-        let merged_tree = super::merge(
-            &base,
-            &parent_that_added,
-            &unchanged_parent,
-            &matchings_base_parent_that_added,
-            &matchings_base_unchangend_parent,
-            &matchings_parents,
-        );
-        let merged_tree_swap = super::merge(
-            &base,
-            &unchanged_parent,
-            &parent_that_added,
-            &matchings_base_unchangend_parent,
-            &matchings_base_parent_that_added,
-            &matchings_parents,
-        );
-
-        assert_eq!(merge, merged_tree);
-        assert_eq!(merge, merged_tree_swap)
+        assert_merge_is_correct_and_idempotent_with_respect_to_parent_side(
+            base,
+            unchanged_parent,
+            parent_that_added,
+            merge,
+        )
     }
 }
