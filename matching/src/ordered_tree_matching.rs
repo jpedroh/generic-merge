@@ -100,10 +100,7 @@ fn ordered_tree_matching_helper(
                 }
             }
 
-            let matching = MatchingEntry::new(
-                matrix_m[m][n] + root_matching,
-                left == right,
-            );
+            let matching = MatchingEntry::new(matrix_m[m][n] + root_matching, left == right);
             let mut result = HashMap::new();
             result.insert(
                 UnorderedPair::new(left.to_owned(), right.to_owned()),
