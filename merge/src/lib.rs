@@ -95,7 +95,10 @@ pub fn merge(
                         &base_left_matchings,
                         &base_right_matchings,
                         &left_right_matchings,
-                    ))
+                    ));
+
+                    cur_left = children_left_it.next();
+                    cur_right = children_right_it.next();
                 }
 
                 // This is the case where left and right both add the same nodes
@@ -111,10 +114,26 @@ pub fn merge(
                         &base_left_matchings,
                         &base_right_matchings,
                         &left_right_matchings,
-                    ))
+                    ));
+
+                    cur_left = children_left_it.next();
+                    cur_right = children_right_it.next();
                 }
 
+                // Addition in left
+                if has_matching_base_left && !has_matching_base_right {
+                    result_children.push(cur_left.unwrap().to_owned());
+                    cur_left = children_left_it.next();
+                }
+            }
+
+            while cur_left.is_some() {
+                result_children.push(cur_left.unwrap().to_owned());
                 cur_left = children_left_it.next();
+            }
+
+            while cur_right.is_some() {
+                result_children.push(cur_right.unwrap().to_owned());
                 cur_right = children_right_it.next();
             }
 
@@ -333,5 +352,135 @@ mod tests {
         );
 
         assert_eq!(parent, merged_tree)
+    }
+
+    #[test]
+    fn it_merges_non_terminals_if_only_one_parent_adds_a_node_in_an_initially_empty_children_list() {
+        let base = CSTNode::NonTerminal {
+            kind: "kind".into(),
+            children: vec![],
+        };
+        
+        let initially_empty_parent = CSTNode::NonTerminal {
+            kind: "kind".into(),
+            children: vec![],
+        };
+
+        let parent_that_added = CSTNode::NonTerminal {
+            kind: "kind".into(),
+            children: vec![
+                CSTNode::Terminal {
+                    kind: "kind_a".into(),
+                    value: "value_a".into(),
+                }
+            ],
+        };
+
+        let merge = CSTNode::NonTerminal {
+            kind: "kind".into(),
+            children: vec![
+                CSTNode::Terminal {
+                    kind: "kind_a".into(),
+                    value: "value_a".into(),
+                }
+            ],
+        };
+
+        let matchings_base_parent_that_added = ordered_tree_matching(&base, &parent_that_added);
+        let matchings_base_initially_empty_parent = ordered_tree_matching(&base, &initially_empty_parent);
+        let matchings_parents = ordered_tree_matching(&parent_that_added, &initially_empty_parent);
+        let merged_tree = super::merge(
+            &base,
+            &parent_that_added,
+            &initially_empty_parent,
+            &matchings_base_parent_that_added,
+            &matchings_base_initially_empty_parent,
+            &matchings_parents,
+        );
+        let merged_tree_swap = super::merge(
+            &base,
+            &initially_empty_parent,
+            &parent_that_added,
+            &matchings_base_initially_empty_parent,
+            &matchings_base_parent_that_added,
+            &matchings_parents,
+        );
+
+        assert_eq!(merge, merged_tree);
+        assert_eq!(merge, merged_tree_swap)
+    }
+
+    #[test]
+    fn it_merges_non_terminals_if_only_one_parent_adds_a_node_in_non_empty_children_list() {
+        let base = CSTNode::NonTerminal {
+            kind: "kind".into(),
+            children: vec![
+                CSTNode::Terminal {
+                    kind: "kind_a".into(),
+                    value: "value_a".into(),
+                }
+            ],
+        };
+        
+        let unchanged_parent = CSTNode::NonTerminal {
+            kind: "kind".into(),
+            children: vec![
+                CSTNode::Terminal {
+                    kind: "kind_a".into(),
+                    value: "value_a".into(),
+                },
+            ],
+        };
+
+        let parent_that_added = CSTNode::NonTerminal {
+            kind: "kind".into(),
+            children: vec![
+                CSTNode::Terminal {
+                    kind: "kind_a".into(),
+                    value: "value_a".into(),
+                },
+                CSTNode::Terminal {
+                    kind: "kind_b".into(),
+                    value: "value_b".into(),
+                }
+            ],
+        };
+
+        let merge = CSTNode::NonTerminal {
+            kind: "kind".into(),
+            children: vec![
+                CSTNode::Terminal {
+                    kind: "kind_a".into(),
+                    value: "value_a".into(),
+                },
+                CSTNode::Terminal {
+                    kind: "kind_b".into(),
+                    value: "value_b".into(),
+                }
+            ],
+        };
+
+        let matchings_base_parent_that_added = ordered_tree_matching(&base, &parent_that_added);
+        let matchings_base_unchangend_parent = ordered_tree_matching(&base, &unchanged_parent);
+        let matchings_parents = ordered_tree_matching(&parent_that_added, &unchanged_parent);
+        let merged_tree = super::merge(
+            &base,
+            &parent_that_added,
+            &unchanged_parent,
+            &matchings_base_parent_that_added,
+            &matchings_base_unchangend_parent,
+            &matchings_parents,
+        );
+        let merged_tree_swap = super::merge(
+            &base,
+            &unchanged_parent,
+            &parent_that_added,
+            &matchings_base_unchangend_parent,
+            &matchings_base_parent_that_added,
+            &matchings_parents,
+        );
+
+        assert_eq!(merge, merged_tree);
+        assert_eq!(merge, merged_tree_swap)
     }
 }
