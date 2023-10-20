@@ -1,5 +1,3 @@
-use std::result;
-
 use matching::Matchings;
 use model::CSTNode;
 
@@ -49,10 +47,7 @@ pub fn merge(
             }
         }
         (
-            CSTNode::NonTerminal {
-                kind,
-                children: base_children,
-            },
+            CSTNode::NonTerminal { kind, .. },
             CSTNode::NonTerminal {
                 children: children_left,
                 ..
@@ -355,12 +350,13 @@ mod tests {
     }
 
     #[test]
-    fn it_merges_non_terminals_if_only_one_parent_adds_a_node_in_an_initially_empty_children_list() {
+    fn it_merges_non_terminals_if_only_one_parent_adds_a_node_in_an_initially_empty_children_list()
+    {
         let base = CSTNode::NonTerminal {
             kind: "kind".into(),
             children: vec![],
         };
-        
+
         let initially_empty_parent = CSTNode::NonTerminal {
             kind: "kind".into(),
             children: vec![],
@@ -368,26 +364,23 @@ mod tests {
 
         let parent_that_added = CSTNode::NonTerminal {
             kind: "kind".into(),
-            children: vec![
-                CSTNode::Terminal {
-                    kind: "kind_a".into(),
-                    value: "value_a".into(),
-                }
-            ],
+            children: vec![CSTNode::Terminal {
+                kind: "kind_a".into(),
+                value: "value_a".into(),
+            }],
         };
 
         let merge = CSTNode::NonTerminal {
             kind: "kind".into(),
-            children: vec![
-                CSTNode::Terminal {
-                    kind: "kind_a".into(),
-                    value: "value_a".into(),
-                }
-            ],
+            children: vec![CSTNode::Terminal {
+                kind: "kind_a".into(),
+                value: "value_a".into(),
+            }],
         };
 
         let matchings_base_parent_that_added = ordered_tree_matching(&base, &parent_that_added);
-        let matchings_base_initially_empty_parent = ordered_tree_matching(&base, &initially_empty_parent);
+        let matchings_base_initially_empty_parent =
+            ordered_tree_matching(&base, &initially_empty_parent);
         let matchings_parents = ordered_tree_matching(&parent_that_added, &initially_empty_parent);
         let merged_tree = super::merge(
             &base,
@@ -414,22 +407,18 @@ mod tests {
     fn it_merges_non_terminals_if_only_one_parent_adds_a_node_in_non_empty_children_list() {
         let base = CSTNode::NonTerminal {
             kind: "kind".into(),
-            children: vec![
-                CSTNode::Terminal {
-                    kind: "kind_a".into(),
-                    value: "value_a".into(),
-                }
-            ],
+            children: vec![CSTNode::Terminal {
+                kind: "kind_a".into(),
+                value: "value_a".into(),
+            }],
         };
-        
+
         let unchanged_parent = CSTNode::NonTerminal {
             kind: "kind".into(),
-            children: vec![
-                CSTNode::Terminal {
-                    kind: "kind_a".into(),
-                    value: "value_a".into(),
-                },
-            ],
+            children: vec![CSTNode::Terminal {
+                kind: "kind_a".into(),
+                value: "value_a".into(),
+            }],
         };
 
         let parent_that_added = CSTNode::NonTerminal {
@@ -442,7 +431,7 @@ mod tests {
                 CSTNode::Terminal {
                     kind: "kind_b".into(),
                     value: "value_b".into(),
-                }
+                },
             ],
         };
 
@@ -456,7 +445,7 @@ mod tests {
                 CSTNode::Terminal {
                     kind: "kind_b".into(),
                     value: "value_b".into(),
-                }
+                },
             ],
         };
 
