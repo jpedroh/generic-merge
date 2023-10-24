@@ -62,6 +62,7 @@ pub fn pretty_print(node: CSTNode) -> String {
                 result
             })
         }
+        CSTNode::Conflict { .. } => "Conflict found".into(),
     }
 }
 
