@@ -95,9 +95,8 @@ pub fn merge(
                     cur_left = children_left_it.next();
                     cur_right = children_right_it.next();
                 }
-
                 // This is the case where left and right both add the same nodes
-                if !has_matching_base_left
+                else if !has_matching_base_left
                     && !has_matching_base_right
                     && matching_left_right.is_some()
                     && matching_left_right.unwrap().is_perfect_match
@@ -113,23 +112,41 @@ pub fn merge(
 
                     cur_left = children_left_it.next();
                     cur_right = children_right_it.next();
-                }
-
-                if !has_matching_base_left
+                } else if !has_matching_base_left
                     && matching_left_right.is_none()
                     && has_matching_base_right
                 {
                     result_children.push(cur_left.unwrap().to_owned());
 
+                    if !base_right_matchings
+                        .find_matching_for(cur_right.unwrap())
+                        .unwrap()
+                        .is_perfect_match
+                    {
+                        result_children.push(CSTNode::Conflict {
+                            left: Box::new(None),
+                            right: Box::new(Some(cur_right.unwrap().to_owned())),
+                        })
+                    }
+
                     cur_left = children_left_it.next();
                     cur_right = children_right_it.next();
-                }
-
-                if !has_matching_base_right
+                } else if !has_matching_base_right
                     && matching_left_right.is_none()
                     && has_matching_base_left
                 {
                     result_children.push(cur_right.unwrap().to_owned());
+
+                    if !base_left_matchings
+                        .find_matching_for(cur_left.unwrap())
+                        .unwrap()
+                        .is_perfect_match
+                    {
+                        result_children.push(CSTNode::Conflict {
+                            left: Box::new(Some(cur_left.unwrap().to_owned())),
+                            right: Box::new(None),
+                        })
+                    }
 
                     cur_left = children_left_it.next();
                     cur_right = children_right_it.next();
@@ -485,5 +502,114 @@ mod tests {
             unchanged_parent,
             expected_merge,
         )
+    }
+
+    #[test]
+    fn it_merges_when_one_parent_adds_a_node_and_removes_from_another_that_was_changed() {
+        let base = CSTNode::NonTerminal {
+            kind: "kind".into(),
+            children: vec![CSTNode::NonTerminal {
+                kind: "subtree".into(),
+                children: vec![CSTNode::Terminal {
+                    kind: "kind_a".into(),
+                    value: "value_a".into(),
+                }],
+            }],
+        };
+
+        let parent_a = CSTNode::NonTerminal {
+            kind: "kind".into(),
+            children: vec![CSTNode::NonTerminal {
+                kind: "another_subtree".into(),
+                children: vec![CSTNode::Terminal {
+                    kind: "kind_b".into(),
+                    value: "value_b".into(),
+                }],
+            }],
+        };
+
+        let parent_b = CSTNode::NonTerminal {
+            kind: "kind".into(),
+            children: vec![CSTNode::NonTerminal {
+                kind: "subtree".into(),
+                children: vec![CSTNode::Terminal {
+                    kind: "kind_c".into(),
+                    value: "value_c".into(),
+                }],
+            }],
+        };
+
+        let matchings_base_parent_a = ordered_tree_matching(&base, &parent_a);
+        let matchings_base_parent_b = ordered_tree_matching(&base, &parent_b);
+        let matchings_parents = ordered_tree_matching(&parent_a, &parent_b);
+
+        let merged_tree = merge(
+            &base,
+            &parent_a,
+            &parent_b,
+            &matchings_base_parent_a,
+            &matchings_base_parent_b,
+            &matchings_parents,
+        );
+        let merged_tree_swap = merge(
+            &base,
+            &parent_b,
+            &parent_a,
+            &matchings_base_parent_b,
+            &matchings_base_parent_a,
+            &matchings_parents,
+        );
+
+        assert_eq!(
+            CSTNode::NonTerminal {
+                kind: "kind".into(),
+                children: vec![
+                    CSTNode::NonTerminal {
+                        kind: "another_subtree".into(),
+                        children: vec![CSTNode::Terminal {
+                            kind: "kind_b".into(),
+                            value: "value_b".into(),
+                        }],
+                    },
+                    CSTNode::Conflict {
+                        left: Box::new(None),
+                        right: Box::new(Some(CSTNode::NonTerminal {
+                            kind: "subtree".into(),
+                            children: vec![CSTNode::Terminal {
+                                kind: "kind_c".into(),
+                                value: "value_c".into(),
+                            }],
+                        })),
+                    },
+                ],
+            },
+            merged_tree
+        );
+
+        assert_eq!(
+            CSTNode::NonTerminal {
+                kind: "kind".into(),
+                children: vec![
+                    CSTNode::NonTerminal {
+                        kind: "another_subtree".into(),
+                        children: vec![CSTNode::Terminal {
+                            kind: "kind_b".into(),
+                            value: "value_b".into(),
+                        }],
+                    },
+                    CSTNode::Conflict {
+                        left: Box::new(Some(CSTNode::NonTerminal {
+                            kind: "subtree".into(),
+                            children: vec![CSTNode::Terminal {
+                                kind: "kind_c".into(),
+                                value: "value_c".into(),
+                            }],
+                        })),
+                        right: Box::new(None),
+                    },
+                ],
+            },
+            merged_tree_swap
+        );
     }
 }

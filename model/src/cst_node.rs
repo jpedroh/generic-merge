@@ -8,4 +8,8 @@ pub enum CSTNode {
         kind: String,
         children: Vec<CSTNode>,
     },
+    Conflict {
+        left: Box<Option<CSTNode>>,
+        right: Box<Option<CSTNode>>,
+    },
 }
