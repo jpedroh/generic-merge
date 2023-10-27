@@ -120,7 +120,12 @@ pub fn ordered_merge<'a>(
 
                         cur_right = children_right_it.next();
                     }
-                    (None, Some(_), None, None, Some(_)) => {}
+                    (None, Some(_), None, None, Some(matching_base_right)) => {
+                        if !matching_base_right.is_perfect_match {
+                            result_children.push(CSTNode::Conflict { left: None.into(), right: Some(cur_right.unwrap().to_owned()).into()})
+                        }
+                        cur_right = children_right_it.next();
+                    }
                     (None, Some(_), None, None, None) => {}
                     (None, None, Some(matching_base_left), Some(_), Some(_)) => {
                         if !matching_base_left.is_perfect_match {
@@ -132,7 +137,12 @@ pub fn ordered_merge<'a>(
 
                         cur_left = children_left_it.next();
                     }
-                    (None, None, Some(_), Some(_), None) => {}
+                    (None, None, Some(matching_base_left), Some(_), None) => {
+                        if !matching_base_left.is_perfect_match {
+                            result_children.push(CSTNode::Conflict { left: Some(cur_left.unwrap().to_owned()).into(), right: None.into() })
+                        }
+                        cur_left = children_left_it.next();
+                    }
                     (None, None, Some(_), None, Some(_)) => {}
                     (None, None, Some(matching_base_left), None, None) => {
                         result_children.push(cur_right.unwrap().to_owned());
@@ -239,10 +249,10 @@ mod tests {
     }
 
     fn assert_merge_output_is(
-        base: CSTNode,
-        parent_a: CSTNode,
-        parent_b: CSTNode,
-        expected_merge: CSTNode,
+        base: &CSTNode,
+        parent_a: &CSTNode,
+        parent_b: &CSTNode,
+        expected_merge: &CSTNode,
     ) {
         let matchings_base_parent_a = ordered_tree_matching(&base, &parent_a);
         let matchings_base_parent_b = ordered_tree_matching(&base, &parent_b);
@@ -257,7 +267,7 @@ mod tests {
             &matchings_parents,
         );
 
-        assert_eq!(expected_merge, merged_tree);
+        assert_eq!(expected_merge, &merged_tree);
     }
 
     #[test]
@@ -685,10 +695,10 @@ mod tests {
         };
 
         assert_merge_output_is(
-            base,
-            left,
-            right,
-            CSTNode::NonTerminal {
+            &base,
+            &left,
+            &right,
+            &CSTNode::NonTerminal {
                 kind: "kind".into(),
                 children: vec![CSTNode::Conflict {
                     left: Box::new(Some(CSTNode::Terminal {
@@ -743,10 +753,10 @@ mod tests {
         };
 
         assert_merge_output_is(
-            base,
-            left,
-            right,
-            CSTNode::NonTerminal {
+            &base,
+            &left,
+            &right,
+            &CSTNode::NonTerminal {
                 kind: "kind".into(),
                 children: vec![CSTNode::Terminal {
                     kind: "kind_b".into(),
@@ -801,10 +811,10 @@ mod tests {
         };
 
         assert_merge_output_is(
-            base.clone(),
-            left.clone(),
-            right.clone(),
-            CSTNode::NonTerminal {
+            &base,
+            &left,
+            &right,
+            &CSTNode::NonTerminal {
                 kind: "kind".into(),
                 children: vec![
                     CSTNode::Conflict {
@@ -827,10 +837,10 @@ mod tests {
         );
 
         assert_merge_output_is(
-            base,
-            right,
-            left,
-            CSTNode::NonTerminal {
+            &base,
+            &right,
+            &left,
+            &CSTNode::NonTerminal {
                 kind: "kind".into(),
                 children: vec![
                     CSTNode::Conflict {
@@ -925,5 +935,143 @@ mod tests {
             changed_parent,
             expected_merge,
         )
+    }
+
+    #[test]
+    fn it_merges_when_one_parent_removes_and_add_a_node() {
+        let base = CSTNode::NonTerminal {
+            kind: "kind".into(),
+            children: vec![CSTNode::Terminal {
+                kind: "kind_b".into(),
+                value: "value_b".into(),
+            }],
+        };
+
+        let parent_a = CSTNode::NonTerminal {
+            kind: "kind".into(),
+            children: vec![CSTNode::Terminal {
+                kind: "kind_a",
+                value: "value_a".into(),
+            }],
+        };
+
+        let parent_b = CSTNode::NonTerminal {
+            kind: "kind".into(),
+            children: vec![
+                CSTNode::Terminal {
+                    kind: "kind_b".into(),
+                    value: "value_b".into(),
+                },
+                CSTNode::Terminal {
+                    kind: "kind_a",
+                    value: "value_a".into(),
+                },
+            ],
+        };
+
+        let expected_merge = CSTNode::NonTerminal {
+            kind: "kind".into(),
+            children: vec![CSTNode::Terminal {
+                kind: "kind_a",
+                value: "value_a".into(),
+            }],
+        };
+
+        assert_merge_is_correct_and_idempotent_with_respect_to_parent_side(
+            base,
+            parent_a,
+            parent_b,
+            expected_merge,
+        )
+    }
+
+    #[test]
+    fn it_conflicts_when_one_parent_removes_and_add_a_node() {
+        let base = CSTNode::NonTerminal {
+            kind: "kind",
+            children: vec![CSTNode::NonTerminal {
+                kind: "subtree",
+                children: vec![CSTNode::Terminal {
+                    kind: "kind_b",
+                    value: "value_b".into(),
+                }],
+            }],
+        };
+
+        let parent_a = CSTNode::NonTerminal {
+            kind: "kind".into(),
+            children: vec![CSTNode::Terminal {
+                kind: "kind_a",
+                value: "value_a".into(),
+            }],
+        };
+
+        let parent_b = CSTNode::NonTerminal {
+            kind: "kind".into(),
+            children: vec![
+                CSTNode::NonTerminal {
+                    kind: "subtree",
+                    children: vec![CSTNode::Terminal {
+                        kind: "kind_b",
+                        value: "value_c".into(),
+                    }],
+                },
+                CSTNode::Terminal {
+                    kind: "kind_a",
+                    value: "value_a".into(),
+                },
+            ],
+        };
+
+        assert_merge_output_is(
+            &base,
+            &parent_a,
+            &parent_b,
+            &CSTNode::NonTerminal {
+                kind: "kind".into(),
+                children: vec![
+                    CSTNode::Conflict {
+                        left: None.into(),
+                        right: Some(CSTNode::NonTerminal {
+                            kind: "subtree",
+                            children: vec![CSTNode::Terminal {
+                                kind: "kind_b",
+                                value: "value_c".into(),
+                            }],
+                        })
+                        .into(),
+                    },
+                    CSTNode::Terminal {
+                        kind: "kind_a",
+                        value: "value_a".into(),
+                    },
+                ],
+            },
+        );
+        assert_merge_output_is(
+            &base,
+            &parent_b,
+            &parent_a,
+            &CSTNode::NonTerminal {
+                kind: "kind".into(),
+                children: vec![
+                    CSTNode::Conflict {
+                        left: Some(CSTNode::NonTerminal {
+                            kind: "subtree",
+                            children: vec![CSTNode::Terminal {
+                                kind: "kind_b",
+                                value: "value_c".into(),
+                            }],
+                        })
+                        .into(),
+                        right: None.into(),
+                    },
+                    CSTNode::Terminal {
+                        kind: "kind_a",
+                        value: "value_a".into(),
+                    },
+                ],
+            },
+        );
     }
 }
