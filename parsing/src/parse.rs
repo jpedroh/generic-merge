@@ -2,7 +2,7 @@ use crate::tree_sitter_parser::ParserConfiguration;
 use model::CSTNode;
 use tree_sitter::Node;
 
-fn explore_node(node: Node, src: &str, config: &ParserConfiguration) -> CSTNode {
+fn explore_node<'a>(node: Node, src: &'a str, config: &'a ParserConfiguration) -> CSTNode<'a> {
     if node.child_count() == 0 || config.stop_compilation_at.contains(node.kind()) {
         CSTNode::Terminal {
             kind: node.kind().into(),
@@ -20,7 +20,10 @@ fn explore_node(node: Node, src: &str, config: &ParserConfiguration) -> CSTNode 
     }
 }
 
-pub fn parse_string(src: &str, config: ParserConfiguration) -> Result<CSTNode, &'static str> {
+pub fn parse_string<'a>(
+    src: &'a str,
+    config: &'a ParserConfiguration,
+) -> Result<CSTNode<'a>, &'static str> {
     let mut parser = tree_sitter::Parser::new();
     parser
         .set_language(config.language)
@@ -28,7 +31,7 @@ pub fn parse_string(src: &str, config: ParserConfiguration) -> Result<CSTNode, &
 
     let parsed = parser.parse(src, None);
     match parsed {
-        Some(parsed) => Result::Ok(explore_node(parsed.root_node(), src, &config)),
+        Some(parsed) => Result::Ok(explore_node(parsed.root_node(), src, config)),
         None => Result::Err("It was not possible to parse the tree."),
     }
 }
@@ -44,13 +47,11 @@ mod tests {
                 void sayHello(String name);
             }
         "#;
-        let result = parse_string(
-            code,
-            ParserConfiguration {
-                language: tree_sitter_java::language(),
-                stop_compilation_at: [].into_iter().collect(),
-            },
-        );
+        let parser_configuration = ParserConfiguration {
+            language: tree_sitter_java::language(),
+            stop_compilation_at: [].into_iter().collect(),
+        };
+        let result = parse_string(code, &parser_configuration);
         let expected = CSTNode::NonTerminal {
             kind: "program".into(),
             children: vec![CSTNode::NonTerminal {
@@ -142,13 +143,11 @@ mod tests {
     #[test]
     fn it_stops_the_compilation_when_reach_a_configured_node() {
         let code = "public static interface HelloWorld {void sayHello(String name);}";
-        let result = parse_string(
-            code,
-            ParserConfiguration {
-                language: tree_sitter_java::language(),
-                stop_compilation_at: ["interface_body"].into_iter().collect(),
-            },
-        );
+        let parser_configuration = ParserConfiguration {
+            language: tree_sitter_java::language(),
+            stop_compilation_at: ["interface_body"].into_iter().collect(),
+        };
+        let result = parse_string(code, &parser_configuration);
 
         let expected = CSTNode::NonTerminal {
             kind: "program".into(),

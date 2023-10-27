@@ -1,15 +1,15 @@
 #[derive(Debug, PartialEq, Clone, Eq, Hash, PartialOrd, Ord)]
-pub enum CSTNode {
+pub enum CSTNode<'a> {
     Terminal {
-        kind: String,
+        kind: &'a str,
         value: String,
     },
     NonTerminal {
-        kind: String,
-        children: Vec<CSTNode>,
+        kind: &'a str,
+        children: Vec<CSTNode<'a>>,
     },
     Conflict {
-        left: Box<Option<CSTNode>>,
-        right: Box<Option<CSTNode>>,
+        left: Box<Option<CSTNode<'a>>>,
+        right: Box<Option<CSTNode<'a>>>,
     },
 }

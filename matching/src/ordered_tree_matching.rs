@@ -11,25 +11,25 @@ enum Direction {
 }
 
 #[derive(Clone)]
-struct Entry(
+struct Entry<'a>(
     pub Direction,
-    pub HashMap<UnorderedPair<CSTNode>, MatchingEntry>,
+    pub HashMap<UnorderedPair<CSTNode<'a>>, MatchingEntry>,
 );
 
-impl Default for Entry {
+impl<'a> Default for Entry<'a> {
     fn default() -> Self {
         Self(Direction::TOP, Default::default())
     }
 }
 
-pub fn ordered_tree_matching(left: &CSTNode, right: &CSTNode) -> Matchings {
+pub fn ordered_tree_matching<'a>(left: &'a CSTNode, right: &'a CSTNode) -> Matchings<'a> {
     return Matchings::new(ordered_tree_matching_helper(left, right));
 }
 
-fn ordered_tree_matching_helper(
-    left: &CSTNode,
-    right: &CSTNode,
-) -> HashMap<UnorderedPair<CSTNode>, MatchingEntry> {
+fn ordered_tree_matching_helper<'a>(
+    left: &'a CSTNode,
+    right: &'a CSTNode,
+) -> HashMap<UnorderedPair<CSTNode<'a>>, MatchingEntry> {
     match (left, right) {
         (
             CSTNode::NonTerminal {
@@ -150,11 +150,11 @@ mod tests {
     #[test]
     fn two_terminal_nodes_matches_with_a_score_of_one_if_they_have_the_same_kind_and_value() {
         let left = CSTNode::Terminal {
-            kind: "kind".to_owned(),
+            kind: "kind",
             value: "value".to_owned(),
         };
         let right = CSTNode::Terminal {
-            kind: "kind".to_owned(),
+            kind: "kind",
             value: "value".to_owned(),
         };
 
@@ -162,18 +162,18 @@ mod tests {
 
         assert_eq!(
             Some(&MatchingEntry::new(1, true)),
-            matchings.get_matching_entry(left, right)
+            matchings.get_matching_entry(left.clone(), right.clone())
         )
     }
 
     #[test]
     fn two_terminal_nodes_have_a_match_with_score_zero_if_they_have_different_value() {
         let left = CSTNode::Terminal {
-            kind: "kind".to_owned(),
+            kind: "kind",
             value: "value_a".to_owned(),
         };
         let right = CSTNode::Terminal {
-            kind: "kind".to_owned(),
+            kind: "kind",
             value: "value_b".to_owned(),
         };
 
@@ -181,18 +181,18 @@ mod tests {
 
         assert_eq!(
             Some(&MatchingEntry::new(0, false)),
-            matchings.get_matching_entry(left, right)
+            matchings.get_matching_entry(left.clone(), right.clone())
         )
     }
 
     #[test]
     fn two_terminal_nodes_have_a_match_with_score_zero_if_they_have_different_kind() {
         let left = CSTNode::Terminal {
-            kind: "kind_a".to_owned(),
+            kind: "kind_a",
             value: "value".to_owned(),
         };
         let right = CSTNode::Terminal {
-            kind: "kind_b".to_owned(),
+            kind: "kind_b",
             value: "value".to_owned(),
         };
 
@@ -200,18 +200,18 @@ mod tests {
 
         assert_eq!(
             Some(&MatchingEntry::new(0, false)),
-            matchings.get_matching_entry(left, right)
+            matchings.get_matching_entry(left.clone(), right.clone())
         )
     }
 
     #[test]
     fn two_terminal_nodes_have_a_match_with_score_zero_if_they_have_different_kind_and_value() {
         let left = CSTNode::Terminal {
-            kind: "kind_a".to_owned(),
+            kind: "kind_a",
             value: "value_a".to_owned(),
         };
         let right = CSTNode::Terminal {
-            kind: "kind_b".to_owned(),
+            kind: "kind_b",
             value: "value_a".to_owned(),
         };
 
@@ -219,22 +219,22 @@ mod tests {
 
         assert_eq!(
             Some(&MatchingEntry::new(0, false)),
-            matchings.get_matching_entry(left, right)
+            matchings.get_matching_entry(left.clone(), right.clone())
         )
     }
 
     #[test]
     fn it_matches_deep_nodes_as_well() {
         let child = CSTNode::Terminal {
-            kind: "kind_b".into(),
+            kind: "kind_b",
             value: "value_b".into(),
         };
         let left = CSTNode::NonTerminal {
-            kind: "kind_a".to_owned(),
+            kind: "kind_a",
             children: vec![child.clone()],
         };
         let right = CSTNode::NonTerminal {
-            kind: "kind_a".to_owned(),
+            kind: "kind_a",
             children: vec![child.clone()],
         };
 
@@ -249,7 +249,7 @@ mod tests {
     #[test]
     fn if_no_match_is_found_it_returns_none() {
         let left_child = CSTNode::Terminal {
-            kind: "kind_b".into(),
+            kind: "kind_b",
             value: "value_b".into(),
         };
         let right_child = CSTNode::Terminal {
@@ -258,11 +258,11 @@ mod tests {
         };
 
         let left = CSTNode::NonTerminal {
-            kind: "kind_a".to_owned(),
+            kind: "kind_a",
             children: vec![left_child.clone()],
         };
         let right = CSTNode::NonTerminal {
-            kind: "kind_a".to_owned(),
+            kind: "kind_a",
             children: vec![right_child.clone()],
         };
 
@@ -274,7 +274,7 @@ mod tests {
     #[test]
     fn the_matching_between_two_subtrees_is_the_sum_of_the_matchings_plus_the_root() {
         let common_child = CSTNode::Terminal {
-            kind: "kind_b".into(),
+            kind: "kind_b",
             value: "value_b".into(),
         };
         let unique_right_child = CSTNode::Terminal {
@@ -283,11 +283,11 @@ mod tests {
         };
 
         let left = CSTNode::NonTerminal {
-            kind: "kind_a".to_owned(),
+            kind: "kind_a",
             children: vec![common_child.clone()],
         };
         let right = CSTNode::NonTerminal {
-            kind: "kind_a".to_owned(),
+            kind: "kind_a",
             children: vec![common_child.clone(), unique_right_child],
         };
 
@@ -295,23 +295,23 @@ mod tests {
 
         assert_eq!(
             Some(&MatchingEntry::new(2, false)),
-            matchings.get_matching_entry(left, right)
+            matchings.get_matching_entry(left.clone(), right.clone())
         )
     }
 
     #[test]
     fn perfect_matching_deep_nodes() {
         let common_child = CSTNode::Terminal {
-            kind: "kind_b".into(),
+            kind: "kind_b",
             value: "value_b".into(),
         };
 
         let left = CSTNode::NonTerminal {
-            kind: "kind_a".to_owned(),
+            kind: "kind_a",
             children: vec![common_child.clone()],
         };
         let right = CSTNode::NonTerminal {
-            kind: "kind_a".to_owned(),
+            kind: "kind_a",
             children: vec![common_child.clone()],
         };
 
@@ -319,14 +319,14 @@ mod tests {
 
         assert_eq!(
             Some(&MatchingEntry::new(2, true)),
-            matchings.get_matching_entry(left, right)
+            matchings.get_matching_entry(left.clone(), right.clone())
         )
     }
 
     #[test]
     fn perfect_matching_deeper_nodes() {
         let leaf = CSTNode::Terminal {
-            kind: "kind_b".into(),
+            kind: "kind_b",
             value: "value_b".into(),
         };
 
@@ -336,11 +336,11 @@ mod tests {
         };
 
         let left = CSTNode::NonTerminal {
-            kind: "kind_a".to_owned(),
+            kind: "kind_a",
             children: vec![intermediate.clone()],
         };
         let right = CSTNode::NonTerminal {
-            kind: "kind_a".to_owned(),
+            kind: "kind_a",
             children: vec![intermediate.clone()],
         };
 
@@ -353,7 +353,7 @@ mod tests {
 
         assert_eq!(
             Some(&MatchingEntry::new(3, true)),
-            matchings.get_matching_entry(left, right)
+            matchings.get_matching_entry(left.clone(), right.clone())
         )
     }
 }

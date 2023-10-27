@@ -6,23 +6,23 @@ use utils::unordered_pair::UnorderedPair;
 use crate::matching::Matching;
 use crate::matching_entry::MatchingEntry;
 
-#[derive(Debug)]
-pub struct Matchings {
-    matching_entries: HashMap<UnorderedPair<CSTNode>, MatchingEntry>,
+#[derive(Debug, Clone)]
+pub struct Matchings<'a> {
+    matching_entries: HashMap<UnorderedPair<CSTNode<'a>>, MatchingEntry>,
 }
 
-impl Matchings {
+impl<'a> Matchings<'a> {
     pub fn empty() -> Self {
         Matchings {
             matching_entries: HashMap::new(),
         }
     }
 
-    pub fn new(matching_entries: HashMap<UnorderedPair<CSTNode>, MatchingEntry>) -> Self {
+    pub fn new(matching_entries: HashMap<UnorderedPair<CSTNode<'a>>, MatchingEntry>) -> Self {
         Matchings { matching_entries }
     }
 
-    pub fn find_matching_for(&self, a_node: &CSTNode) -> Option<Matching> {
+    pub fn find_matching_for(&self, a_node: &'a CSTNode) -> Option<Matching> {
         self.matching_entries
             .iter()
             .find(|(UnorderedPair(left, right), ..)| left == a_node || right == a_node)
@@ -36,7 +36,11 @@ impl Matchings {
             })
     }
 
-    pub fn get_matching_entry(&self, left: CSTNode, right: CSTNode) -> Option<&MatchingEntry> {
+    pub fn get_matching_entry(
+        &'a self,
+        left: CSTNode<'a>,
+        right: CSTNode<'a>,
+    ) -> Option<&MatchingEntry> {
         self.matching_entries.get(&UnorderedPair(left, right))
     }
 }

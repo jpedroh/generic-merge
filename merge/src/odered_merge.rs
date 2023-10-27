@@ -1,14 +1,14 @@
 use matching::Matchings;
 use model::CSTNode;
 
-pub fn ordered_merge(
-    base: &CSTNode,
-    left: &CSTNode,
-    right: &CSTNode,
-    base_left_matchings: &Matchings,
-    base_right_matchings: &Matchings,
-    left_right_matchings: &Matchings,
-) -> CSTNode {
+pub fn ordered_merge<'a>(
+    base: &'a CSTNode<'a>,
+    left: &'a CSTNode<'a>,
+    right: &'a CSTNode<'a>,
+    base_left_matchings: &'a Matchings<'a>,
+    base_right_matchings: &'a Matchings<'a>,
+    left_right_matchings: &'a Matchings<'a>,
+) -> CSTNode<'a> {
     match (base, left, right) {
         (
             CSTNode::Terminal {
@@ -29,14 +29,8 @@ pub fn ordered_merge(
             // Changed in both
             } else if value_left != value_base && value_right != value_base {
                 match diffy::merge(&value_base, &value_left, &value_right) {
-                    Ok(value) => CSTNode::Terminal {
-                        kind: kind.to_owned(),
-                        value,
-                    },
-                    Err(value) => CSTNode::Terminal {
-                        kind: kind.to_owned(),
-                        value,
-                    },
+                    Ok(value) => CSTNode::Terminal { kind, value: value },
+                    Err(value) => CSTNode::Terminal { kind, value: value },
                 }
             // Only left changed
             } else if value_left != value_base {
@@ -181,7 +175,7 @@ pub fn ordered_merge(
             }
 
             CSTNode::NonTerminal {
-                kind: kind.to_string(),
+                kind,
                 children: result_children,
             }
         }
