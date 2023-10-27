@@ -120,6 +120,8 @@ pub fn ordered_merge<'a>(
 
                         cur_right = children_right_it.next();
                     }
+                    (None, Some(_), None, None, Some(_)) => {}
+                    (None, Some(_), None, None, None) => {}
                     (None, None, Some(matching_base_left), Some(_), Some(_)) => {
                         if !matching_base_left.is_perfect_match {
                             result_children.push(CSTNode::Conflict {
@@ -130,6 +132,8 @@ pub fn ordered_merge<'a>(
 
                         cur_left = children_left_it.next();
                     }
+                    (None, None, Some(_), Some(_), None) => {}
+                    (None, None, Some(_), None, Some(_)) => {}
                     (None, None, Some(matching_base_left), None, None) => {
                         result_children.push(cur_right.unwrap().to_owned());
 
@@ -148,6 +152,7 @@ pub fn ordered_merge<'a>(
 
                         cur_left = children_left_it.next();
                     }
+                    (None, None, None, Some(_), None) => {}
                     (None, None, None, None, Some(matching_base_right)) => {
                         result_children.push(cur_left.unwrap().to_owned());
 
@@ -170,7 +175,7 @@ pub fn ordered_merge<'a>(
                         cur_left = children_left_it.next();
                         cur_right = children_right_it.next();
                     }
-                    (_, _, _, _, _) => {}
+                    (_, _, _, _, _) => panic!("[INVARIANT BROKEN]: Ordered merge found a matching configuration that should not be achieved")
                 }
             }
 
