@@ -1,17 +1,29 @@
 fn main() {
     let base = r#"
-        public static interface HelloWorld {
-            void sayHello(String name);
+        public class Main {
+            public static void main(String[] args) {
+                System.out.println("Hello, world!");
+                int y = 4;
+                int j = 0;
+            }
         }
     "#;
     let left = r#"
-        public static interface HelloWorld {
-            void sayHello(String name);
+        public class Main {
+            public static void main(String[] args) {
+                int x = 0;
+                System.out.println("Hello, João!");
+                int y = 3;
+                int j = 0;
+            }
         }
     "#;
     let right = r#"
-        public static interface HelloWorld {
-            void sayHello(String name);
+        public class Main {
+            public static void main(String[] args) {
+                System.out.println("Hello, Paulo!");
+                int y = 3;
+            }
         }
     "#;
 
@@ -34,5 +46,5 @@ fn main() {
         &matchings_left_right,
     );
 
-    println!("{:#?}", result)
+    println!("{}", result.to_string())
 }

@@ -63,12 +63,11 @@ pub fn ordered_merge<'a>(
                 let matching_base_left = base_left_matchings.find_matching_for(cur_left.unwrap());
                 let matching_base_right =
                     base_right_matchings.find_matching_for(cur_right.unwrap());
-                let bidirectional_matching_left_right =
-                    left_right_matchings.get_matching_entry(cur_left.unwrap(), cur_right.unwrap());
                 let left_matching_in_right =
                     left_right_matchings.find_matching_for(cur_left.unwrap());
                 let right_matching_in_left =
                     left_right_matchings.find_matching_for(cur_right.unwrap());
+                let bidirectional_matching_left_right = if (left_matching_in_right.is_some() && right_matching_in_left.is_some()) { Some(true) } else { None};
 
                 match (
                     bidirectional_matching_left_right,
@@ -214,7 +213,12 @@ pub fn ordered_merge<'a>(
                         cur_left = children_left_it.next();
                         cur_right = children_right_it.next();
                     }
-                    (_, _, _, _, _) => panic!("[INVARIANT BROKEN]: Ordered merge found a matching configuration that should not be achieved")
+                    (a, b, c, d, e) => {
+                        panic!(
+                            "[INVARIANT BROKEN]: Ordered merge found a matching configuration that should not be achieved, {} {} {} {} {}",
+                            a.is_some(), b.is_some(), c.is_some(), d.is_some(), e.is_some()
+                        )
+                    }
                 }
             }
 
