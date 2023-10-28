@@ -26,13 +26,20 @@ impl ToString for CSTNode<'_> {
                     result
                 })
             }
-            CSTNode::Conflict { left, right } => {
-                match (left, right) {
-                    (Some(left), Some(right)) => format!("<<<<<<<<< {} ========= {} >>>>>>>>>", left.to_string(), right.to_string()).to_string(),
-                    (Some(left), None) => format!("<<<<<<<<< ========= {} >>>>>>>>>", left.to_string()).to_string(),
-                    (None, Some(right)) => format!("<<<<<<<<< ========= {} >>>>>>>>>", right.to_string()).to_string(),
-                    (None, None) => panic!("Invalid conflict provided")
+            CSTNode::Conflict { left, right } => match (left, right) {
+                (Some(left), Some(right)) => format!(
+                    "<<<<<<<<< {} ========= {} >>>>>>>>>",
+                    left.to_string(),
+                    right.to_string()
+                )
+                .to_string(),
+                (Some(left), None) => {
+                    format!("<<<<<<<<< ========= {} >>>>>>>>>", left.to_string()).to_string()
                 }
+                (None, Some(right)) => {
+                    format!("<<<<<<<<< ========= {} >>>>>>>>>", right.to_string()).to_string()
+                }
+                (None, None) => panic!("Invalid conflict provided"),
             },
         }
     }

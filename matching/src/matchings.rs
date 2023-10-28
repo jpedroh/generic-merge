@@ -43,6 +43,14 @@ impl<'a> Matchings<'a> {
     ) -> Option<&MatchingEntry> {
         self.matching_entries.get(&UnorderedPair(left, right))
     }
+
+    pub fn has_bidirectional_matching(
+        &'a self,
+        left: &'a CSTNode<'a>,
+        right: &'a CSTNode<'a>,
+    ) -> bool {
+        self.find_matching_for(left).is_some() && self.find_matching_for(right).is_some()
+    }
 }
 
 #[cfg(test)]

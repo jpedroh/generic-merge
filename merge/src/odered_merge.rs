@@ -67,16 +67,17 @@ pub fn ordered_merge<'a>(
                     left_right_matchings.find_matching_for(cur_left.unwrap());
                 let right_matching_in_left =
                     left_right_matchings.find_matching_for(cur_right.unwrap());
-                let bidirectional_matching_left_right = if (left_matching_in_right.is_some() && right_matching_in_left.is_some()) { Some(true) } else { None};
+                let has_bidirectional_matching_left_right = left_right_matchings
+                    .has_bidirectional_matching(cur_left.unwrap(), cur_right.unwrap());
 
                 match (
-                    bidirectional_matching_left_right,
+                    has_bidirectional_matching_left_right,
                     left_matching_in_right,
                     matching_base_left,
                     right_matching_in_left,
                     matching_base_right,
                 ) {
-                    (Some(_), Some(_), Some(_), Some(_), Some(_)) => {
+                    (true, Some(_), Some(_), Some(_), Some(_)) => {
                         result_children.push(ordered_merge(
                             &cur_left.unwrap(),
                             &cur_left.unwrap(),
@@ -89,7 +90,7 @@ pub fn ordered_merge<'a>(
                         cur_left = children_left_it.next();
                         cur_right = children_right_it.next();
                     }
-                    (Some(_), Some(_), None, Some(_), None) => {
+                    (true, Some(_), None, Some(_), None) => {
                         result_children.push(ordered_merge(
                             &cur_left.unwrap(),
                             &cur_left.unwrap(),
@@ -102,7 +103,7 @@ pub fn ordered_merge<'a>(
                         cur_left = children_left_it.next();
                         cur_right = children_right_it.next();
                     }
-                    (None, Some(_), Some(_), None, Some(matching_base_right)) => {
+                    (false, Some(_), Some(_), None, Some(matching_base_right)) => {
                         if !matching_base_right.is_perfect_match {
                             result_children.push(CSTNode::Conflict {
                                 left: None,
@@ -112,22 +113,25 @@ pub fn ordered_merge<'a>(
 
                         cur_right = children_right_it.next();
                     }
-                    (None, Some(_), Some(_), None, None) => {
+                    (false, Some(_), Some(_), None, None) => {
                         result_children.push(cur_right.unwrap().to_owned());
 
                         cur_right = children_right_it.next();
                     }
-                    (None, Some(_), None, None, Some(matching_base_right)) => {
+                    (false, Some(_), None, None, Some(matching_base_right)) => {
                         if !matching_base_right.is_perfect_match {
-                            result_children.push(CSTNode::Conflict { left: None.into(), right: Some(cur_right.unwrap()).into()})
+                            result_children.push(CSTNode::Conflict {
+                                left: None.into(),
+                                right: Some(cur_right.unwrap()).into(),
+                            })
                         }
                         cur_right = children_right_it.next();
                     }
-                    (None, Some(_), None, None, None) => {
+                    (false, Some(_), None, None, None) => {
                         result_children.push(cur_right.unwrap().to_owned());
                         cur_right = children_right_it.next();
                     }
-                    (None, None, Some(matching_base_left), Some(_), Some(_)) => {
+                    (false, None, Some(matching_base_left), Some(_), Some(_)) => {
                         if !matching_base_left.is_perfect_match {
                             result_children.push(CSTNode::Conflict {
                                 left: Some(cur_left.unwrap()),
@@ -137,39 +141,39 @@ pub fn ordered_merge<'a>(
 
                         cur_left = children_left_it.next();
                     }
-                    (None, None, Some(matching_base_left), Some(_), None) => {
+                    (false, None, Some(matching_base_left), Some(_), None) => {
                         if !matching_base_left.is_perfect_match {
-                            result_children.push(CSTNode::Conflict { left: Some(cur_left.unwrap()).into(), right: None.into() })
+                            result_children.push(CSTNode::Conflict {
+                                left: Some(cur_left.unwrap()).into(),
+                                right: None.into(),
+                            })
                         }
                         cur_left = children_left_it.next();
                     }
-                    (None, None, Some(matching_base_left), None, Some(matching_base_right)) => {
-                        match (matching_base_left.is_perfect_match, matching_base_right.is_perfect_match) {
+                    (false, None, Some(matching_base_left), None, Some(matching_base_right)) => {
+                        match (
+                            matching_base_left.is_perfect_match,
+                            matching_base_right.is_perfect_match,
+                        ) {
                             (true, true) => {}
-                            (true, false) => {
-                                result_children.push(CSTNode::Conflict {
-                                    left: Some(cur_left.unwrap()).into(),
-                                    right: None.into()
-                                })
-                            }
-                            (false, true) => {
-                                result_children.push(CSTNode::Conflict {
-                                    left: None.into(),
-                                    right: Some(cur_right.unwrap()).into()
-                                })
-                            }
-                            (false, false) => {
-                                result_children.push(CSTNode::Conflict {
-                                    left: Some(cur_left.unwrap()).into(),
-                                    right: Some(cur_right.unwrap()).into()
-                                })
-                            }
+                            (true, false) => result_children.push(CSTNode::Conflict {
+                                left: Some(cur_left.unwrap()).into(),
+                                right: None.into(),
+                            }),
+                            (false, true) => result_children.push(CSTNode::Conflict {
+                                left: None.into(),
+                                right: Some(cur_right.unwrap()).into(),
+                            }),
+                            (false, false) => result_children.push(CSTNode::Conflict {
+                                left: Some(cur_left.unwrap()).into(),
+                                right: Some(cur_right.unwrap()).into(),
+                            }),
                         };
 
                         cur_left = children_left_it.next();
                         cur_right = children_right_it.next();
                     }
-                    (None, None, Some(matching_base_left), None, None) => {
+                    (false, None, Some(matching_base_left), None, None) => {
                         result_children.push(cur_right.unwrap().to_owned());
 
                         if !matching_base_left.is_perfect_match {
@@ -182,16 +186,16 @@ pub fn ordered_merge<'a>(
                         cur_left = children_left_it.next();
                         cur_right = children_right_it.next();
                     }
-                    (None, None, None, Some(_), Some(_)) => {
+                    (false, None, None, Some(_), Some(_)) => {
                         result_children.push(cur_left.unwrap().to_owned());
 
                         cur_left = children_left_it.next();
                     }
-                    (None, None, None, Some(_), None) => {
+                    (false, None, None, Some(_), None) => {
                         result_children.push(cur_left.unwrap().to_owned());
                         cur_left = children_left_it.next();
                     }
-                    (None, None, None, None, Some(matching_base_right)) => {
+                    (false, None, None, None, Some(matching_base_right)) => {
                         result_children.push(cur_left.unwrap().to_owned());
 
                         if !matching_base_right.is_perfect_match {
@@ -204,7 +208,7 @@ pub fn ordered_merge<'a>(
                         cur_left = children_left_it.next();
                         cur_right = children_right_it.next();
                     }
-                    (None, None, None, None, None) => {
+                    (false, None, None, None, None) => {
                         result_children.push(CSTNode::Conflict {
                             left: Some(cur_left.unwrap()),
                             right: Some(cur_right.unwrap()),
@@ -216,7 +220,7 @@ pub fn ordered_merge<'a>(
                     (a, b, c, d, e) => {
                         panic!(
                             "[INVARIANT BROKEN]: Ordered merge found a matching configuration that should not be achieved, {} {} {} {} {}",
-                            a.is_some(), b.is_some(), c.is_some(), d.is_some(), e.is_some()
+                            a, b.is_some(), c.is_some(), d.is_some(), e.is_some()
                         )
                     }
                 }
