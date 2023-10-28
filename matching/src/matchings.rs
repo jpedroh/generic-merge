@@ -8,7 +8,7 @@ use crate::matching_entry::MatchingEntry;
 
 #[derive(Debug, Clone)]
 pub struct Matchings<'a> {
-    matching_entries: HashMap<UnorderedPair<CSTNode<'a>>, MatchingEntry>,
+    matching_entries: HashMap<UnorderedPair<&'a CSTNode<'a>>, MatchingEntry>,
 }
 
 impl<'a> Matchings<'a> {
@@ -18,16 +18,16 @@ impl<'a> Matchings<'a> {
         }
     }
 
-    pub fn new(matching_entries: HashMap<UnorderedPair<CSTNode<'a>>, MatchingEntry>) -> Self {
+    pub fn new(matching_entries: HashMap<UnorderedPair<&'a CSTNode<'a>>, MatchingEntry>) -> Self {
         Matchings { matching_entries }
     }
 
     pub fn find_matching_for(&self, a_node: &'a CSTNode) -> Option<Matching> {
         self.matching_entries
             .iter()
-            .find(|(UnorderedPair(left, right), ..)| left == a_node || right == a_node)
+            .find(|(UnorderedPair(left, right), ..)| left == &a_node || right == &a_node)
             .map(|(UnorderedPair(left, right), matching)| {
-                let matching_node = if left == a_node { right } else { left };
+                let matching_node = if left == &a_node { right } else { left };
                 Matching {
                     matching_node,
                     score: matching.score,
@@ -38,8 +38,8 @@ impl<'a> Matchings<'a> {
 
     pub fn get_matching_entry(
         &'a self,
-        left: CSTNode<'a>,
-        right: CSTNode<'a>,
+        left: &'a CSTNode<'a>,
+        right: &'a CSTNode<'a>,
     ) -> Option<&MatchingEntry> {
         self.matching_entries.get(&UnorderedPair(left, right))
     }
@@ -52,7 +52,7 @@ mod tests {
     #[test]
     fn returns_none_if_a_matching_for_the_node_is_not_found() {
         let a_node = CSTNode::Terminal {
-            kind: "kind".into(),
+            kind: "kind",
             value: "value".into(),
         };
 
@@ -62,15 +62,12 @@ mod tests {
     #[test]
     fn returns_some_match_if_a_matching_for_the_node_is_found() {
         let a_node = CSTNode::Terminal {
-            kind: "kind".into(),
+            kind: "kind",
             value: "value".into(),
         };
 
         let mut matchings = HashMap::new();
-        matchings.insert(
-            UnorderedPair(a_node.clone(), a_node.clone()),
-            MatchingEntry::new(1, true),
-        );
+        matchings.insert(UnorderedPair(&a_node, &a_node), MatchingEntry::new(1, true));
 
         assert_eq!(
             Some(Matching {

@@ -13,7 +13,7 @@ enum Direction {
 #[derive(Clone)]
 struct Entry<'a>(
     pub Direction,
-    pub HashMap<UnorderedPair<CSTNode<'a>>, MatchingEntry>,
+    pub HashMap<UnorderedPair<&'a CSTNode<'a>>, MatchingEntry>,
 );
 
 impl<'a> Default for Entry<'a> {
@@ -29,7 +29,7 @@ pub fn ordered_tree_matching<'a>(left: &'a CSTNode, right: &'a CSTNode) -> Match
 fn ordered_tree_matching_helper<'a>(
     left: &'a CSTNode,
     right: &'a CSTNode,
-) -> HashMap<UnorderedPair<CSTNode<'a>>, MatchingEntry> {
+) -> HashMap<UnorderedPair<&'a CSTNode<'a>>, MatchingEntry> {
     match (left, right) {
         (
             CSTNode::NonTerminal {
@@ -55,12 +55,7 @@ fn ordered_tree_matching_helper<'a>(
                     let right_child = children_right.get(j - 1).unwrap();
 
                     let w = ordered_tree_matching_helper(left_child, right_child);
-                    let matching = w
-                        .get(&UnorderedPair::new(
-                            left_child.to_owned(),
-                            right_child.to_owned(),
-                        ))
-                        .unwrap();
+                    let matching = w.get(&UnorderedPair::new(left_child, right_child)).unwrap();
 
                     if matrix_m[i][j - 1] > matrix_m[i - 1][j] {
                         if matrix_m[i][j - 1] > matrix_m[i - 1][j - 1] + matching.score {
@@ -84,7 +79,7 @@ fn ordered_tree_matching_helper<'a>(
 
             let mut i = m;
             let mut j = n;
-            let mut children = Vec::<&HashMap<UnorderedPair<CSTNode>, MatchingEntry>>::new();
+            let mut children = Vec::<&HashMap<UnorderedPair<&'a CSTNode>, MatchingEntry>>::new();
 
             while i >= 1 && j >= 1 {
                 match matrix_t.get(i).unwrap().get(j).unwrap().0 {
@@ -102,10 +97,7 @@ fn ordered_tree_matching_helper<'a>(
 
             let matching = MatchingEntry::new(matrix_m[m][n] + root_matching, left == right);
             let mut result = HashMap::new();
-            result.insert(
-                UnorderedPair::new(left.to_owned(), right.to_owned()),
-                matching,
-            );
+            result.insert(UnorderedPair::new(left, right), matching);
             children.into_iter().for_each(|child_matchings| {
                 child_matchings.iter().for_each(|(key, matching)| {
                     result.insert(key.to_owned(), matching.to_owned());
@@ -126,7 +118,7 @@ fn ordered_tree_matching_helper<'a>(
             let mut result = HashMap::new();
             let is_perfetch_match = kind_left == kind_right && value_left == value_right;
             result.insert(
-                UnorderedPair::new(left.to_owned(), right.to_owned()),
+                UnorderedPair::new(left, right),
                 MatchingEntry::new(is_perfetch_match.into(), is_perfetch_match),
             );
             result
@@ -134,7 +126,7 @@ fn ordered_tree_matching_helper<'a>(
         (_, _) => {
             let mut result = HashMap::new();
             result.insert(
-                UnorderedPair::new(left.to_owned(), right.to_owned()),
+                UnorderedPair::new(left, right),
                 MatchingEntry::new(0, false),
             );
             result
@@ -162,7 +154,7 @@ mod tests {
 
         assert_eq!(
             Some(&MatchingEntry::new(1, true)),
-            matchings.get_matching_entry(left.clone(), right.clone())
+            matchings.get_matching_entry(&left, &right)
         )
     }
 
@@ -181,7 +173,7 @@ mod tests {
 
         assert_eq!(
             Some(&MatchingEntry::new(0, false)),
-            matchings.get_matching_entry(left.clone(), right.clone())
+            matchings.get_matching_entry(&left, &right)
         )
     }
 
@@ -200,7 +192,7 @@ mod tests {
 
         assert_eq!(
             Some(&MatchingEntry::new(0, false)),
-            matchings.get_matching_entry(left.clone(), right.clone())
+            matchings.get_matching_entry(&left, &right)
         )
     }
 
@@ -219,7 +211,7 @@ mod tests {
 
         assert_eq!(
             Some(&MatchingEntry::new(0, false)),
-            matchings.get_matching_entry(left.clone(), right.clone())
+            matchings.get_matching_entry(&left, &right)
         )
     }
 
@@ -242,7 +234,7 @@ mod tests {
 
         assert_eq!(
             Some(&MatchingEntry::new(1, true)),
-            matchings.get_matching_entry(child.clone(), child)
+            matchings.get_matching_entry(&child, &child)
         )
     }
 
@@ -268,7 +260,10 @@ mod tests {
 
         let matchings = ordered_tree_matching(&left, &right);
 
-        assert_eq!(None, matchings.get_matching_entry(left_child, right_child))
+        assert_eq!(
+            None,
+            matchings.get_matching_entry(&left_child, &right_child)
+        )
     }
 
     #[test]
@@ -295,7 +290,7 @@ mod tests {
 
         assert_eq!(
             Some(&MatchingEntry::new(2, false)),
-            matchings.get_matching_entry(left.clone(), right.clone())
+            matchings.get_matching_entry(&left, &right)
         )
     }
 
@@ -319,7 +314,7 @@ mod tests {
 
         assert_eq!(
             Some(&MatchingEntry::new(2, true)),
-            matchings.get_matching_entry(left.clone(), right.clone())
+            matchings.get_matching_entry(&left, &right)
         )
     }
 
@@ -348,12 +343,12 @@ mod tests {
 
         assert_eq!(
             Some(&MatchingEntry::new(2, true)),
-            matchings.get_matching_entry(intermediate.clone(), intermediate)
+            matchings.get_matching_entry(&intermediate, &intermediate)
         );
 
         assert_eq!(
             Some(&MatchingEntry::new(3, true)),
-            matchings.get_matching_entry(left.clone(), right.clone())
+            matchings.get_matching_entry(&left, &right)
         )
     }
 }

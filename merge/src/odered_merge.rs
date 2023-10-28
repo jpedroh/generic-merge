@@ -63,10 +63,8 @@ pub fn ordered_merge<'a>(
                 let matching_base_left = base_left_matchings.find_matching_for(cur_left.unwrap());
                 let matching_base_right =
                     base_right_matchings.find_matching_for(cur_right.unwrap());
-                let bidirectional_matching_left_right = left_right_matchings.get_matching_entry(
-                    cur_left.unwrap().to_owned(),
-                    cur_right.unwrap().to_owned(),
-                );
+                let bidirectional_matching_left_right =
+                    left_right_matchings.get_matching_entry(cur_left.unwrap(), cur_right.unwrap());
                 let left_matching_in_right =
                     left_right_matchings.find_matching_for(cur_left.unwrap());
                 let right_matching_in_left =
