@@ -21,9 +21,9 @@ fn main() {
     let left_tree = parsing::parse_string(left, &parser_configuration).unwrap();
     let right_tree = parsing::parse_string(right, &parser_configuration).unwrap();
 
-    let matchings_left_base = matching::ordered_tree_matching(&left_tree, &base_tree);
-    let matchings_right_base = matching::ordered_tree_matching(&right_tree, &base_tree);
-    let matchings_left_right = matching::ordered_tree_matching(&left_tree, &right_tree);
+    let matchings_left_base = matching::calculate_matchings(&left_tree, &base_tree);
+    let matchings_right_base = matching::calculate_matchings(&right_tree, &base_tree);
+    let matchings_left_right = matching::calculate_matchings(&left_tree, &right_tree);
 
     let result = merge::merge(
         &base_tree,
