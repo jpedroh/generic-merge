@@ -9,8 +9,8 @@ pub enum CSTNode<'a> {
         children: Vec<CSTNode<'a>>,
     },
     Conflict {
-        left: Box<Option<CSTNode<'a>>>,
-        right: Box<Option<CSTNode<'a>>>,
+        left: Option<&'a CSTNode<'a>>,
+        right: Option<&'a CSTNode<'a>>,
     },
 }
 
