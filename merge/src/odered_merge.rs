@@ -106,8 +106,8 @@ pub fn ordered_merge<'a>(
                     (None, Some(_), Some(_), None, Some(matching_base_right)) => {
                         if !matching_base_right.is_perfect_match {
                             result_children.push(CSTNode::Conflict {
-                                left: Box::new(None),
-                                right: Box::new(Some(cur_right.unwrap().to_owned())),
+                                left: None,
+                                right: Some(cur_right.unwrap()),
                             });
                         }
 
@@ -120,7 +120,7 @@ pub fn ordered_merge<'a>(
                     }
                     (None, Some(_), None, None, Some(matching_base_right)) => {
                         if !matching_base_right.is_perfect_match {
-                            result_children.push(CSTNode::Conflict { left: None.into(), right: Some(cur_right.unwrap().to_owned()).into()})
+                            result_children.push(CSTNode::Conflict { left: None.into(), right: Some(cur_right.unwrap()).into()})
                         }
                         cur_right = children_right_it.next();
                     }
@@ -131,8 +131,8 @@ pub fn ordered_merge<'a>(
                     (None, None, Some(matching_base_left), Some(_), Some(_)) => {
                         if !matching_base_left.is_perfect_match {
                             result_children.push(CSTNode::Conflict {
-                                left: Box::new(Some(cur_left.unwrap().to_owned())),
-                                right: Box::new(None),
+                                left: Some(cur_left.unwrap()),
+                                right: None,
                             });
                         }
 
@@ -140,7 +140,7 @@ pub fn ordered_merge<'a>(
                     }
                     (None, None, Some(matching_base_left), Some(_), None) => {
                         if !matching_base_left.is_perfect_match {
-                            result_children.push(CSTNode::Conflict { left: Some(cur_left.unwrap().to_owned()).into(), right: None.into() })
+                            result_children.push(CSTNode::Conflict { left: Some(cur_left.unwrap()).into(), right: None.into() })
                         }
                         cur_left = children_left_it.next();
                     }
@@ -149,20 +149,20 @@ pub fn ordered_merge<'a>(
                             (true, true) => {}
                             (true, false) => {
                                 result_children.push(CSTNode::Conflict {
-                                    left: Some(cur_left.unwrap().to_owned()).into(),
+                                    left: Some(cur_left.unwrap()).into(),
                                     right: None.into()
                                 })
                             }
                             (false, true) => {
                                 result_children.push(CSTNode::Conflict {
                                     left: None.into(),
-                                    right: Some(cur_right.unwrap().to_owned()).into()
+                                    right: Some(cur_right.unwrap()).into()
                                 })
                             }
                             (false, false) => {
                                 result_children.push(CSTNode::Conflict {
-                                    left: Some(cur_left.unwrap().to_owned()).into(),
-                                    right: Some(cur_right.unwrap().to_owned()).into()
+                                    left: Some(cur_left.unwrap()).into(),
+                                    right: Some(cur_right.unwrap()).into()
                                 })
                             }
                         };
@@ -175,8 +175,8 @@ pub fn ordered_merge<'a>(
 
                         if !matching_base_left.is_perfect_match {
                             result_children.push(CSTNode::Conflict {
-                                left: Box::new(Some(cur_left.unwrap().to_owned())),
-                                right: Box::new(None),
+                                left: Some(cur_left.unwrap()),
+                                right: None,
                             })
                         }
 
@@ -197,8 +197,8 @@ pub fn ordered_merge<'a>(
 
                         if !matching_base_right.is_perfect_match {
                             result_children.push(CSTNode::Conflict {
-                                left: Box::new(None),
-                                right: Box::new(Some(cur_right.unwrap().to_owned())),
+                                left: None,
+                                right: Some(cur_right.unwrap()),
                             })
                         }
 
@@ -207,8 +207,8 @@ pub fn ordered_merge<'a>(
                     }
                     (None, None, None, None, None) => {
                         result_children.push(CSTNode::Conflict {
-                            left: Box::new(Some(cur_left.unwrap().to_owned())),
-                            right: Box::new(Some(cur_right.unwrap().to_owned())),
+                            left: Some(cur_left.unwrap()),
+                            right: Some(cur_right.unwrap()),
                         });
 
                         cur_left = children_left_it.next();
@@ -659,14 +659,14 @@ mod tests {
                         }],
                     },
                     CSTNode::Conflict {
-                        left: Box::new(None),
-                        right: Box::new(Some(CSTNode::NonTerminal {
+                        left: None,
+                        right: Some(&CSTNode::NonTerminal {
                             kind: "subtree".into(),
                             children: vec![CSTNode::Terminal {
                                 kind: "kind_c".into(),
                                 value: "value_c".into(),
                             }],
-                        })),
+                        }),
                     },
                 ],
             },
@@ -685,14 +685,14 @@ mod tests {
                         }],
                     },
                     CSTNode::Conflict {
-                        left: Box::new(Some(CSTNode::NonTerminal {
+                        left: Some(&CSTNode::NonTerminal {
                             kind: "subtree".into(),
                             children: vec![CSTNode::Terminal {
                                 kind: "kind_c".into(),
                                 value: "value_c".into(),
                             }],
-                        })),
-                        right: Box::new(None),
+                        }),
+                        right: None,
                     },
                 ],
             },
@@ -730,14 +730,14 @@ mod tests {
             &CSTNode::NonTerminal {
                 kind: "kind".into(),
                 children: vec![CSTNode::Conflict {
-                    left: Box::new(Some(CSTNode::Terminal {
+                    left: Some(&CSTNode::Terminal {
                         kind: "kind_a".into(),
                         value: "value_a".into(),
-                    })),
-                    right: Box::new(Some(CSTNode::Terminal {
+                    }),
+                    right: Some(&CSTNode::Terminal {
                         kind: "kind_b".into(),
                         value: "value_b".into(),
-                    })),
+                    }),
                 }],
             },
         )
@@ -847,7 +847,7 @@ mod tests {
                 kind: "kind".into(),
                 children: vec![
                     CSTNode::Conflict {
-                        left: Some(CSTNode::NonTerminal {
+                        left: Some(&CSTNode::NonTerminal {
                             kind: "subtree".into(),
                             children: vec![CSTNode::Terminal {
                                 kind: "kind_c".into(),
@@ -874,7 +874,7 @@ mod tests {
                 children: vec![
                     CSTNode::Conflict {
                         left: None.into(),
-                        right: Some(CSTNode::NonTerminal {
+                        right: Some(&CSTNode::NonTerminal {
                             kind: "subtree".into(),
                             children: vec![CSTNode::Terminal {
                                 kind: "kind_c".into(),
@@ -1061,7 +1061,7 @@ mod tests {
                 children: vec![
                     CSTNode::Conflict {
                         left: None.into(),
-                        right: Some(CSTNode::NonTerminal {
+                        right: Some(&CSTNode::NonTerminal {
                             kind: "subtree",
                             children: vec![CSTNode::Terminal {
                                 kind: "kind_b",
@@ -1085,7 +1085,7 @@ mod tests {
                 kind: "kind".into(),
                 children: vec![
                     CSTNode::Conflict {
-                        left: Some(CSTNode::NonTerminal {
+                        left: Some(&CSTNode::NonTerminal {
                             kind: "subtree",
                             children: vec![CSTNode::Terminal {
                                 kind: "kind_b",
@@ -1252,7 +1252,7 @@ mod tests {
             &CSTNode::NonTerminal {
                 kind: "kind",
                 children: vec![CSTNode::Conflict {
-                    left: Some(CSTNode::NonTerminal {
+                    left: Some(&CSTNode::NonTerminal {
                         kind: "subtree_b",
                         children: vec![CSTNode::Terminal {
                             kind: "kind_c",
@@ -1272,7 +1272,7 @@ mod tests {
                 kind: "kind",
                 children: vec![CSTNode::Conflict {
                     left: None.into(),
-                    right: Some(CSTNode::NonTerminal {
+                    right: Some(&CSTNode::NonTerminal {
                         kind: "subtree_b",
                         children: vec![CSTNode::Terminal {
                             kind: "kind_c",
