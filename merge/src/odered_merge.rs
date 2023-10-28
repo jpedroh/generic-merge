@@ -146,7 +146,32 @@ pub fn ordered_merge<'a>(
                         }
                         cur_left = children_left_it.next();
                     }
-                    (None, None, Some(_), None, Some(_)) => {}
+                    (None, None, Some(matching_base_left), None, Some(matching_base_right)) => {
+                        match (matching_base_left.is_perfect_match, matching_base_right.is_perfect_match) {
+                            (true, true) => {}
+                            (true, false) => {
+                                result_children.push(CSTNode::Conflict {
+                                    left: Some(cur_left.unwrap().to_owned()).into(),
+                                    right: None.into()
+                                })
+                            }
+                            (false, true) => {
+                                result_children.push(CSTNode::Conflict {
+                                    left: None.into(),
+                                    right: Some(cur_right.unwrap().to_owned()).into()
+                                })
+                            }
+                            (false, false) => {
+                                result_children.push(CSTNode::Conflict {
+                                    left: Some(cur_left.unwrap().to_owned()).into(),
+                                    right: Some(cur_right.unwrap().to_owned()).into()
+                                })
+                            }
+                        };
+
+                        cur_left = children_left_it.next();
+                        cur_right = children_right_it.next();
+                    }
                     (None, None, Some(matching_base_left), None, None) => {
                         result_children.push(cur_right.unwrap().to_owned());
 
@@ -1130,5 +1155,135 @@ mod tests {
             parent_b,
             expected_merge,
         )
+    }
+
+    #[test]
+    fn it_does_not_detect_a_conflict_if_am_merging_two_subtrees_that_have_not_changed_mutually() {
+        let base = CSTNode::NonTerminal {
+            kind: "kind",
+            children: vec![
+                CSTNode::Terminal {
+                    kind: "kind_b",
+                    value: "value_b".into(),
+                },
+                CSTNode::Terminal {
+                    kind: "kind_c",
+                    value: "value_c".into(),
+                },
+            ],
+        };
+
+        let parent_a = CSTNode::NonTerminal {
+            kind: "kind",
+            children: vec![CSTNode::Terminal {
+                kind: "kind_b",
+                value: "value_b".into(),
+            }],
+        };
+
+        let parent_b = CSTNode::NonTerminal {
+            kind: "kind".into(),
+            children: vec![CSTNode::Terminal {
+                kind: "kind_c",
+                value: "value_c".into(),
+            }],
+        };
+
+        let expected_merge = CSTNode::NonTerminal {
+            kind: "kind",
+            children: vec![],
+        };
+
+        assert_merge_is_correct_and_idempotent_with_respect_to_parent_side(
+            base,
+            parent_a,
+            parent_b,
+            expected_merge,
+        );
+    }
+
+    #[test]
+    fn it_detects_a_conflict_if_am_merging_two_subtrees_that_delete_a_node_that_was_changed_in_another_parent(
+    ) {
+        let base = CSTNode::NonTerminal {
+            kind: "kind",
+            children: vec![
+                CSTNode::NonTerminal {
+                    kind: "subtree_a",
+                    children: vec![CSTNode::Terminal {
+                        kind: "kind_b",
+                        value: "value_b".into(),
+                    }],
+                },
+                CSTNode::NonTerminal {
+                    kind: "subtree_b",
+                    children: vec![CSTNode::Terminal {
+                        kind: "kind_c",
+                        value: "value_c".into(),
+                    }],
+                },
+            ],
+        };
+
+        let parent_a = CSTNode::NonTerminal {
+            kind: "kind",
+            children: vec![CSTNode::NonTerminal {
+                kind: "subtree_b",
+                children: vec![CSTNode::Terminal {
+                    kind: "kind_c",
+                    value: "value_c".into(),
+                }],
+            }],
+        };
+
+        let parent_b = CSTNode::NonTerminal {
+            kind: "kind",
+            children: vec![CSTNode::NonTerminal {
+                kind: "subtree_a",
+                children: vec![CSTNode::Terminal {
+                    kind: "kind_a",
+                    value: "value_c".into(),
+                }],
+            }],
+        };
+
+        assert_merge_output_is(
+            &base,
+            &parent_a,
+            &parent_b,
+            &CSTNode::NonTerminal {
+                kind: "kind",
+                children: vec![CSTNode::Conflict {
+                    left: Some(CSTNode::NonTerminal {
+                        kind: "subtree_b",
+                        children: vec![CSTNode::Terminal {
+                            kind: "kind_c",
+                            value: "value_c".into(),
+                        }],
+                    })
+                    .into(),
+                    right: None.into(),
+                }],
+            },
+        );
+        assert_merge_output_is(
+            &base,
+            &parent_b,
+            &parent_a,
+            &CSTNode::NonTerminal {
+                kind: "kind",
+                children: vec![CSTNode::Conflict {
+                    left: None.into(),
+                    right: Some(CSTNode::NonTerminal {
+                        kind: "subtree_b",
+                        children: vec![CSTNode::Terminal {
+                            kind: "kind_c",
+                            value: "value_c".into(),
+                        }],
+                    })
+                    .into(),
+                }],
+            },
+        );
     }
 }
