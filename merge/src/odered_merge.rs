@@ -78,7 +78,7 @@ pub fn ordered_merge<'a>(
                     matching_base_right,
                 ) {
                     (true, Some(_), Some(_), Some(_), Some(_)) => {
-                        result_children.push(ordered_merge(
+                        result_children.push(crate::merge(
                             &cur_left.unwrap(),
                             &cur_left.unwrap(),
                             &cur_right.unwrap(),
@@ -91,7 +91,7 @@ pub fn ordered_merge<'a>(
                         cur_right = children_right_it.next();
                     }
                     (true, Some(_), None, Some(_), None) => {
-                        result_children.push(ordered_merge(
+                        result_children.push(crate::merge(
                             &cur_left.unwrap(),
                             &cur_left.unwrap(),
                             &cur_right.unwrap(),
