@@ -18,6 +18,12 @@ impl<'a> Matchings<'a> {
         }
     }
 
+    pub fn from_single(key: UnorderedPair<&'a CSTNode>, value: MatchingEntry) -> Self {
+        let mut matching_entries = HashMap::new();
+        matching_entries.insert(key, value);
+        Matchings { matching_entries }
+    }
+
     pub fn new(matching_entries: HashMap<UnorderedPair<&'a CSTNode<'a>>, MatchingEntry>) -> Self {
         Matchings { matching_entries }
     }
@@ -51,18 +57,27 @@ impl<'a> Matchings<'a> {
     ) -> bool {
         self.find_matching_for(left).is_some() && self.find_matching_for(right).is_some()
     }
+
+    pub fn push(&mut self, key: UnorderedPair<&'a CSTNode>, value: MatchingEntry) {
+        self.matching_entries.insert(key, value);
+    }
+
+    pub fn extend(&mut self, matchings: HashMap<UnorderedPair<&'a CSTNode<'a>>, MatchingEntry>) {
+        self.matching_entries.extend(matchings);
+    }
 }
 
 impl Default for Matchings<'_> {
     fn default() -> Self {
-        Self { matching_entries: Default::default() }
+        Self::empty()
     }
 }
 
 impl<'a> IntoIterator for Matchings<'a> {
     type Item = (UnorderedPair<&'a CSTNode<'a>>, MatchingEntry);
 
-    type IntoIter = std::collections::hash_map::IntoIter<UnorderedPair<&'a CSTNode<'a>>, MatchingEntry>;
+    type IntoIter =
+        std::collections::hash_map::IntoIter<UnorderedPair<&'a CSTNode<'a>>, MatchingEntry>;
 
     fn into_iter(self) -> Self::IntoIter {
         self.matching_entries.into_iter()

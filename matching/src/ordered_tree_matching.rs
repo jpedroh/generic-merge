@@ -1,4 +1,4 @@
-use crate::{matching_entry::MatchingEntry, Matchings, calculate_matchings};
+use crate::{calculate_matchings, matching_entry::MatchingEntry, Matchings};
 use model::CSTNode;
 use std::collections::HashMap;
 use utils::unordered_pair::UnorderedPair;
@@ -11,10 +11,7 @@ enum Direction {
 }
 
 #[derive(Clone)]
-struct Entry<'a>(
-    pub Direction,
-    pub Matchings<'a>,
-);
+struct Entry<'a>(pub Direction, pub Matchings<'a>);
 
 impl<'a> Default for Entry<'a> {
     fn default() -> Self {
@@ -88,15 +85,18 @@ pub fn ordered_tree_matching<'a>(left: &'a CSTNode, right: &'a CSTNode) -> Match
                 }
             }
 
-            let matching = MatchingEntry::new(matrix_m[m][n] + root_matching, left == right);
-            let mut result = HashMap::new();
-            result.insert(UnorderedPair::new(left, right), matching);
-            children.into_iter().for_each(|child_matchings| {
-                child_matchings.into_iter().for_each(|(key, matching)| {
-                    result.insert(key.to_owned(), matching.to_owned());
-                })
-            });
-            Matchings::new(result)
+            let mut matchings = Matchings::from_single(
+                UnorderedPair::new(left, right),
+                MatchingEntry::new(matrix_m[m][n] + root_matching, left == right),
+            );
+            matchings.extend(children.into_iter().fold(
+                HashMap::new(),
+                |mut acc, child_matchings| {
+                    acc.extend(child_matchings);
+                    acc
+                },
+            ));
+            matchings
         }
         (
             CSTNode::Terminal {
@@ -108,22 +108,16 @@ pub fn ordered_tree_matching<'a>(left: &'a CSTNode, right: &'a CSTNode) -> Match
                 value: value_right,
             },
         ) => {
-            let mut result = HashMap::new();
             let is_perfetch_match = kind_left == kind_right && value_left == value_right;
-            result.insert(
+            Matchings::from_single(
                 UnorderedPair::new(left, right),
                 MatchingEntry::new(is_perfetch_match.into(), is_perfetch_match),
-            );
-            Matchings::new(result)
+            )
         }
-        (_, _) => {
-            let mut result = HashMap::new();
-            result.insert(
-                UnorderedPair::new(left, right),
-                MatchingEntry::new(0, false),
-            );
-            Matchings::new(result)
-        }
+        (_, _) => Matchings::from_single(
+            UnorderedPair::new(left, right),
+            MatchingEntry::new(0, false),
+        ),
     }
 }
 
