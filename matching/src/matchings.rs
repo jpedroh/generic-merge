@@ -58,10 +58,6 @@ impl<'a> Matchings<'a> {
         self.find_matching_for(left).is_some() && self.find_matching_for(right).is_some()
     }
 
-    pub fn push(&mut self, key: UnorderedPair<&'a CSTNode>, value: MatchingEntry) {
-        self.matching_entries.insert(key, value);
-    }
-
     pub fn extend(&mut self, matchings: Matchings<'a>) {
         self.matching_entries.extend(matchings);
     }
