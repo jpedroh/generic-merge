@@ -1,4 +1,4 @@
-use crate::{matching_entry::MatchingEntry, Matchings};
+use crate::{matching_entry::MatchingEntry, Matchings, calculate_matchings};
 use model::CSTNode;
 use std::collections::HashMap;
 use utils::unordered_pair::UnorderedPair;
@@ -47,7 +47,7 @@ pub fn ordered_tree_matching<'a>(left: &'a CSTNode, right: &'a CSTNode) -> Match
                     let left_child = children_left.get(i - 1).unwrap();
                     let right_child = children_right.get(j - 1).unwrap();
 
-                    let w = ordered_tree_matching(left_child, right_child);
+                    let w = calculate_matchings(left_child, right_child);
                     let matching = w.get_matching_entry(left_child, right_child).unwrap();
 
                     if matrix_m[i][j - 1] > matrix_m[i - 1][j] {
