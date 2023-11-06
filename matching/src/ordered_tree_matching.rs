@@ -23,13 +23,6 @@ impl<'a> Default for Entry<'a> {
 }
 
 pub fn ordered_tree_matching<'a>(left: &'a CSTNode, right: &'a CSTNode) -> Matchings<'a> {
-    return Matchings::new(ordered_tree_matching_helper(left, right));
-}
-
-fn ordered_tree_matching_helper<'a>(
-    left: &'a CSTNode,
-    right: &'a CSTNode,
-) -> HashMap<UnorderedPair<&'a CSTNode<'a>>, MatchingEntry> {
     match (left, right) {
         (
             CSTNode::NonTerminal {
@@ -79,7 +72,7 @@ fn ordered_tree_matching_helper<'a>(
 
             let mut i = m;
             let mut j = n;
-            let mut children = Vec::<&'a Matchings<'a>>::new();
+            let mut children = Vec::<Matchings<'a>>::new();
 
             while i >= 1 && j >= 1 {
                 match matrix_t.get(i).unwrap().get(j).unwrap().0 {
@@ -87,7 +80,7 @@ fn ordered_tree_matching_helper<'a>(
                     Direction::LEFT => j = j - 1,
                     Direction::DIAG => {
                         if matrix_m[i][j] > matrix_m[i - 1][j - 1] {
-                            children.push(&matrix_t[i][j].1);
+                            children.push(matrix_t[i][j].1.clone());
                         }
                         i = i - 1;
                         j = j - 1;
@@ -99,11 +92,11 @@ fn ordered_tree_matching_helper<'a>(
             let mut result = HashMap::new();
             result.insert(UnorderedPair::new(left, right), matching);
             children.into_iter().for_each(|child_matchings| {
-                child_matchings.clone().into_iter().for_each(|(key, matching)| {
+                child_matchings.into_iter().for_each(|(key, matching)| {
                     result.insert(key.to_owned(), matching.to_owned());
                 })
             });
-            result
+            Matchings::new(result)
         }
         (
             CSTNode::Terminal {
@@ -121,7 +114,7 @@ fn ordered_tree_matching_helper<'a>(
                 UnorderedPair::new(left, right),
                 MatchingEntry::new(is_perfetch_match.into(), is_perfetch_match),
             );
-            result
+            Matchings::new(result)
         }
         (_, _) => {
             let mut result = HashMap::new();
@@ -129,7 +122,7 @@ fn ordered_tree_matching_helper<'a>(
                 UnorderedPair::new(left, right),
                 MatchingEntry::new(0, false),
             );
-            result
+            Matchings::new(result)
         }
     }
 }
