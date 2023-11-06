@@ -1,6 +1,5 @@
 use crate::{calculate_matchings, matching_entry::MatchingEntry, Matchings};
 use model::CSTNode;
-use std::collections::HashMap;
 use utils::unordered_pair::UnorderedPair;
 
 #[derive(PartialEq, Eq, Debug, Clone)]
@@ -69,7 +68,11 @@ pub fn ordered_tree_matching<'a>(left: &'a CSTNode, right: &'a CSTNode) -> Match
 
             let mut i = m;
             let mut j = n;
-            let mut children = Vec::<Matchings<'a>>::new();
+
+            let mut matchings = Matchings::from_single(
+                UnorderedPair::new(left, right),
+                MatchingEntry::new(matrix_m[m][n] + root_matching, left == right),
+            );
 
             while i >= 1 && j >= 1 {
                 match matrix_t.get(i).unwrap().get(j).unwrap().0 {
@@ -77,7 +80,7 @@ pub fn ordered_tree_matching<'a>(left: &'a CSTNode, right: &'a CSTNode) -> Match
                     Direction::LEFT => j = j - 1,
                     Direction::DIAG => {
                         if matrix_m[i][j] > matrix_m[i - 1][j - 1] {
-                            children.push(matrix_t[i][j].1.clone());
+                            matchings.extend(matrix_t[i][j].1.clone());
                         }
                         i = i - 1;
                         j = j - 1;
@@ -85,17 +88,6 @@ pub fn ordered_tree_matching<'a>(left: &'a CSTNode, right: &'a CSTNode) -> Match
                 }
             }
 
-            let mut matchings = Matchings::from_single(
-                UnorderedPair::new(left, right),
-                MatchingEntry::new(matrix_m[m][n] + root_matching, left == right),
-            );
-            matchings.extend(children.into_iter().fold(
-                HashMap::new(),
-                |mut acc, child_matchings| {
-                    acc.extend(child_matchings);
-                    acc
-                },
-            ));
             matchings
         }
         (

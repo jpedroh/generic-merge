@@ -62,7 +62,7 @@ impl<'a> Matchings<'a> {
         self.matching_entries.insert(key, value);
     }
 
-    pub fn extend(&mut self, matchings: HashMap<UnorderedPair<&'a CSTNode<'a>>, MatchingEntry>) {
+    pub fn extend(&mut self, matchings: Matchings<'a>) {
         self.matching_entries.extend(matchings);
     }
 }
