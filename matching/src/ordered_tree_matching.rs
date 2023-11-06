@@ -1,6 +1,5 @@
-use crate::{matching_entry::MatchingEntry, Matchings};
+use crate::{calculate_matchings, matching_entry::MatchingEntry, Matchings};
 use model::CSTNode;
-use std::collections::HashMap;
 use utils::unordered_pair::UnorderedPair;
 
 #[derive(PartialEq, Eq, Debug, Clone)]
@@ -11,10 +10,7 @@ enum Direction {
 }
 
 #[derive(Clone)]
-struct Entry<'a>(
-    pub Direction,
-    pub HashMap<UnorderedPair<&'a CSTNode<'a>>, MatchingEntry>,
-);
+struct Entry<'a>(pub Direction, pub Matchings<'a>);
 
 impl<'a> Default for Entry<'a> {
     fn default() -> Self {
@@ -23,13 +19,6 @@ impl<'a> Default for Entry<'a> {
 }
 
 pub fn ordered_tree_matching<'a>(left: &'a CSTNode, right: &'a CSTNode) -> Matchings<'a> {
-    return Matchings::new(ordered_tree_matching_helper(left, right));
-}
-
-fn ordered_tree_matching_helper<'a>(
-    left: &'a CSTNode,
-    right: &'a CSTNode,
-) -> HashMap<UnorderedPair<&'a CSTNode<'a>>, MatchingEntry> {
     match (left, right) {
         (
             CSTNode::NonTerminal {
@@ -54,8 +43,8 @@ fn ordered_tree_matching_helper<'a>(
                     let left_child = children_left.get(i - 1).unwrap();
                     let right_child = children_right.get(j - 1).unwrap();
 
-                    let w = ordered_tree_matching_helper(left_child, right_child);
-                    let matching = w.get(&UnorderedPair::new(left_child, right_child)).unwrap();
+                    let w = calculate_matchings(left_child, right_child);
+                    let matching = w.get_matching_entry(left_child, right_child).unwrap();
 
                     if matrix_m[i][j - 1] > matrix_m[i - 1][j] {
                         if matrix_m[i][j - 1] > matrix_m[i - 1][j - 1] + matching.score {
@@ -79,7 +68,11 @@ fn ordered_tree_matching_helper<'a>(
 
             let mut i = m;
             let mut j = n;
-            let mut children = Vec::<&HashMap<UnorderedPair<&'a CSTNode>, MatchingEntry>>::new();
+
+            let mut matchings = Matchings::from_single(
+                UnorderedPair::new(left, right),
+                MatchingEntry::new(matrix_m[m][n] + root_matching, left == right),
+            );
 
             while i >= 1 && j >= 1 {
                 match matrix_t.get(i).unwrap().get(j).unwrap().0 {
@@ -87,7 +80,7 @@ fn ordered_tree_matching_helper<'a>(
                     Direction::LEFT => j = j - 1,
                     Direction::DIAG => {
                         if matrix_m[i][j] > matrix_m[i - 1][j - 1] {
-                            children.push(&matrix_t[i][j].1);
+                            matchings.extend(matrix_t[i][j].1.clone());
                         }
                         i = i - 1;
                         j = j - 1;
@@ -95,15 +88,7 @@ fn ordered_tree_matching_helper<'a>(
                 }
             }
 
-            let matching = MatchingEntry::new(matrix_m[m][n] + root_matching, left == right);
-            let mut result = HashMap::new();
-            result.insert(UnorderedPair::new(left, right), matching);
-            children.into_iter().for_each(|child_matchings| {
-                child_matchings.iter().for_each(|(key, matching)| {
-                    result.insert(key.to_owned(), matching.to_owned());
-                })
-            });
-            result
+            matchings
         }
         (
             CSTNode::Terminal {
@@ -115,22 +100,16 @@ fn ordered_tree_matching_helper<'a>(
                 value: value_right,
             },
         ) => {
-            let mut result = HashMap::new();
             let is_perfetch_match = kind_left == kind_right && value_left == value_right;
-            result.insert(
+            Matchings::from_single(
                 UnorderedPair::new(left, right),
                 MatchingEntry::new(is_perfetch_match.into(), is_perfetch_match),
-            );
-            result
+            )
         }
-        (_, _) => {
-            let mut result = HashMap::new();
-            result.insert(
-                UnorderedPair::new(left, right),
-                MatchingEntry::new(0, false),
-            );
-            result
-        }
+        (_, _) => Matchings::from_single(
+            UnorderedPair::new(left, right),
+            MatchingEntry::new(0, false),
+        ),
     }
 }
 
