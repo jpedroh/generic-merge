@@ -12,3 +12,12 @@ impl MatchingEntry {
         };
     }
 }
+
+impl Default for &MatchingEntry {
+    fn default() -> Self {
+        &MatchingEntry {
+            score: 0,
+            is_perfect_match: false,
+        }
+    }
+}

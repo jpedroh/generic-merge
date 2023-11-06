@@ -44,7 +44,9 @@ pub fn ordered_tree_matching<'a>(left: &'a CSTNode, right: &'a CSTNode) -> Match
                     let right_child = children_right.get(j - 1).unwrap();
 
                     let w = calculate_matchings(left_child, right_child);
-                    let matching = w.get_matching_entry(left_child, right_child).unwrap();
+                    let matching = w
+                        .get_matching_entry(left_child, right_child)
+                        .unwrap_or_default();
 
                     if matrix_m[i][j - 1] > matrix_m[i - 1][j] {
                         if matrix_m[i][j - 1] > matrix_m[i - 1][j - 1] + matching.score {

@@ -14,6 +14,16 @@ pub enum CSTNode<'a> {
     },
 }
 
+impl CSTNode<'_> {
+    pub fn can_be_matching_unordered(&self) -> bool {
+        match self {
+            CSTNode::Terminal { .. } => false,
+            CSTNode::NonTerminal { kind, .. } => vec!["interface_body"].contains(kind),
+            CSTNode::Conflict { .. } => false,
+        }
+    }
+}
+
 impl ToString for CSTNode<'_> {
     fn to_string(&self) -> String {
         match self {

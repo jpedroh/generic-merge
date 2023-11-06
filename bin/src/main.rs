@@ -1,31 +1,51 @@
 fn main() {
     let base = r#"
-        public class Main {
-            public static void main(String[] args) {
-                System.out.println("Hello, world!");
-                int y = 4;
-                int j = 0;
-            }
+        public interface Repository {
         }
     "#;
-    let left = r#"
-        public class Main {
-            public static void main(String[] args) {
-                int x = 0;
-                System.out.println("Hello, João!");
-                int y = 3;
-                int j = 0;
-            }
+    let left: &str = r#"
+        public interface Repository {
+            void create(Pessoa pessoa);
+            void delete(Pessoa pessoa);
         }
     "#;
+
     let right = r#"
-        public class Main {
-            public static void main(String[] args) {
-                System.out.println("Hello, Paulo!");
-                int y = 3;
-            }
+        public interface Repository {
+            void delete(Pessoa pessoa);
+            void remove(Pessoa pessoa);
+            void insert(Pessoa pessoa);
+            void create(Pessoa pessoa);
         }
     "#;
+
+    // let base = r#"
+    //     public class Main {
+    //         public static void main(String[] args) {
+    //             System.out.println("Hello, world!");
+    //             int y = 4;
+    //             int j = 0;
+    //         }
+    //     }
+    // "#;
+    // let left = r#"
+    //     public class Main {
+    //         public static void main(String[] args) {
+    //             int x = 0;
+    //             System.out.println("Hello, João!");
+    //             int y = 3;
+    //             int j = 0;
+    //         }
+    //     }
+    // "#;
+    // let right = r#"
+    //     public class Main {
+    //         public static void main(String[] args) {
+    //             System.out.println("Hello, Paulo!");
+    //             int y = 3;
+    //         }
+    //     }
+    // "#;
 
     let parser_configuration = parsing::ParserConfiguration::from_language(model::Language::Java);
 
