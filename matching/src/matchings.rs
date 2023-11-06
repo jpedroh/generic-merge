@@ -8,7 +8,7 @@ use crate::matching_entry::MatchingEntry;
 
 #[derive(Debug, Clone)]
 pub struct Matchings<'a> {
-    matching_entries: HashMap<UnorderedPair<&'a CSTNode<'a>>, MatchingEntry>,
+    pub matching_entries: HashMap<UnorderedPair<&'a CSTNode<'a>>, MatchingEntry>,
 }
 
 impl<'a> Matchings<'a> {
@@ -41,7 +41,7 @@ impl<'a> Matchings<'a> {
         left: &'a CSTNode<'a>,
         right: &'a CSTNode<'a>,
     ) -> Option<&MatchingEntry> {
-        self.matching_entries.get(&UnorderedPair(left, right))
+        self.matching_entries.get(&UnorderedPair::new(left, right))
     }
 
     pub fn has_bidirectional_matching(
@@ -50,6 +50,22 @@ impl<'a> Matchings<'a> {
         right: &'a CSTNode<'a>,
     ) -> bool {
         self.find_matching_for(left).is_some() && self.find_matching_for(right).is_some()
+    }
+}
+
+impl Default for Matchings<'_> {
+    fn default() -> Self {
+        Self { matching_entries: Default::default() }
+    }
+}
+
+impl<'a> IntoIterator for Matchings<'a> {
+    type Item = (UnorderedPair<&'a CSTNode<'a>>, MatchingEntry);
+
+    type IntoIter = std::collections::hash_map::IntoIter<UnorderedPair<&'a CSTNode<'a>>, MatchingEntry>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        self.matching_entries.into_iter()
     }
 }
 

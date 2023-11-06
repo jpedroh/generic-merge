@@ -13,7 +13,7 @@ enum Direction {
 #[derive(Clone)]
 struct Entry<'a>(
     pub Direction,
-    pub HashMap<UnorderedPair<&'a CSTNode<'a>>, MatchingEntry>,
+    pub Matchings<'a>,
 );
 
 impl<'a> Default for Entry<'a> {
@@ -54,8 +54,8 @@ fn ordered_tree_matching_helper<'a>(
                     let left_child = children_left.get(i - 1).unwrap();
                     let right_child = children_right.get(j - 1).unwrap();
 
-                    let w = ordered_tree_matching_helper(left_child, right_child);
-                    let matching = w.get(&UnorderedPair::new(left_child, right_child)).unwrap();
+                    let w = ordered_tree_matching(left_child, right_child);
+                    let matching = w.get_matching_entry(left_child, right_child).unwrap();
 
                     if matrix_m[i][j - 1] > matrix_m[i - 1][j] {
                         if matrix_m[i][j - 1] > matrix_m[i - 1][j - 1] + matching.score {
@@ -79,7 +79,7 @@ fn ordered_tree_matching_helper<'a>(
 
             let mut i = m;
             let mut j = n;
-            let mut children = Vec::<&HashMap<UnorderedPair<&'a CSTNode>, MatchingEntry>>::new();
+            let mut children = Vec::<&'a Matchings<'a>>::new();
 
             while i >= 1 && j >= 1 {
                 match matrix_t.get(i).unwrap().get(j).unwrap().0 {
@@ -99,7 +99,7 @@ fn ordered_tree_matching_helper<'a>(
             let mut result = HashMap::new();
             result.insert(UnorderedPair::new(left, right), matching);
             children.into_iter().for_each(|child_matchings| {
-                child_matchings.iter().for_each(|(key, matching)| {
+                child_matchings.clone().into_iter().for_each(|(key, matching)| {
                     result.insert(key.to_owned(), matching.to_owned());
                 })
             });
