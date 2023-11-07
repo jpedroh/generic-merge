@@ -1,7 +1,7 @@
 use model::CSTNode;
 use utils::unordered_pair::UnorderedPair;
 
-use crate::{MatchingEntry, Matchings, calculate_matchings};
+use crate::{calculate_matchings, MatchingEntry, Matchings};
 
 pub fn unordered_tree_matching<'a>(left: &'a CSTNode, right: &'a CSTNode) -> crate::Matchings<'a> {
     match (left, right) {
@@ -23,44 +23,42 @@ pub fn unordered_tree_matching<'a>(left: &'a CSTNode, right: &'a CSTNode) -> cra
         }
         (
             CSTNode::NonTerminal {
-                kind: kind_left,
                 children: children_left,
+                ..
             },
             CSTNode::NonTerminal {
-                kind: kind_right,
                 children: children_right,
+                ..
             },
         ) => {
             let root_matching: usize = (left == right).into();
 
-            let mut children_matchings: Vec<Matchings<'a>> = vec![];
             let mut sum = 0;
+            let mut result = Matchings::empty();
 
             for child_left in children_left {
                 for child_right in children_right {
-                    let matching_score =  compute_matching_score(&child_left, &child_right);
+                    let matching_score = compute_matching_score(&child_left, &child_right);
 
                     if matching_score == 1 {
                         let child_matching = calculate_matchings(child_left, child_right);
-                        if let Some(matching) = child_matching.get_matching_entry(child_left, child_right) {
+                        if let Some(matching) =
+                            child_matching.get_matching_entry(child_left, child_right)
+                        {
                             sum += matching.score;
                         }
-                        children_matchings.push(child_matching);
+                        result.extend(child_matching);
                     }
                 }
             }
 
-            let mut result = Matchings::from_single(
+            result.extend(Matchings::from_single(
                 UnorderedPair(left, right),
                 MatchingEntry {
                     score: sum + root_matching,
                     is_perfect_match: false,
                 },
-            );
-
-            children_matchings.iter().for_each(|matchings| {
-                result.extend(matchings.to_owned())
-            });
+            ));
 
             result
         }
