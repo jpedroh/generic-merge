@@ -42,11 +42,9 @@ pub fn unordered_tree_matching<'a>(left: &'a CSTNode, right: &'a CSTNode) -> cra
 
                     if matching_score == 1 {
                         let child_matching = calculate_matchings(child_left, child_right);
-                        if let Some(matching) =
-                            child_matching.get_matching_entry(child_left, child_right)
-                        {
-                            sum += matching.score;
-                        }
+                        sum += child_matching
+                            .get_matching_entry(child_left, child_right)
+                            .map_or(0, |matching| matching.score);
                         result.extend(child_matching);
                     }
                 }
@@ -56,7 +54,7 @@ pub fn unordered_tree_matching<'a>(left: &'a CSTNode, right: &'a CSTNode) -> cra
                 UnorderedPair(left, right),
                 MatchingEntry {
                     score: sum + root_matching,
-                    is_perfect_match: false,
+                    is_perfect_match: left == right,
                 },
             ));
 
@@ -68,16 +66,7 @@ pub fn unordered_tree_matching<'a>(left: &'a CSTNode, right: &'a CSTNode) -> cra
 
 fn compute_matching_score<'a>(left: &'a CSTNode, right: &'a CSTNode) -> usize {
     match (left, right) {
-        (
-            CSTNode::Terminal {
-                kind: kind_left,
-                value: value_left,
-            },
-            CSTNode::Terminal {
-                kind: kind_right,
-                value: value_right,
-            },
-        ) => (kind_left == kind_right && value_left == value_right).into(),
+        (CSTNode::Terminal { .. }, CSTNode::Terminal { .. }) => (left == right).into(),
         (
             CSTNode::NonTerminal {
                 children: children_left,
