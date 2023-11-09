@@ -6,8 +6,8 @@ pub struct ParserConfiguration {
     pub(crate) stop_compilation_at: HashSet<&'static str>,
 }
 
-impl ParserConfiguration {
-    pub fn from_language(language: Language) -> ParserConfiguration {
+impl From<Language> for ParserConfiguration {
+    fn from(language: Language) -> Self {
         match language {
             Language::Java => ParserConfiguration {
                 language: tree_sitter_java::language(),

@@ -47,7 +47,7 @@ fn main() {
     //     }
     // "#;
 
-    let parser_configuration = parsing::ParserConfiguration::from_language(model::Language::Java);
+    let parser_configuration = parsing::ParserConfiguration::from(model::Language::Java);
 
     let base_tree = parsing::parse_string(base, &parser_configuration).unwrap();
     let left_tree = parsing::parse_string(left, &parser_configuration).unwrap();
