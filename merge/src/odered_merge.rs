@@ -20,7 +20,10 @@ pub fn ordered_merge<'a>(
                 value: value_left, ..
             },
             CSTNode::Terminal {
-                value: value_right, ..
+                value: value_right,
+                start_position,
+                end_position,
+                ..
             },
         ) => {
             // Unchanged
@@ -29,8 +32,18 @@ pub fn ordered_merge<'a>(
             // Changed in both
             } else if value_left != value_base && value_right != value_base {
                 match diffy::merge(&value_base, &value_left, &value_right) {
-                    Ok(value) => CSTNode::Terminal { kind, value: value },
-                    Err(value) => CSTNode::Terminal { kind, value: value },
+                    Ok(value) => CSTNode::Terminal {
+                        kind,
+                        value,
+                        start_position: *start_position,
+                        end_position: *end_position,
+                    },
+                    Err(value) => CSTNode::Terminal {
+                        kind,
+                        value,
+                        start_position: *start_position,
+                        end_position: *end_position,
+                    },
                 }
             // Only left changed
             } else if value_left != value_base {
@@ -48,6 +61,8 @@ pub fn ordered_merge<'a>(
             },
             CSTNode::NonTerminal {
                 children: children_right,
+                start_position,
+                end_position,
                 ..
             },
         ) => {
@@ -239,6 +254,8 @@ pub fn ordered_merge<'a>(
             CSTNode::NonTerminal {
                 kind,
                 children: result_children,
+                start_position: *start_position,
+                end_position: *end_position,
             }
         }
         (_, _, _) => panic!("Can not merge Terminal with Non-Terminal"),
@@ -250,7 +267,7 @@ mod tests {
     use std::vec;
 
     use matching::{ordered_tree_matching, Matchings};
-    use model::CSTNode;
+    use model::{CSTNode, Point};
 
     use super::ordered_merge;
 
@@ -311,6 +328,8 @@ mod tests {
     fn if_i_am_merging_three_unchanged_nodes_it_is_a_success() {
         let node = CSTNode::Terminal {
             kind: "kind".into(),
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             value: "value".into(),
         };
 
@@ -326,14 +345,20 @@ mod tests {
     fn returns_success_if_there_are_changes_in_both_parents_and_they_are_not_conflicting() {
         let base = CSTNode::Terminal {
             kind: "kind".into(),
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             value: "\nvalue\n".into(),
         };
         let left = CSTNode::Terminal {
             kind: "kind".into(),
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             value: "left\nvalue\n".into(),
         };
         let right = CSTNode::Terminal {
             kind: "kind".into(),
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             value: "\nvalue\nright".into(),
         };
 
@@ -343,6 +368,8 @@ mod tests {
             right,
             CSTNode::Terminal {
                 kind: "kind".into(),
+                start_position: Point { row: 0, column: 0 },
+                end_position: Point { row: 0, column: 7 },
                 value: "left\nvalue\nright".into(),
             },
         )
@@ -352,14 +379,20 @@ mod tests {
     fn returns_conflict_if_there_are_changes_in_both_parents_and_they_are_conflicting() {
         let base = CSTNode::Terminal {
             kind: "kind".into(),
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             value: "value".into(),
         };
         let left = CSTNode::Terminal {
             kind: "kind".into(),
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             value: "left_value".into(),
         };
         let right = CSTNode::Terminal {
             kind: "kind".into(),
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             value: "right_value".into(),
         };
 
@@ -368,6 +401,8 @@ mod tests {
             &Matchings::empty()),
            CSTNode::Terminal {
                 kind: "kind".into(),
+                start_position: Point { row: 0, column: 0 },
+                end_position: Point { row: 0, column: 7 },
                 value: "<<<<<<< ours\nleft_value||||||| original\nvalue=======\nright_value>>>>>>> theirs\n".into()
             }
         )
@@ -377,10 +412,14 @@ mod tests {
     fn if_there_is_a_change_only_in_one_parent_it_returns_the_changes_from_this_parent() {
         let base_and_left = CSTNode::Terminal {
             kind: "kind".into(),
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             value: "value".into(),
         };
         let changed_parent = CSTNode::Terminal {
             kind: "kind".into(),
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             value: "value_right".into(),
         };
 
@@ -398,14 +437,20 @@ mod tests {
         ordered_merge(
             &CSTNode::Terminal {
                 kind: "kind".into(),
+                start_position: Point { row: 0, column: 0 },
+                end_position: Point { row: 0, column: 7 },
                 value: "value".into(),
             },
             &CSTNode::Terminal {
                 kind: "kind".into(),
+                start_position: Point { row: 0, column: 0 },
+                end_position: Point { row: 0, column: 7 },
                 value: "value".into(),
             },
             &CSTNode::NonTerminal {
                 kind: "kind".into(),
+                start_position: Point { row: 0, column: 0 },
+                end_position: Point { row: 0, column: 7 },
                 children: vec![],
             },
             &Matchings::empty(),
@@ -418,13 +463,19 @@ mod tests {
     fn it_merges_non_terminals_if_there_are_non_changes() {
         let tree = CSTNode::NonTerminal {
             kind: "kind".into(),
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             children: vec![
                 CSTNode::Terminal {
                     kind: "kind_a".into(),
+                    start_position: Point { row: 0, column: 0 },
+                    end_position: Point { row: 0, column: 7 },
                     value: "value_a".into(),
                 },
                 CSTNode::Terminal {
                     kind: "kind_b".into(),
+                    start_position: Point { row: 0, column: 0 },
+                    end_position: Point { row: 0, column: 7 },
                     value: "value_b".into(),
                 },
             ],
@@ -442,17 +493,25 @@ mod tests {
     fn it_merges_non_terminals_if_both_left_and_right_add_the_same_things() {
         let base = CSTNode::NonTerminal {
             kind: "kind".into(),
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             children: vec![],
         };
         let parent = CSTNode::NonTerminal {
             kind: "kind".into(),
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             children: vec![
                 CSTNode::Terminal {
                     kind: "kind_a".into(),
+                    start_position: Point { row: 0, column: 0 },
+                    end_position: Point { row: 0, column: 7 },
                     value: "value_a".into(),
                 },
                 CSTNode::Terminal {
                     kind: "kind_b".into(),
+                    start_position: Point { row: 0, column: 0 },
+                    end_position: Point { row: 0, column: 7 },
                     value: "value_b".into(),
                 },
             ],
@@ -471,26 +530,38 @@ mod tests {
     {
         let base = CSTNode::NonTerminal {
             kind: "kind".into(),
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             children: vec![],
         };
 
         let initially_empty_parent = CSTNode::NonTerminal {
             kind: "kind".into(),
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             children: vec![],
         };
 
         let parent_that_added = CSTNode::NonTerminal {
             kind: "kind".into(),
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             children: vec![CSTNode::Terminal {
                 kind: "kind_a".into(),
+                start_position: Point { row: 0, column: 0 },
+                end_position: Point { row: 0, column: 7 },
                 value: "value_a".into(),
             }],
         };
 
         let merge = CSTNode::NonTerminal {
             kind: "kind".into(),
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             children: vec![CSTNode::Terminal {
                 kind: "kind_a".into(),
+                start_position: Point { row: 0, column: 0 },
+                end_position: Point { row: 0, column: 7 },
                 value: "value_a".into(),
             }],
         };
@@ -507,29 +578,43 @@ mod tests {
     fn it_merges_non_terminals_if_only_one_parent_adds_a_node_in_non_empty_children_list() {
         let base = CSTNode::NonTerminal {
             kind: "kind".into(),
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             children: vec![CSTNode::Terminal {
                 kind: "kind_a".into(),
+                start_position: Point { row: 0, column: 0 },
+                end_position: Point { row: 0, column: 7 },
                 value: "value_a".into(),
             }],
         };
 
         let unchanged_parent = CSTNode::NonTerminal {
             kind: "kind".into(),
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             children: vec![CSTNode::Terminal {
                 kind: "kind_a".into(),
+                start_position: Point { row: 0, column: 0 },
+                end_position: Point { row: 0, column: 7 },
                 value: "value_a".into(),
             }],
         };
 
         let parent_that_added = CSTNode::NonTerminal {
             kind: "kind".into(),
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             children: vec![
                 CSTNode::Terminal {
                     kind: "kind_a".into(),
+                    start_position: Point { row: 0, column: 0 },
+                    end_position: Point { row: 0, column: 7 },
                     value: "value_a".into(),
                 },
                 CSTNode::Terminal {
                     kind: "kind_b".into(),
+                    start_position: Point { row: 0, column: 0 },
+                    end_position: Point { row: 0, column: 7 },
                     value: "value_b".into(),
                 },
             ],
@@ -537,13 +622,19 @@ mod tests {
 
         let merge = CSTNode::NonTerminal {
             kind: "kind".into(),
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             children: vec![
                 CSTNode::Terminal {
                     kind: "kind_a".into(),
+                    start_position: Point { row: 0, column: 0 },
+                    end_position: Point { row: 0, column: 7 },
                     value: "value_a".into(),
                 },
                 CSTNode::Terminal {
                     kind: "kind_b".into(),
+                    start_position: Point { row: 0, column: 0 },
+                    end_position: Point { row: 0, column: 7 },
                     value: "value_b".into(),
                 },
             ],
@@ -561,32 +652,48 @@ mod tests {
     fn it_merges_when_one_parent_adds_a_node_and_removes_one_that_was_not_edited_in_the_other() {
         let base = CSTNode::NonTerminal {
             kind: "kind".into(),
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             children: vec![CSTNode::Terminal {
                 kind: "kind_a".into(),
+                start_position: Point { row: 0, column: 0 },
+                end_position: Point { row: 0, column: 7 },
                 value: "value_a".into(),
             }],
         };
 
         let changed_parent = CSTNode::NonTerminal {
             kind: "kind".into(),
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             children: vec![CSTNode::Terminal {
                 kind: "kind_b".into(),
+                start_position: Point { row: 0, column: 0 },
+                end_position: Point { row: 0, column: 7 },
                 value: "value_b".into(),
             }],
         };
 
         let unchanged_parent = CSTNode::NonTerminal {
             kind: "kind".into(),
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             children: vec![CSTNode::Terminal {
                 kind: "kind_a".into(),
+                start_position: Point { row: 0, column: 0 },
+                end_position: Point { row: 0, column: 7 },
                 value: "value_a".into(),
             }],
         };
 
         let expected_merge = CSTNode::NonTerminal {
             kind: "kind".into(),
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             children: vec![CSTNode::Terminal {
                 kind: "kind_b".into(),
+                start_position: Point { row: 0, column: 0 },
+                end_position: Point { row: 0, column: 7 },
                 value: "value_b".into(),
             }],
         };
@@ -603,10 +710,16 @@ mod tests {
     fn it_merges_when_one_parent_adds_a_node_and_removes_from_another_that_was_changed() {
         let base = CSTNode::NonTerminal {
             kind: "kind".into(),
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             children: vec![CSTNode::NonTerminal {
                 kind: "subtree".into(),
+                start_position: Point { row: 0, column: 0 },
+                end_position: Point { row: 0, column: 7 },
                 children: vec![CSTNode::Terminal {
                     kind: "kind_a".into(),
+                    start_position: Point { row: 0, column: 0 },
+                    end_position: Point { row: 0, column: 7 },
                     value: "value_a".into(),
                 }],
             }],
@@ -614,10 +727,16 @@ mod tests {
 
         let parent_a = CSTNode::NonTerminal {
             kind: "kind".into(),
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             children: vec![CSTNode::NonTerminal {
                 kind: "another_subtree".into(),
+                start_position: Point { row: 0, column: 0 },
+                end_position: Point { row: 0, column: 7 },
                 children: vec![CSTNode::Terminal {
                     kind: "kind_b".into(),
+                    start_position: Point { row: 0, column: 0 },
+                    end_position: Point { row: 0, column: 7 },
                     value: "value_b".into(),
                 }],
             }],
@@ -625,10 +744,16 @@ mod tests {
 
         let parent_b = CSTNode::NonTerminal {
             kind: "kind".into(),
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             children: vec![CSTNode::NonTerminal {
                 kind: "subtree".into(),
+                start_position: Point { row: 0, column: 0 },
+                end_position: Point { row: 0, column: 7 },
                 children: vec![CSTNode::Terminal {
                     kind: "kind_c".into(),
+                    start_position: Point { row: 0, column: 0 },
+                    end_position: Point { row: 0, column: 7 },
                     value: "value_c".into(),
                 }],
             }],
@@ -658,11 +783,17 @@ mod tests {
         assert_eq!(
             CSTNode::NonTerminal {
                 kind: "kind".into(),
+                start_position: Point { row: 0, column: 0 },
+                end_position: Point { row: 0, column: 7 },
                 children: vec![
                     CSTNode::NonTerminal {
                         kind: "another_subtree".into(),
+                        start_position: Point { row: 0, column: 0 },
+                        end_position: Point { row: 0, column: 7 },
                         children: vec![CSTNode::Terminal {
                             kind: "kind_b".into(),
+                            start_position: Point { row: 0, column: 0 },
+                            end_position: Point { row: 0, column: 7 },
                             value: "value_b".into(),
                         }],
                     },
@@ -670,8 +801,12 @@ mod tests {
                         left: None,
                         right: Some(&CSTNode::NonTerminal {
                             kind: "subtree".into(),
+                            start_position: Point { row: 0, column: 0 },
+                            end_position: Point { row: 0, column: 7 },
                             children: vec![CSTNode::Terminal {
                                 kind: "kind_c".into(),
+                                start_position: Point { row: 0, column: 0 },
+                                end_position: Point { row: 0, column: 7 },
                                 value: "value_c".into(),
                             }],
                         }),
@@ -684,19 +819,29 @@ mod tests {
         assert_eq!(
             CSTNode::NonTerminal {
                 kind: "kind".into(),
+                start_position: Point { row: 0, column: 0 },
+                end_position: Point { row: 0, column: 7 },
                 children: vec![
                     CSTNode::NonTerminal {
                         kind: "another_subtree".into(),
+                        start_position: Point { row: 0, column: 0 },
+                        end_position: Point { row: 0, column: 7 },
                         children: vec![CSTNode::Terminal {
                             kind: "kind_b".into(),
+                            start_position: Point { row: 0, column: 0 },
+                            end_position: Point { row: 0, column: 7 },
                             value: "value_b".into(),
                         }],
                     },
                     CSTNode::Conflict {
                         left: Some(&CSTNode::NonTerminal {
                             kind: "subtree".into(),
+                            start_position: Point { row: 0, column: 0 },
+                            end_position: Point { row: 0, column: 7 },
                             children: vec![CSTNode::Terminal {
                                 kind: "kind_c".into(),
+                                start_position: Point { row: 0, column: 0 },
+                                end_position: Point { row: 0, column: 7 },
                                 value: "value_c".into(),
                             }],
                         }),
@@ -712,21 +857,31 @@ mod tests {
     fn if_both_parents_add_different_nodes_then_we_have_a_conflict() {
         let base = CSTNode::NonTerminal {
             kind: "kind".into(),
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             children: vec![],
         };
 
         let left = CSTNode::NonTerminal {
             kind: "kind".into(),
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             children: vec![CSTNode::Terminal {
                 kind: "kind_a".into(),
+                start_position: Point { row: 0, column: 0 },
+                end_position: Point { row: 0, column: 7 },
                 value: "value_a".into(),
             }],
         };
 
         let right = CSTNode::NonTerminal {
             kind: "kind".into(),
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             children: vec![CSTNode::Terminal {
                 kind: "kind_b".into(),
+                start_position: Point { row: 0, column: 0 },
+                end_position: Point { row: 0, column: 7 },
                 value: "value_b".into(),
             }],
         };
@@ -737,13 +892,19 @@ mod tests {
             &right,
             &CSTNode::NonTerminal {
                 kind: "kind".into(),
+                start_position: Point { row: 0, column: 0 },
+                end_position: Point { row: 0, column: 7 },
                 children: vec![CSTNode::Conflict {
                     left: Some(&CSTNode::Terminal {
                         kind: "kind_a".into(),
+                        start_position: Point { row: 0, column: 0 },
+                        end_position: Point { row: 0, column: 7 },
                         value: "value_a".into(),
                     }),
                     right: Some(&CSTNode::Terminal {
                         kind: "kind_b".into(),
+                        start_position: Point { row: 0, column: 0 },
+                        end_position: Point { row: 0, column: 7 },
                         value: "value_b".into(),
                     }),
                 }],
@@ -755,13 +916,19 @@ mod tests {
     fn it_merges_when_one_parent_removes_a_node_that_was_not_changed_in_another_parent() {
         let base = CSTNode::NonTerminal {
             kind: "kind".into(),
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             children: vec![
                 CSTNode::Terminal {
                     kind: "kind_a".into(),
+                    start_position: Point { row: 0, column: 0 },
+                    end_position: Point { row: 0, column: 7 },
                     value: "value_a".into(),
                 },
                 CSTNode::Terminal {
                     kind: "kind_b".into(),
+                    start_position: Point { row: 0, column: 0 },
+                    end_position: Point { row: 0, column: 7 },
                     value: "value_b".into(),
                 },
             ],
@@ -769,13 +936,19 @@ mod tests {
 
         let left = CSTNode::NonTerminal {
             kind: "kind".into(),
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             children: vec![
                 CSTNode::Terminal {
                     kind: "kind_a".into(),
+                    start_position: Point { row: 0, column: 0 },
+                    end_position: Point { row: 0, column: 7 },
                     value: "value_a".into(),
                 },
                 CSTNode::Terminal {
                     kind: "kind_b".into(),
+                    start_position: Point { row: 0, column: 0 },
+                    end_position: Point { row: 0, column: 7 },
                     value: "value_b".into(),
                 },
             ],
@@ -783,8 +956,12 @@ mod tests {
 
         let right = CSTNode::NonTerminal {
             kind: "kind".into(),
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             children: vec![CSTNode::Terminal {
                 kind: "kind_b".into(),
+                start_position: Point { row: 0, column: 0 },
+                end_position: Point { row: 0, column: 7 },
                 value: "value_b".into(),
             }],
         };
@@ -795,8 +972,12 @@ mod tests {
             &right,
             &CSTNode::NonTerminal {
                 kind: "kind".into(),
+                start_position: Point { row: 0, column: 0 },
+                end_position: Point { row: 0, column: 7 },
                 children: vec![CSTNode::Terminal {
                     kind: "kind_b".into(),
+                    start_position: Point { row: 0, column: 0 },
+                    end_position: Point { row: 0, column: 7 },
                     value: "value_b".into(),
                 }],
             },
@@ -807,16 +988,24 @@ mod tests {
     fn it_detects_a_conflit_when_one_parent_removes_a_node_that_was_changed_in_another_parent() {
         let base = CSTNode::NonTerminal {
             kind: "kind".into(),
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             children: vec![
                 CSTNode::NonTerminal {
                     kind: "subtree".into(),
+                    start_position: Point { row: 0, column: 0 },
+                    end_position: Point { row: 0, column: 7 },
                     children: vec![CSTNode::Terminal {
                         kind: "kind_b".into(),
+                        start_position: Point { row: 0, column: 0 },
+                        end_position: Point { row: 0, column: 7 },
                         value: "value_b".into(),
                     }],
                 },
                 CSTNode::Terminal {
                     kind: "kind_a".into(),
+                    start_position: Point { row: 0, column: 0 },
+                    end_position: Point { row: 0, column: 7 },
                     value: "value_a".into(),
                 },
             ],
@@ -824,16 +1013,24 @@ mod tests {
 
         let left = CSTNode::NonTerminal {
             kind: "kind".into(),
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             children: vec![
                 CSTNode::NonTerminal {
                     kind: "subtree".into(),
+                    start_position: Point { row: 0, column: 0 },
+                    end_position: Point { row: 0, column: 7 },
                     children: vec![CSTNode::Terminal {
                         kind: "kind_c".into(),
+                        start_position: Point { row: 0, column: 0 },
+                        end_position: Point { row: 0, column: 7 },
                         value: "value_c".into(),
                     }],
                 },
                 CSTNode::Terminal {
                     kind: "kind_a".into(),
+                    start_position: Point { row: 0, column: 0 },
+                    end_position: Point { row: 0, column: 7 },
                     value: "value_a".into(),
                 },
             ],
@@ -841,8 +1038,12 @@ mod tests {
 
         let right = CSTNode::NonTerminal {
             kind: "kind".into(),
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             children: vec![CSTNode::Terminal {
                 kind: "kind_a".into(),
+                start_position: Point { row: 0, column: 0 },
+                end_position: Point { row: 0, column: 7 },
                 value: "value_a".into(),
             }],
         };
@@ -853,12 +1054,18 @@ mod tests {
             &right,
             &CSTNode::NonTerminal {
                 kind: "kind".into(),
+                start_position: Point { row: 0, column: 0 },
+                end_position: Point { row: 0, column: 7 },
                 children: vec![
                     CSTNode::Conflict {
                         left: Some(&CSTNode::NonTerminal {
                             kind: "subtree".into(),
+                            start_position: Point { row: 0, column: 0 },
+                            end_position: Point { row: 0, column: 7 },
                             children: vec![CSTNode::Terminal {
                                 kind: "kind_c".into(),
+                                start_position: Point { row: 0, column: 0 },
+                                end_position: Point { row: 0, column: 7 },
                                 value: "value_c".into(),
                             }],
                         })
@@ -867,6 +1074,8 @@ mod tests {
                     },
                     CSTNode::Terminal {
                         kind: "kind_a".into(),
+                        start_position: Point { row: 0, column: 0 },
+                        end_position: Point { row: 0, column: 7 },
                         value: "value_a".into(),
                     },
                 ],
@@ -879,13 +1088,19 @@ mod tests {
             &left,
             &CSTNode::NonTerminal {
                 kind: "kind".into(),
+                start_position: Point { row: 0, column: 0 },
+                end_position: Point { row: 0, column: 7 },
                 children: vec![
                     CSTNode::Conflict {
                         left: None.into(),
                         right: Some(&CSTNode::NonTerminal {
                             kind: "subtree".into(),
+                            start_position: Point { row: 0, column: 0 },
+                            end_position: Point { row: 0, column: 7 },
                             children: vec![CSTNode::Terminal {
                                 kind: "kind_c".into(),
+                                start_position: Point { row: 0, column: 0 },
+                                end_position: Point { row: 0, column: 7 },
                                 value: "value_c".into(),
                             }],
                         })
@@ -893,6 +1108,8 @@ mod tests {
                     },
                     CSTNode::Terminal {
                         kind: "kind_a".into(),
+                        start_position: Point { row: 0, column: 0 },
+                        end_position: Point { row: 0, column: 7 },
                         value: "value_a".into(),
                     },
                 ],
@@ -904,13 +1121,19 @@ mod tests {
     fn it_merges_when_a_parent_adds_a_node() {
         let base = CSTNode::NonTerminal {
             kind: "kind".into(),
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             children: vec![
                 CSTNode::Terminal {
                     kind: "kind_a".into(),
+                    start_position: Point { row: 0, column: 0 },
+                    end_position: Point { row: 0, column: 7 },
                     value: "value_a".into(),
                 },
                 CSTNode::Terminal {
                     kind: "kind_c".into(),
+                    start_position: Point { row: 0, column: 0 },
+                    end_position: Point { row: 0, column: 7 },
                     value: "value_c".into(),
                 },
             ],
@@ -918,13 +1141,19 @@ mod tests {
 
         let unchanged_parent = CSTNode::NonTerminal {
             kind: "kind".into(),
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             children: vec![
                 CSTNode::Terminal {
                     kind: "kind_a".into(),
+                    start_position: Point { row: 0, column: 0 },
+                    end_position: Point { row: 0, column: 7 },
                     value: "value_a".into(),
                 },
                 CSTNode::Terminal {
                     kind: "kind_c".into(),
+                    start_position: Point { row: 0, column: 0 },
+                    end_position: Point { row: 0, column: 7 },
                     value: "value_c".into(),
                 },
             ],
@@ -932,17 +1161,25 @@ mod tests {
 
         let changed_parent = CSTNode::NonTerminal {
             kind: "kind".into(),
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             children: vec![
                 CSTNode::Terminal {
                     kind: "kind_a".into(),
+                    start_position: Point { row: 0, column: 0 },
+                    end_position: Point { row: 0, column: 7 },
                     value: "value_a".into(),
                 },
                 CSTNode::Terminal {
                     kind: "kind_b".into(),
+                    start_position: Point { row: 0, column: 0 },
+                    end_position: Point { row: 0, column: 7 },
                     value: "value_b".into(),
                 },
                 CSTNode::Terminal {
                     kind: "kind_c".into(),
+                    start_position: Point { row: 0, column: 0 },
+                    end_position: Point { row: 0, column: 7 },
                     value: "value_c".into(),
                 },
             ],
@@ -950,17 +1187,25 @@ mod tests {
 
         let expected_merge = CSTNode::NonTerminal {
             kind: "kind".into(),
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             children: vec![
                 CSTNode::Terminal {
                     kind: "kind_a".into(),
+                    start_position: Point { row: 0, column: 0 },
+                    end_position: Point { row: 0, column: 7 },
                     value: "value_a".into(),
                 },
                 CSTNode::Terminal {
                     kind: "kind_b".into(),
+                    start_position: Point { row: 0, column: 0 },
+                    end_position: Point { row: 0, column: 7 },
                     value: "value_b".into(),
                 },
                 CSTNode::Terminal {
                     kind: "kind_c".into(),
+                    start_position: Point { row: 0, column: 0 },
+                    end_position: Point { row: 0, column: 7 },
                     value: "value_c".into(),
                 },
             ],
@@ -978,29 +1223,43 @@ mod tests {
     fn it_merges_when_one_parent_removes_and_add_a_node() {
         let base = CSTNode::NonTerminal {
             kind: "kind".into(),
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             children: vec![CSTNode::Terminal {
                 kind: "kind_b".into(),
+                start_position: Point { row: 0, column: 0 },
+                end_position: Point { row: 0, column: 7 },
                 value: "value_b".into(),
             }],
         };
 
         let parent_a = CSTNode::NonTerminal {
             kind: "kind".into(),
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             children: vec![CSTNode::Terminal {
                 kind: "kind_a",
+                start_position: Point { row: 0, column: 0 },
+                end_position: Point { row: 0, column: 7 },
                 value: "value_a".into(),
             }],
         };
 
         let parent_b = CSTNode::NonTerminal {
             kind: "kind".into(),
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             children: vec![
                 CSTNode::Terminal {
                     kind: "kind_b".into(),
+                    start_position: Point { row: 0, column: 0 },
+                    end_position: Point { row: 0, column: 7 },
                     value: "value_b".into(),
                 },
                 CSTNode::Terminal {
                     kind: "kind_a",
+                    start_position: Point { row: 0, column: 0 },
+                    end_position: Point { row: 0, column: 7 },
                     value: "value_a".into(),
                 },
             ],
@@ -1008,8 +1267,12 @@ mod tests {
 
         let expected_merge = CSTNode::NonTerminal {
             kind: "kind".into(),
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             children: vec![CSTNode::Terminal {
                 kind: "kind_a",
+                start_position: Point { row: 0, column: 0 },
+                end_position: Point { row: 0, column: 7 },
                 value: "value_a".into(),
             }],
         };
@@ -1026,10 +1289,16 @@ mod tests {
     fn it_conflicts_when_one_parent_removes_and_add_a_node() {
         let base = CSTNode::NonTerminal {
             kind: "kind",
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             children: vec![CSTNode::NonTerminal {
                 kind: "subtree",
+                start_position: Point { row: 0, column: 0 },
+                end_position: Point { row: 0, column: 7 },
                 children: vec![CSTNode::Terminal {
                     kind: "kind_b",
+                    start_position: Point { row: 0, column: 0 },
+                    end_position: Point { row: 0, column: 7 },
                     value: "value_b".into(),
                 }],
             }],
@@ -1037,24 +1306,36 @@ mod tests {
 
         let parent_a = CSTNode::NonTerminal {
             kind: "kind".into(),
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             children: vec![CSTNode::Terminal {
                 kind: "kind_a",
+                start_position: Point { row: 0, column: 0 },
+                end_position: Point { row: 0, column: 7 },
                 value: "value_a".into(),
             }],
         };
 
         let parent_b = CSTNode::NonTerminal {
             kind: "kind".into(),
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             children: vec![
                 CSTNode::NonTerminal {
                     kind: "subtree",
+                    start_position: Point { row: 0, column: 0 },
+                    end_position: Point { row: 0, column: 7 },
                     children: vec![CSTNode::Terminal {
                         kind: "kind_b",
+                        start_position: Point { row: 0, column: 0 },
+                        end_position: Point { row: 0, column: 7 },
                         value: "value_c".into(),
                     }],
                 },
                 CSTNode::Terminal {
                     kind: "kind_a",
+                    start_position: Point { row: 0, column: 0 },
+                    end_position: Point { row: 0, column: 7 },
                     value: "value_a".into(),
                 },
             ],
@@ -1066,13 +1347,19 @@ mod tests {
             &parent_b,
             &CSTNode::NonTerminal {
                 kind: "kind".into(),
+                start_position: Point { row: 0, column: 0 },
+                end_position: Point { row: 0, column: 7 },
                 children: vec![
                     CSTNode::Conflict {
                         left: None.into(),
                         right: Some(&CSTNode::NonTerminal {
                             kind: "subtree",
+                            start_position: Point { row: 0, column: 0 },
+                            end_position: Point { row: 0, column: 7 },
                             children: vec![CSTNode::Terminal {
                                 kind: "kind_b",
+                                start_position: Point { row: 0, column: 0 },
+                                end_position: Point { row: 0, column: 7 },
                                 value: "value_c".into(),
                             }],
                         })
@@ -1080,6 +1367,8 @@ mod tests {
                     },
                     CSTNode::Terminal {
                         kind: "kind_a",
+                        start_position: Point { row: 0, column: 0 },
+                        end_position: Point { row: 0, column: 7 },
                         value: "value_a".into(),
                     },
                 ],
@@ -1091,12 +1380,18 @@ mod tests {
             &parent_a,
             &CSTNode::NonTerminal {
                 kind: "kind".into(),
+                start_position: Point { row: 0, column: 0 },
+                end_position: Point { row: 0, column: 7 },
                 children: vec![
                     CSTNode::Conflict {
                         left: Some(&CSTNode::NonTerminal {
                             kind: "subtree",
+                            start_position: Point { row: 0, column: 0 },
+                            end_position: Point { row: 0, column: 7 },
                             children: vec![CSTNode::Terminal {
                                 kind: "kind_b",
+                                start_position: Point { row: 0, column: 0 },
+                                end_position: Point { row: 0, column: 7 },
                                 value: "value_c".into(),
                             }],
                         })
@@ -1105,6 +1400,8 @@ mod tests {
                     },
                     CSTNode::Terminal {
                         kind: "kind_a",
+                        start_position: Point { row: 0, column: 0 },
+                        end_position: Point { row: 0, column: 7 },
                         value: "value_a".into(),
                     },
                 ],
@@ -1116,26 +1413,38 @@ mod tests {
     fn it_merges_when_a_parent_adds_one_node() {
         let base = CSTNode::NonTerminal {
             kind: "kind",
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             children: vec![],
         };
 
         let parent_a = CSTNode::NonTerminal {
             kind: "kind",
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             children: vec![CSTNode::Terminal {
                 kind: "kind_a",
+                start_position: Point { row: 0, column: 0 },
+                end_position: Point { row: 0, column: 7 },
                 value: "value_a".into(),
             }],
         };
 
         let parent_b = CSTNode::NonTerminal {
             kind: "kind".into(),
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             children: vec![
                 CSTNode::Terminal {
                     kind: "kind_c",
+                    start_position: Point { row: 0, column: 0 },
+                    end_position: Point { row: 0, column: 7 },
                     value: "value_c".into(),
                 },
                 CSTNode::Terminal {
                     kind: "kind_a",
+                    start_position: Point { row: 0, column: 0 },
+                    end_position: Point { row: 0, column: 7 },
                     value: "value_a".into(),
                 },
             ],
@@ -1143,13 +1452,19 @@ mod tests {
 
         let expected_merge = CSTNode::NonTerminal {
             kind: "kind",
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             children: vec![
                 CSTNode::Terminal {
                     kind: "kind_c",
+                    start_position: Point { row: 0, column: 0 },
+                    end_position: Point { row: 0, column: 7 },
                     value: "value_c".into(),
                 },
                 CSTNode::Terminal {
                     kind: "kind_a",
+                    start_position: Point { row: 0, column: 0 },
+                    end_position: Point { row: 0, column: 7 },
                     value: "value_a".into(),
                 },
             ],
@@ -1167,13 +1482,19 @@ mod tests {
     fn it_does_not_detect_a_conflict_if_am_merging_two_subtrees_that_have_not_changed_mutually() {
         let base = CSTNode::NonTerminal {
             kind: "kind",
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             children: vec![
                 CSTNode::Terminal {
                     kind: "kind_b",
+                    start_position: Point { row: 0, column: 0 },
+                    end_position: Point { row: 0, column: 7 },
                     value: "value_b".into(),
                 },
                 CSTNode::Terminal {
                     kind: "kind_c",
+                    start_position: Point { row: 0, column: 0 },
+                    end_position: Point { row: 0, column: 7 },
                     value: "value_c".into(),
                 },
             ],
@@ -1181,22 +1502,32 @@ mod tests {
 
         let parent_a = CSTNode::NonTerminal {
             kind: "kind",
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             children: vec![CSTNode::Terminal {
                 kind: "kind_b",
+                start_position: Point { row: 0, column: 0 },
+                end_position: Point { row: 0, column: 7 },
                 value: "value_b".into(),
             }],
         };
 
         let parent_b = CSTNode::NonTerminal {
             kind: "kind".into(),
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             children: vec![CSTNode::Terminal {
                 kind: "kind_c",
+                start_position: Point { row: 0, column: 0 },
+                end_position: Point { row: 0, column: 7 },
                 value: "value_c".into(),
             }],
         };
 
         let expected_merge = CSTNode::NonTerminal {
             kind: "kind",
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             children: vec![],
         };
 
@@ -1213,18 +1544,28 @@ mod tests {
     ) {
         let base = CSTNode::NonTerminal {
             kind: "kind",
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             children: vec![
                 CSTNode::NonTerminal {
                     kind: "subtree_a",
+                    start_position: Point { row: 0, column: 0 },
+                    end_position: Point { row: 0, column: 7 },
                     children: vec![CSTNode::Terminal {
                         kind: "kind_b",
+                        start_position: Point { row: 0, column: 0 },
+                        end_position: Point { row: 0, column: 7 },
                         value: "value_b".into(),
                     }],
                 },
                 CSTNode::NonTerminal {
                     kind: "subtree_b",
+                    start_position: Point { row: 0, column: 0 },
+                    end_position: Point { row: 0, column: 7 },
                     children: vec![CSTNode::Terminal {
                         kind: "kind_c",
+                        start_position: Point { row: 0, column: 0 },
+                        end_position: Point { row: 0, column: 7 },
                         value: "value_c".into(),
                     }],
                 },
@@ -1233,10 +1574,16 @@ mod tests {
 
         let parent_a = CSTNode::NonTerminal {
             kind: "kind",
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             children: vec![CSTNode::NonTerminal {
                 kind: "subtree_b",
+                start_position: Point { row: 0, column: 0 },
+                end_position: Point { row: 0, column: 7 },
                 children: vec![CSTNode::Terminal {
                     kind: "kind_c",
+                    start_position: Point { row: 0, column: 0 },
+                    end_position: Point { row: 0, column: 7 },
                     value: "value_c".into(),
                 }],
             }],
@@ -1244,10 +1591,16 @@ mod tests {
 
         let parent_b = CSTNode::NonTerminal {
             kind: "kind",
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
             children: vec![CSTNode::NonTerminal {
                 kind: "subtree_a",
+                start_position: Point { row: 0, column: 0 },
+                end_position: Point { row: 0, column: 7 },
                 children: vec![CSTNode::Terminal {
                     kind: "kind_a",
+                    start_position: Point { row: 0, column: 0 },
+                    end_position: Point { row: 0, column: 7 },
                     value: "value_c".into(),
                 }],
             }],
@@ -1259,11 +1612,17 @@ mod tests {
             &parent_b,
             &CSTNode::NonTerminal {
                 kind: "kind",
+                start_position: Point { row: 0, column: 0 },
+                end_position: Point { row: 0, column: 7 },
                 children: vec![CSTNode::Conflict {
                     left: Some(&CSTNode::NonTerminal {
                         kind: "subtree_b",
+                        start_position: Point { row: 0, column: 0 },
+                        end_position: Point { row: 0, column: 7 },
                         children: vec![CSTNode::Terminal {
                             kind: "kind_c",
+                            start_position: Point { row: 0, column: 0 },
+                            end_position: Point { row: 0, column: 7 },
                             value: "value_c".into(),
                         }],
                     })
@@ -1278,12 +1637,18 @@ mod tests {
             &parent_a,
             &CSTNode::NonTerminal {
                 kind: "kind",
+                start_position: Point { row: 0, column: 0 },
+                end_position: Point { row: 0, column: 7 },
                 children: vec![CSTNode::Conflict {
                     left: None.into(),
                     right: Some(&CSTNode::NonTerminal {
                         kind: "subtree_b",
+                        start_position: Point { row: 0, column: 0 },
+                        end_position: Point { row: 0, column: 7 },
                         children: vec![CSTNode::Terminal {
                             kind: "kind_c",
+                            start_position: Point { row: 0, column: 0 },
+                            end_position: Point { row: 0, column: 7 },
                             value: "value_c".into(),
                         }],
                     })
