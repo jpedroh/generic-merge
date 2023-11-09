@@ -12,10 +12,10 @@ fn main() {
 
     let right = r#"
         public interface Repository {
+            void create(Pessoa pessoa);
             void delete(Pessoa pessoa);
             void remove(Pessoa pessoa);
             void insert(Pessoa pessoa);
-            void create(Pessoa pessoa);
         }
     "#;
 

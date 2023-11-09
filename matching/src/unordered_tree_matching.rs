@@ -9,10 +9,12 @@ pub fn unordered_tree_matching<'a>(left: &'a CSTNode, right: &'a CSTNode) -> cra
             CSTNode::Terminal {
                 kind: kind_left,
                 value: value_left,
+                ..
             },
             CSTNode::Terminal {
                 kind: kind_right,
                 value: value_right,
+                ..
             },
         ) => {
             let is_perfetch_match = kind_left == kind_right && value_left == value_right;

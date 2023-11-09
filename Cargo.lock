@@ -64,6 +64,9 @@ dependencies = [
 [[package]]
 name = "model"
 version = "0.1.0"
+dependencies = [
+ "tree-sitter",
+]
 
 [[package]]
 name = "nu-ansi-term"

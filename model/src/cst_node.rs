@@ -3,10 +3,14 @@ pub enum CSTNode<'a> {
     Terminal {
         kind: &'a str,
         value: String,
+        start_position: tree_sitter::Point,
+        end_position: tree_sitter::Point,
     },
     NonTerminal {
         kind: &'a str,
         children: Vec<CSTNode<'a>>,
+        start_position: tree_sitter::Point,
+        end_position: tree_sitter::Point,
     },
     Conflict {
         left: Option<&'a CSTNode<'a>>,
