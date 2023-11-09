@@ -12,18 +12,13 @@ pub enum CSTNode<'a> {
         start_position: tree_sitter::Point,
         end_position: tree_sitter::Point,
     },
-    Conflict {
-        left: Option<&'a CSTNode<'a>>,
-        right: Option<&'a CSTNode<'a>>,
-    },
 }
 
 impl CSTNode<'_> {
-    pub fn can_be_matching_unordered(&self) -> bool {
+    pub fn are_children_unordered(&self) -> bool {
         match self {
             CSTNode::Terminal { .. } => false,
             CSTNode::NonTerminal { kind, .. } => vec!["interface_body"].contains(kind),
-            CSTNode::Conflict { .. } => false,
         }
     }
 }
@@ -40,21 +35,6 @@ impl ToString for CSTNode<'_> {
                     result
                 })
             }
-            CSTNode::Conflict { left, right } => match (left, right) {
-                (Some(left), Some(right)) => format!(
-                    "<<<<<<<<< {} ========= {} >>>>>>>>>",
-                    left.to_string(),
-                    right.to_string()
-                )
-                .to_string(),
-                (Some(left), None) => {
-                    format!("<<<<<<<<< ========= {} >>>>>>>>>", left.to_string()).to_string()
-                }
-                (None, Some(right)) => {
-                    format!("<<<<<<<<< ========= {} >>>>>>>>>", right.to_string()).to_string()
-                }
-                (None, None) => panic!("Invalid conflict provided"),
-            },
         }
     }
 }

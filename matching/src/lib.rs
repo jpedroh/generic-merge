@@ -12,7 +12,7 @@ pub fn calculate_matchings<'a>(
     left: &'a model::CSTNode,
     right: &'a model::CSTNode,
 ) -> Matchings<'a> {
-    if left.can_be_matching_unordered() && right.can_be_matching_unordered() {
+    if left.are_children_unordered() && right.are_children_unordered() {
         unordered_tree_matching::unordered_tree_matching(left, right)
     } else {
         ordered_tree_matching::ordered_tree_matching(left, right)

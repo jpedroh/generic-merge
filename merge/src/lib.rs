@@ -1,6 +1,8 @@
 mod odered_merge;
+mod merged_cst_node;
 
 use matching::Matchings;
+use merged_cst_node::MergedCSTNode;
 use model::CSTNode;
 use odered_merge::ordered_merge;
 
@@ -11,7 +13,7 @@ pub fn merge<'a>(
     base_left_matchings: &'a Matchings<'a>,
     base_right_matchings: &'a Matchings<'a>,
     left_right_matchings: &'a Matchings<'a>,
-) -> CSTNode<'a> {
+) -> MergedCSTNode<'a> {
     return ordered_merge(
         base,
         left,
