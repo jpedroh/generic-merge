@@ -1,21 +1,21 @@
 use crate::tree_sitter_parser::ParserConfiguration;
-use model::CSTNode;
+use model::{CSTNode, Point};
 use tree_sitter::Node;
 
 fn explore_node<'a>(node: Node, src: &'a str, config: &'a ParserConfiguration) -> CSTNode<'a> {
     if node.child_count() == 0 || config.stop_compilation_at.contains(node.kind()) {
         CSTNode::Terminal {
             kind: node.kind().into(),
-            start_position: node.start_position(),
-            end_position: node.end_position(),
+            start_position: Point { row: node.start_position().row, column: node.start_position().column },
+            end_position: Point { row: node.end_position().row, column: node.end_position().column },
             value: src[node.byte_range()].into(),
         }
     } else {
         let mut cursor = node.walk();
         CSTNode::NonTerminal {
             kind: node.kind().into(),
-            start_position: node.start_position(),
-            end_position: node.end_position(),
+            start_position: Point { row: node.start_position().row, column: node.start_position().column },
+            end_position: Point { row: node.end_position().row, column: node.end_position().column },
             children: node
                 .children(&mut cursor)
                 .map(|child| explore_node(child, src, config))

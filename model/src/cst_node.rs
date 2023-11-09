@@ -1,16 +1,22 @@
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash, PartialOrd, Ord)]
+pub struct Point {
+    pub row: usize,
+    pub column: usize,
+}
+
 #[derive(Debug, PartialEq, Clone, Eq, Hash, PartialOrd, Ord)]
 pub enum CSTNode<'a> {
     Terminal {
         kind: &'a str,
         value: String,
-        start_position: tree_sitter::Point,
-        end_position: tree_sitter::Point,
+        start_position: Point,
+        end_position: Point,
     },
     NonTerminal {
         kind: &'a str,
         children: Vec<CSTNode<'a>>,
-        start_position: tree_sitter::Point,
-        end_position: tree_sitter::Point,
+        start_position: Point,
+        end_position: Point,
     },
 }
 
