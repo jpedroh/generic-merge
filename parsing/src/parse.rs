@@ -5,7 +5,7 @@ use tree_sitter::Node;
 fn explore_node<'a>(node: Node, src: &'a str, config: &'a ParserConfiguration) -> CSTNode<'a> {
     if node.child_count() == 0 || config.stop_compilation_at.contains(node.kind()) {
         CSTNode::Terminal {
-            kind: node.kind().into(),
+            kind: node.kind(),
             start_position: Point { row: node.start_position().row, column: node.start_position().column },
             end_position: Point { row: node.end_position().row, column: node.end_position().column },
             value: src[node.byte_range()].into(),
@@ -13,7 +13,7 @@ fn explore_node<'a>(node: Node, src: &'a str, config: &'a ParserConfiguration) -
     } else {
         let mut cursor = node.walk();
         CSTNode::NonTerminal {
-            kind: node.kind().into(),
+            kind: node.kind(),
             start_position: Point { row: node.start_position().row, column: node.start_position().column },
             end_position: Point { row: node.end_position().row, column: node.end_position().column },
             children: node

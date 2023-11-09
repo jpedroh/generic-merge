@@ -4,9 +4,9 @@ use utils::unordered_pair::UnorderedPair;
 
 #[derive(PartialEq, Eq, Debug, Clone)]
 enum Direction {
-    TOP,
-    LEFT,
-    DIAG,
+    Top,
+    Left,
+    Diag,
 }
 
 #[derive(Clone)]
@@ -14,7 +14,7 @@ struct Entry<'a>(pub Direction, pub Matchings<'a>);
 
 impl<'a> Default for Entry<'a> {
     fn default() -> Self {
-        Self(Direction::TOP, Default::default())
+        Self(Direction::Top, Default::default())
     }
 }
 
@@ -53,19 +53,17 @@ pub fn ordered_tree_matching<'a>(left: &'a CSTNode, right: &'a CSTNode) -> Match
                     if matrix_m[i][j - 1] > matrix_m[i - 1][j] {
                         if matrix_m[i][j - 1] > matrix_m[i - 1][j - 1] + matching.score {
                             matrix_m[i][j] = matrix_m[i][j - 1];
-                            matrix_t[i][j] = Entry(Direction::LEFT, w);
+                            matrix_t[i][j] = Entry(Direction::Left, w);
                         } else {
                             matrix_m[i][j] = matrix_m[i - 1][j - 1] + matching.score;
-                            matrix_t[i][j] = Entry(Direction::DIAG, w);
+                            matrix_t[i][j] = Entry(Direction::Diag, w);
                         }
+                    } else if matrix_m[i - 1][j] > matrix_m[i - 1][j - 1] + matching.score {
+                        matrix_m[i][j] = matrix_m[i - 1][j];
+                        matrix_t[i][j] = Entry(Direction::Top, w);
                     } else {
-                        if matrix_m[i - 1][j] > matrix_m[i - 1][j - 1] + matching.score {
-                            matrix_m[i][j] = matrix_m[i - 1][j];
-                            matrix_t[i][j] = Entry(Direction::TOP, w);
-                        } else {
-                            matrix_m[i][j] = matrix_m[i - 1][j - 1] + matching.score;
-                            matrix_t[i][j] = Entry(Direction::DIAG, w);
-                        }
+                        matrix_m[i][j] = matrix_m[i - 1][j - 1] + matching.score;
+                        matrix_t[i][j] = Entry(Direction::Diag, w);
                     }
                 }
             }
@@ -80,14 +78,14 @@ pub fn ordered_tree_matching<'a>(left: &'a CSTNode, right: &'a CSTNode) -> Match
 
             while i >= 1 && j >= 1 {
                 match matrix_t.get(i).unwrap().get(j).unwrap().0 {
-                    Direction::TOP => i = i - 1,
-                    Direction::LEFT => j = j - 1,
-                    Direction::DIAG => {
+                    Direction::Top => i -= 1,
+                    Direction::Left => j -= 1,
+                    Direction::Diag => {
                         if matrix_m[i][j] > matrix_m[i - 1][j - 1] {
                             matchings.extend(matrix_t[i][j].1.clone());
                         }
-                        i = i - 1;
-                        j = j - 1;
+                        i -= 1;
+                        j -= 1;
                     }
                 }
             }
@@ -254,7 +252,7 @@ mod tests {
             end_position: Point { row: 0, column: 7 },
         };
         let right_child = CSTNode::Terminal {
-            kind: "kind_c".into(),
+            kind: "kind_c",
             value: "value_c".into(),
             start_position: Point { row: 1, column: 0 },
             end_position: Point { row: 1, column: 7 },
@@ -290,7 +288,7 @@ mod tests {
             end_position: Point { row: 0, column: 7 },
         };
         let unique_right_child = CSTNode::Terminal {
-            kind: "kind_c".into(),
+            kind: "kind_c",
             value: "value_c".into(),
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
@@ -357,7 +355,7 @@ mod tests {
         };
 
         let intermediate = CSTNode::NonTerminal {
-            kind: "intermediate".into(),
+            kind: "intermediate",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![leaf],

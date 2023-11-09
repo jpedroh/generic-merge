@@ -24,7 +24,7 @@ impl CSTNode<'_> {
     pub fn are_children_unordered(&self) -> bool {
         match self {
             CSTNode::Terminal { .. } => false,
-            CSTNode::NonTerminal { kind, .. } => vec!["interface_body"].contains(kind),
+            CSTNode::NonTerminal { kind, .. } => ["interface_body"].contains(kind),
         }
     }
 }
@@ -36,7 +36,7 @@ impl ToString for CSTNode<'_> {
             CSTNode::NonTerminal { children, .. } => {
                 children.iter().fold(String::new(), |acc, current| {
                     let mut result = acc.to_owned();
-                    result.push_str(" ");
+                    result.push(' ');
                     result.push_str(&current.clone().to_string());
                     result
                 })

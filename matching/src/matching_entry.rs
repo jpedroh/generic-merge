@@ -6,10 +6,10 @@ pub struct MatchingEntry {
 
 impl MatchingEntry {
     pub fn new(score: usize, is_perfect_match: bool) -> Self {
-        return MatchingEntry {
+        MatchingEntry {
             score,
             is_perfect_match,
-        };
+        }
     }
 }
 

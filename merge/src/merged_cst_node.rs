@@ -16,9 +16,9 @@ pub enum MergedCSTNode<'a> {
     },
 }
 
-impl<'a> Into<MergedCSTNode<'a>> for CSTNode<'a> {
-    fn into(self) -> MergedCSTNode<'a> {
-        match self {
+impl<'a> From<CSTNode<'a>> for MergedCSTNode<'a> {
+    fn from(val: CSTNode<'a>) -> Self {
+        match val {
             CSTNode::Terminal { kind, value, .. } => MergedCSTNode::Terminal { kind, value },
             CSTNode::NonTerminal { kind, children, .. } => MergedCSTNode::NonTerminal {
                 kind,
@@ -35,7 +35,7 @@ impl ToString for MergedCSTNode<'_> {
             MergedCSTNode::NonTerminal { children, .. } => {
                 children.iter().fold(String::new(), |acc, current| {
                     let mut result = acc.to_owned();
-                    result.push_str(" ");
+                    result.push(' ');
                     result.push_str(&current.clone().to_string());
                     result
                 })

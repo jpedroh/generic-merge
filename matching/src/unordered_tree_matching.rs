@@ -40,7 +40,7 @@ pub fn unordered_tree_matching<'a>(left: &'a CSTNode, right: &'a CSTNode) -> cra
 
             for child_left in children_left {
                 for child_right in children_right {
-                    let matching_score = compute_matching_score(&child_left, &child_right);
+                    let matching_score = compute_matching_score(child_left, child_right);
 
                     if matching_score == 1 {
                         let child_matching = calculate_matchings(child_left, child_right);
