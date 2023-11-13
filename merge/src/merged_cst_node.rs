@@ -19,7 +19,10 @@ pub enum MergedCSTNode<'a> {
 impl<'a> From<CSTNode<'a>> for MergedCSTNode<'a> {
     fn from(val: CSTNode<'a>) -> Self {
         match val {
-            CSTNode::Terminal { kind, value, .. } => MergedCSTNode::Terminal { kind, value },
+            CSTNode::Terminal { kind, value, .. } => MergedCSTNode::Terminal {
+                kind,
+                value: value.to_string(),
+            },
             CSTNode::NonTerminal { kind, children, .. } => MergedCSTNode::NonTerminal {
                 kind,
                 children: children.into_iter().map(|node| node.into()).collect(),

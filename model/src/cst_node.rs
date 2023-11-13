@@ -8,7 +8,7 @@ pub struct Point {
 pub enum CSTNode<'a> {
     Terminal {
         kind: &'a str,
-        value: String,
+        value: &'a str,
         start_position: Point,
         end_position: Point,
     },

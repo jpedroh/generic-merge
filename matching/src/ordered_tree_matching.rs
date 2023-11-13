@@ -126,13 +126,13 @@ mod tests {
     fn two_terminal_nodes_matches_with_a_score_of_one_if_they_have_the_same_kind_and_value() {
         let left = CSTNode::Terminal {
             kind: "kind",
-            value: "value".to_owned(),
+            value: "value",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 5 },
         };
         let right = CSTNode::Terminal {
             kind: "kind",
-            value: "value".to_owned(),
+            value: "value",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 5 },
         };
@@ -149,13 +149,13 @@ mod tests {
     fn two_terminal_nodes_have_a_match_with_score_zero_if_they_have_different_value() {
         let left = CSTNode::Terminal {
             kind: "kind",
-            value: "value_a".to_owned(),
+            value: "value_a",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
         };
         let right = CSTNode::Terminal {
             kind: "kind",
-            value: "value_b".to_owned(),
+            value: "value_b",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
         };
@@ -172,13 +172,13 @@ mod tests {
     fn two_terminal_nodes_have_a_match_with_score_zero_if_they_have_different_kind() {
         let left = CSTNode::Terminal {
             kind: "kind_a",
-            value: "value".to_owned(),
+            value: "value",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 5 },
         };
         let right = CSTNode::Terminal {
             kind: "kind_b",
-            value: "value".to_owned(),
+            value: "value",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 5 },
         };
@@ -195,13 +195,13 @@ mod tests {
     fn two_terminal_nodes_have_a_match_with_score_zero_if_they_have_different_kind_and_value() {
         let left = CSTNode::Terminal {
             kind: "kind_a",
-            value: "value_a".to_owned(),
+            value: "value_a",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
         };
         let right = CSTNode::Terminal {
             kind: "kind_b",
-            value: "value_a".to_owned(),
+            value: "value_a",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
         };
@@ -218,7 +218,7 @@ mod tests {
     fn it_matches_deep_nodes_as_well() {
         let child = CSTNode::Terminal {
             kind: "kind_b",
-            value: "value_b".into(),
+            value: "value_b",
             start_position: Point { row: 1, column: 0 },
             end_position: Point { row: 1, column: 7 },
         };
@@ -247,13 +247,13 @@ mod tests {
     fn if_no_match_is_found_it_returns_none() {
         let left_child = CSTNode::Terminal {
             kind: "kind_b",
-            value: "value_b".into(),
+            value: "value_b",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
         };
         let right_child = CSTNode::Terminal {
             kind: "kind_c",
-            value: "value_c".into(),
+            value: "value_c",
             start_position: Point { row: 1, column: 0 },
             end_position: Point { row: 1, column: 7 },
         };
@@ -283,13 +283,13 @@ mod tests {
     fn the_matching_between_two_subtrees_is_the_sum_of_the_matchings_plus_the_root() {
         let common_child = CSTNode::Terminal {
             kind: "kind_b",
-            value: "value_b".into(),
+            value: "value_b",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
         };
         let unique_right_child = CSTNode::Terminal {
             kind: "kind_c",
-            value: "value_c".into(),
+            value: "value_c",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
         };
@@ -321,7 +321,7 @@ mod tests {
             kind: "kind_b",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
-            value: "value_b".into(),
+            value: "value_b",
         };
 
         let left = CSTNode::NonTerminal {
@@ -351,7 +351,7 @@ mod tests {
             kind: "kind_b",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
-            value: "value_b".into(),
+            value: "value_b",
         };
 
         let intermediate = CSTNode::NonTerminal {

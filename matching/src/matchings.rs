@@ -90,7 +90,7 @@ mod tests {
     fn returns_none_if_a_matching_for_the_node_is_not_found() {
         let a_node = CSTNode::Terminal {
             kind: "kind",
-            value: "value".into(),
+            value: "value",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 5 },
         };
@@ -102,7 +102,7 @@ mod tests {
     fn returns_some_match_if_a_matching_for_the_node_is_found() {
         let a_node = CSTNode::Terminal {
             kind: "kind",
-            value: "value".into(),
+            value: "value",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 5 },
         };

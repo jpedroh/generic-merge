@@ -6,16 +6,28 @@ fn explore_node<'a>(node: Node, src: &'a str, config: &'a ParserConfiguration) -
     if node.child_count() == 0 || config.stop_compilation_at.contains(node.kind()) {
         CSTNode::Terminal {
             kind: node.kind(),
-            start_position: Point { row: node.start_position().row, column: node.start_position().column },
-            end_position: Point { row: node.end_position().row, column: node.end_position().column },
-            value: src[node.byte_range()].into(),
+            start_position: Point {
+                row: node.start_position().row,
+                column: node.start_position().column,
+            },
+            end_position: Point {
+                row: node.end_position().row,
+                column: node.end_position().column,
+            },
+            value: &src[node.byte_range()],
         }
     } else {
         let mut cursor = node.walk();
         CSTNode::NonTerminal {
             kind: node.kind(),
-            start_position: Point { row: node.start_position().row, column: node.start_position().column },
-            end_position: Point { row: node.end_position().row, column: node.end_position().column },
+            start_position: Point {
+                row: node.start_position().row,
+                column: node.start_position().column,
+            },
+            end_position: Point {
+                row: node.end_position().row,
+                column: node.end_position().column,
+            },
             children: node
                 .children(&mut cursor)
                 .map(|child| explore_node(child, src, config))
@@ -69,13 +81,13 @@ mod tests {
                         children: vec![
                             Terminal {
                                 kind: "public",
-                                value: "public".into(),
+                                value: "public",
                                 start_position: Point { row: 1, column: 12 },
                                 end_position: Point { row: 1, column: 18 },
                             },
                             Terminal {
                                 kind: "static",
-                                value: "static".into(),
+                                value: "static",
                                 start_position: Point { row: 1, column: 19 },
                                 end_position: Point { row: 1, column: 25 },
                             },
@@ -85,13 +97,13 @@ mod tests {
                     },
                     Terminal {
                         kind: "interface",
-                        value: "interface".into(),
+                        value: "interface",
                         start_position: Point { row: 1, column: 26 },
                         end_position: Point { row: 1, column: 35 },
                     },
                     Terminal {
                         kind: "identifier",
-                        value: "HelloWorld".into(),
+                        value: "HelloWorld",
                         start_position: Point { row: 1, column: 36 },
                         end_position: Point { row: 1, column: 46 },
                     },
@@ -100,7 +112,7 @@ mod tests {
                         children: vec![
                             Terminal {
                                 kind: "{",
-                                value: "{".into(),
+                                value: "{",
                                 start_position: Point { row: 1, column: 47 },
                                 end_position: Point { row: 1, column: 48 },
                             },
@@ -109,13 +121,13 @@ mod tests {
                                 children: vec![
                                     Terminal {
                                         kind: "void_type",
-                                        value: "void".into(),
+                                        value: "void",
                                         start_position: Point { row: 2, column: 16 },
                                         end_position: Point { row: 2, column: 20 },
                                     },
                                     Terminal {
                                         kind: "identifier",
-                                        value: "sayHello".into(),
+                                        value: "sayHello",
                                         start_position: Point { row: 2, column: 21 },
                                         end_position: Point { row: 2, column: 29 },
                                     },
@@ -124,7 +136,7 @@ mod tests {
                                         children: vec![
                                             Terminal {
                                                 kind: "(",
-                                                value: "(".into(),
+                                                value: "(",
                                                 start_position: Point { row: 2, column: 29 },
                                                 end_position: Point { row: 2, column: 30 },
                                             },
@@ -133,7 +145,7 @@ mod tests {
                                                 children: vec![
                                                     Terminal {
                                                         kind: "type_identifier",
-                                                        value: "String".into(),
+                                                        value: "String",
                                                         start_position: Point {
                                                             row: 2,
                                                             column: 30,
@@ -142,7 +154,7 @@ mod tests {
                                                     },
                                                     Terminal {
                                                         kind: "identifier",
-                                                        value: "name".into(),
+                                                        value: "name",
                                                         start_position: Point {
                                                             row: 2,
                                                             column: 37,
@@ -155,7 +167,7 @@ mod tests {
                                             },
                                             Terminal {
                                                 kind: ")",
-                                                value: ")".into(),
+                                                value: ")",
                                                 start_position: Point { row: 2, column: 41 },
                                                 end_position: Point { row: 2, column: 42 },
                                             },
@@ -165,7 +177,7 @@ mod tests {
                                     },
                                     Terminal {
                                         kind: ";",
-                                        value: ";".into(),
+                                        value: ";",
                                         start_position: Point { row: 2, column: 42 },
                                         end_position: Point { row: 2, column: 43 },
                                     },
@@ -175,7 +187,7 @@ mod tests {
                             },
                             Terminal {
                                 kind: "}",
-                                value: "}".into(),
+                                value: "}",
                                 start_position: Point { row: 3, column: 12 },
                                 end_position: Point { row: 3, column: 13 },
                             },
@@ -212,13 +224,13 @@ mod tests {
                         children: vec![
                             Terminal {
                                 kind: "public",
-                                value: "public".into(),
+                                value: "public",
                                 start_position: Point { row: 0, column: 0 },
                                 end_position: Point { row: 0, column: 6 },
                             },
                             Terminal {
                                 kind: "static",
-                                value: "static".into(),
+                                value: "static",
                                 start_position: Point { row: 0, column: 7 },
                                 end_position: Point { row: 0, column: 13 },
                             },
@@ -228,19 +240,19 @@ mod tests {
                     },
                     Terminal {
                         kind: "interface",
-                        value: "interface".into(),
+                        value: "interface",
                         start_position: Point { row: 0, column: 14 },
                         end_position: Point { row: 0, column: 23 },
                     },
                     Terminal {
                         kind: "identifier",
-                        value: "HelloWorld".into(),
+                        value: "HelloWorld",
                         start_position: Point { row: 0, column: 24 },
                         end_position: Point { row: 0, column: 34 },
                     },
                     Terminal {
                         kind: "interface_body",
-                        value: "{void sayHello(String name);}".into(),
+                        value: "{void sayHello(String name);}",
                         start_position: Point { row: 0, column: 35 },
                         end_position: Point { row: 0, column: 64 },
                     },

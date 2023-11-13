@@ -315,7 +315,7 @@ mod tests {
             kind: "kind",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
-            value: "value".into(),
+            value: "value",
         };
 
         assert_merge_is_correct_and_idempotent_with_respect_to_parent_side(
@@ -332,19 +332,19 @@ mod tests {
             kind: "kind",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
-            value: "\nvalue\n".into(),
+            value: "\nvalue\n",
         };
         let left = CSTNode::Terminal {
             kind: "kind",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
-            value: "left\nvalue\n".into(),
+            value: "left\nvalue\n",
         };
         let right = CSTNode::Terminal {
             kind: "kind",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
-            value: "\nvalue\nright".into(),
+            value: "\nvalue\nright",
         };
 
         assert_merge_is_correct_and_idempotent_with_respect_to_parent_side(
@@ -353,7 +353,7 @@ mod tests {
             &right,
             &MergedCSTNode::Terminal {
                 kind: "kind",
-                value: "left\nvalue\nright".into(),
+                value: "left\nvalue\nright".to_string(),
             },
         )
     }
@@ -364,19 +364,19 @@ mod tests {
             kind: "kind",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
-            value: "value".into(),
+            value: "value",
         };
         let left = CSTNode::Terminal {
             kind: "kind",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
-            value: "left_value".into(),
+            value: "left_value",
         };
         let right = CSTNode::Terminal {
             kind: "kind",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
-            value: "right_value".into(),
+            value: "right_value",
         };
 
         assert_eq!(
@@ -384,7 +384,7 @@ mod tests {
             &Matchings::empty()),
            MergedCSTNode::Terminal {
                 kind: "kind",
-                value: "<<<<<<< ours\nleft_value||||||| original\nvalue=======\nright_value>>>>>>> theirs\n".into()
+                value: "<<<<<<< ours\nleft_value||||||| original\nvalue=======\nright_value>>>>>>> theirs\n".to_string()
             }
         )
     }
@@ -395,13 +395,13 @@ mod tests {
             kind: "kind",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
-            value: "value".into(),
+            value: "value",
         };
         let changed_parent = CSTNode::Terminal {
             kind: "kind",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
-            value: "value_right".into(),
+            value: "value_right",
         };
 
         assert_merge_is_correct_and_idempotent_with_respect_to_parent_side(
@@ -420,13 +420,13 @@ mod tests {
                 kind: "kind",
                 start_position: Point { row: 0, column: 0 },
                 end_position: Point { row: 0, column: 7 },
-                value: "value".into(),
+                value: "value",
             },
             &CSTNode::Terminal {
                 kind: "kind",
                 start_position: Point { row: 0, column: 0 },
                 end_position: Point { row: 0, column: 7 },
-                value: "value".into(),
+                value: "value",
             },
             &CSTNode::NonTerminal {
                 kind: "kind",
@@ -451,13 +451,13 @@ mod tests {
                     kind: "kind_a",
                     start_position: Point { row: 0, column: 0 },
                     end_position: Point { row: 0, column: 7 },
-                    value: "value_a".into(),
+                    value: "value_a",
                 },
                 CSTNode::Terminal {
                     kind: "kind_b",
                     start_position: Point { row: 0, column: 0 },
                     end_position: Point { row: 0, column: 7 },
-                    value: "value_b".into(),
+                    value: "value_b",
                 },
             ],
         };
@@ -487,13 +487,13 @@ mod tests {
                     kind: "kind_a",
                     start_position: Point { row: 0, column: 0 },
                     end_position: Point { row: 0, column: 7 },
-                    value: "value_a".into(),
+                    value: "value_a",
                 },
                 CSTNode::Terminal {
                     kind: "kind_b",
                     start_position: Point { row: 0, column: 0 },
                     end_position: Point { row: 0, column: 7 },
-                    value: "value_b".into(),
+                    value: "value_b",
                 },
             ],
         };
@@ -531,7 +531,7 @@ mod tests {
                 kind: "kind_a",
                 start_position: Point { row: 0, column: 0 },
                 end_position: Point { row: 0, column: 7 },
-                value: "value_a".into(),
+                value: "value_a",
             }],
         };
 
@@ -539,7 +539,7 @@ mod tests {
             kind: "kind",
             children: vec![MergedCSTNode::Terminal {
                 kind: "kind_a",
-                value: "value_a".into(),
+                value: "value_a".to_string(),
             }],
         };
 
@@ -561,7 +561,7 @@ mod tests {
                 kind: "kind_a",
                 start_position: Point { row: 0, column: 0 },
                 end_position: Point { row: 0, column: 7 },
-                value: "value_a".into(),
+                value: "value_a",
             }],
         };
 
@@ -573,7 +573,7 @@ mod tests {
                 kind: "kind_a",
                 start_position: Point { row: 0, column: 0 },
                 end_position: Point { row: 0, column: 7 },
-                value: "value_a".into(),
+                value: "value_a",
             }],
         };
 
@@ -586,13 +586,13 @@ mod tests {
                     kind: "kind_a",
                     start_position: Point { row: 0, column: 0 },
                     end_position: Point { row: 0, column: 7 },
-                    value: "value_a".into(),
+                    value: "value_a",
                 },
                 CSTNode::Terminal {
                     kind: "kind_b",
                     start_position: Point { row: 0, column: 0 },
                     end_position: Point { row: 0, column: 7 },
-                    value: "value_b".into(),
+                    value: "value_b",
                 },
             ],
         };
@@ -602,11 +602,11 @@ mod tests {
             children: vec![
                 MergedCSTNode::Terminal {
                     kind: "kind_a",
-                    value: "value_a".into(),
+                    value: "value_a".to_string(),
                 },
                 MergedCSTNode::Terminal {
                     kind: "kind_b",
-                    value: "value_b".into(),
+                    value: "value_b".to_string(),
                 },
             ],
         };
@@ -629,7 +629,7 @@ mod tests {
                 kind: "kind_a",
                 start_position: Point { row: 0, column: 0 },
                 end_position: Point { row: 0, column: 7 },
-                value: "value_a".into(),
+                value: "value_a",
             }],
         };
 
@@ -641,7 +641,7 @@ mod tests {
                 kind: "kind_b",
                 start_position: Point { row: 0, column: 0 },
                 end_position: Point { row: 0, column: 7 },
-                value: "value_b".into(),
+                value: "value_b",
             }],
         };
 
@@ -653,7 +653,7 @@ mod tests {
                 kind: "kind_a",
                 start_position: Point { row: 0, column: 0 },
                 end_position: Point { row: 0, column: 7 },
-                value: "value_a".into(),
+                value: "value_a",
             }],
         };
 
@@ -661,7 +661,7 @@ mod tests {
             kind: "kind",
             children: vec![MergedCSTNode::Terminal {
                 kind: "kind_b",
-                value: "value_b".into(),
+                value: "value_b".to_string(),
             }],
         };
 
@@ -687,7 +687,7 @@ mod tests {
                     kind: "kind_a",
                     start_position: Point { row: 0, column: 0 },
                     end_position: Point { row: 0, column: 7 },
-                    value: "value_a".into(),
+                    value: "value_a",
                 }],
             }],
         };
@@ -704,7 +704,7 @@ mod tests {
                     kind: "kind_b",
                     start_position: Point { row: 0, column: 0 },
                     end_position: Point { row: 0, column: 7 },
-                    value: "value_b".into(),
+                    value: "value_b",
                 }],
             }],
         };
@@ -721,7 +721,7 @@ mod tests {
                     kind: "kind_c",
                     start_position: Point { row: 0, column: 0 },
                     end_position: Point { row: 0, column: 7 },
-                    value: "value_c".into(),
+                    value: "value_c",
                 }],
             }],
         };
@@ -755,7 +755,7 @@ mod tests {
                         kind: "another_subtree",
                         children: vec![MergedCSTNode::Terminal {
                             kind: "kind_b",
-                            value: "value_b".into(),
+                            value: "value_b".to_string(),
                         }],
                     },
                     MergedCSTNode::Conflict {
@@ -764,7 +764,7 @@ mod tests {
                             kind: "subtree",
                             children: vec![MergedCSTNode::Terminal {
                                 kind: "kind_c",
-                                value: "value_c".into(),
+                                value: "value_c".to_string(),
                             }],
                         })),
                     },
@@ -781,7 +781,7 @@ mod tests {
                         kind: "another_subtree",
                         children: vec![MergedCSTNode::Terminal {
                             kind: "kind_b",
-                            value: "value_b".into(),
+                            value: "value_b".to_string(),
                         }],
                     },
                     MergedCSTNode::Conflict {
@@ -789,7 +789,7 @@ mod tests {
                             kind: "subtree",
                             children: vec![MergedCSTNode::Terminal {
                                 kind: "kind_c",
-                                value: "value_c".into(),
+                                value: "value_c".to_string(),
                             }],
                         })),
                         right: None,
@@ -817,7 +817,7 @@ mod tests {
                 kind: "kind_a",
                 start_position: Point { row: 0, column: 0 },
                 end_position: Point { row: 0, column: 7 },
-                value: "value_a".into(),
+                value: "value_a",
             }],
         };
 
@@ -829,7 +829,7 @@ mod tests {
                 kind: "kind_b",
                 start_position: Point { row: 0, column: 0 },
                 end_position: Point { row: 0, column: 7 },
-                value: "value_b".into(),
+                value: "value_b",
             }],
         };
 
@@ -842,11 +842,11 @@ mod tests {
                 children: vec![MergedCSTNode::Conflict {
                     left: Some(Box::new(MergedCSTNode::Terminal {
                         kind: "kind_a",
-                        value: "value_a".into(),
+                        value: "value_a".to_string(),
                     })),
                     right: Some(Box::new(MergedCSTNode::Terminal {
                         kind: "kind_b",
-                        value: "value_b".into(),
+                        value: "value_b".to_string(),
                     })),
                 }],
             },
@@ -864,13 +864,13 @@ mod tests {
                     kind: "kind_a",
                     start_position: Point { row: 0, column: 0 },
                     end_position: Point { row: 0, column: 7 },
-                    value: "value_a".into(),
+                    value: "value_a",
                 },
                 CSTNode::Terminal {
                     kind: "kind_b",
                     start_position: Point { row: 0, column: 0 },
                     end_position: Point { row: 0, column: 7 },
-                    value: "value_b".into(),
+                    value: "value_b",
                 },
             ],
         };
@@ -884,13 +884,13 @@ mod tests {
                     kind: "kind_a",
                     start_position: Point { row: 0, column: 0 },
                     end_position: Point { row: 0, column: 7 },
-                    value: "value_a".into(),
+                    value: "value_a",
                 },
                 CSTNode::Terminal {
                     kind: "kind_b",
                     start_position: Point { row: 0, column: 0 },
                     end_position: Point { row: 0, column: 7 },
-                    value: "value_b".into(),
+                    value: "value_b",
                 },
             ],
         };
@@ -903,7 +903,7 @@ mod tests {
                 kind: "kind_b",
                 start_position: Point { row: 0, column: 0 },
                 end_position: Point { row: 0, column: 7 },
-                value: "value_b".into(),
+                value: "value_b",
             }],
         };
 
@@ -911,7 +911,7 @@ mod tests {
             kind: "kind",
             children: vec![MergedCSTNode::Terminal {
                 kind: "kind_b",
-                value: "value_b".into(),
+                value: "value_b".to_string(),
             }],
         };
 
@@ -933,14 +933,14 @@ mod tests {
                         kind: "kind_b",
                         start_position: Point { row: 0, column: 0 },
                         end_position: Point { row: 0, column: 7 },
-                        value: "value_b".into(),
+                        value: "value_b",
                     }],
                 },
                 CSTNode::Terminal {
                     kind: "kind_a",
                     start_position: Point { row: 0, column: 0 },
                     end_position: Point { row: 0, column: 7 },
-                    value: "value_a".into(),
+                    value: "value_a",
                 },
             ],
         };
@@ -958,14 +958,14 @@ mod tests {
                         kind: "kind_c",
                         start_position: Point { row: 0, column: 0 },
                         end_position: Point { row: 0, column: 7 },
-                        value: "value_c".into(),
+                        value: "value_c",
                     }],
                 },
                 CSTNode::Terminal {
                     kind: "kind_a",
                     start_position: Point { row: 0, column: 0 },
                     end_position: Point { row: 0, column: 7 },
-                    value: "value_a".into(),
+                    value: "value_a",
                 },
             ],
         };
@@ -978,7 +978,7 @@ mod tests {
                 kind: "kind_a",
                 start_position: Point { row: 0, column: 0 },
                 end_position: Point { row: 0, column: 7 },
-                value: "value_a".into(),
+                value: "value_a",
             }],
         };
 
@@ -994,14 +994,14 @@ mod tests {
                             kind: "subtree",
                             children: vec![MergedCSTNode::Terminal {
                                 kind: "kind_c",
-                                value: "value_c".into(),
+                                value: "value_c".to_string(),
                             }],
                         })),
                         right: None,
                     },
                     MergedCSTNode::Terminal {
                         kind: "kind_a",
-                        value: "value_a".into(),
+                        value: "value_a".to_string(),
                     },
                 ],
             },
@@ -1020,13 +1020,13 @@ mod tests {
                             kind: "subtree",
                             children: vec![MergedCSTNode::Terminal {
                                 kind: "kind_c",
-                                value: "value_c".into(),
+                                value: "value_c".to_string(),
                             }],
                         })),
                     },
                     MergedCSTNode::Terminal {
                         kind: "kind_a",
-                        value: "value_a".into(),
+                        value: "value_a".to_string(),
                     },
                 ],
             },
@@ -1044,13 +1044,13 @@ mod tests {
                     kind: "kind_a",
                     start_position: Point { row: 0, column: 0 },
                     end_position: Point { row: 0, column: 7 },
-                    value: "value_a".into(),
+                    value: "value_a",
                 },
                 CSTNode::Terminal {
                     kind: "kind_c",
                     start_position: Point { row: 0, column: 0 },
                     end_position: Point { row: 0, column: 7 },
-                    value: "value_c".into(),
+                    value: "value_c",
                 },
             ],
         };
@@ -1064,13 +1064,13 @@ mod tests {
                     kind: "kind_a",
                     start_position: Point { row: 0, column: 0 },
                     end_position: Point { row: 0, column: 7 },
-                    value: "value_a".into(),
+                    value: "value_a",
                 },
                 CSTNode::Terminal {
                     kind: "kind_c",
                     start_position: Point { row: 0, column: 0 },
                     end_position: Point { row: 0, column: 7 },
-                    value: "value_c".into(),
+                    value: "value_c",
                 },
             ],
         };
@@ -1084,19 +1084,19 @@ mod tests {
                     kind: "kind_a",
                     start_position: Point { row: 0, column: 0 },
                     end_position: Point { row: 0, column: 7 },
-                    value: "value_a".into(),
+                    value: "value_a",
                 },
                 CSTNode::Terminal {
                     kind: "kind_b",
                     start_position: Point { row: 0, column: 0 },
                     end_position: Point { row: 0, column: 7 },
-                    value: "value_b".into(),
+                    value: "value_b",
                 },
                 CSTNode::Terminal {
                     kind: "kind_c",
                     start_position: Point { row: 0, column: 0 },
                     end_position: Point { row: 0, column: 7 },
-                    value: "value_c".into(),
+                    value: "value_c",
                 },
             ],
         };
@@ -1106,15 +1106,15 @@ mod tests {
             children: vec![
                 MergedCSTNode::Terminal {
                     kind: "kind_a",
-                    value: "value_a".into(),
+                    value: "value_a".to_string(),
                 },
                 MergedCSTNode::Terminal {
                     kind: "kind_b",
-                    value: "value_b".into(),
+                    value: "value_b".to_string(),
                 },
                 MergedCSTNode::Terminal {
                     kind: "kind_c",
-                    value: "value_c".into(),
+                    value: "value_c".to_string(),
                 },
             ],
         };
@@ -1137,7 +1137,7 @@ mod tests {
                 kind: "kind_b",
                 start_position: Point { row: 0, column: 0 },
                 end_position: Point { row: 0, column: 7 },
-                value: "value_b".into(),
+                value: "value_b",
             }],
         };
 
@@ -1149,7 +1149,7 @@ mod tests {
                 kind: "kind_a",
                 start_position: Point { row: 0, column: 0 },
                 end_position: Point { row: 0, column: 7 },
-                value: "value_a".into(),
+                value: "value_a",
             }],
         };
 
@@ -1162,13 +1162,13 @@ mod tests {
                     kind: "kind_b",
                     start_position: Point { row: 0, column: 0 },
                     end_position: Point { row: 0, column: 7 },
-                    value: "value_b".into(),
+                    value: "value_b",
                 },
                 CSTNode::Terminal {
                     kind: "kind_a",
                     start_position: Point { row: 0, column: 0 },
                     end_position: Point { row: 0, column: 7 },
-                    value: "value_a".into(),
+                    value: "value_a",
                 },
             ],
         };
@@ -1177,7 +1177,7 @@ mod tests {
             kind: "kind",
             children: vec![MergedCSTNode::Terminal {
                 kind: "kind_a",
-                value: "value_a".into(),
+                value: "value_a".to_string(),
             }],
         };
 
@@ -1203,7 +1203,7 @@ mod tests {
                     kind: "kind_b",
                     start_position: Point { row: 0, column: 0 },
                     end_position: Point { row: 0, column: 7 },
-                    value: "value_b".into(),
+                    value: "value_b",
                 }],
             }],
         };
@@ -1216,7 +1216,7 @@ mod tests {
                 kind: "kind_a",
                 start_position: Point { row: 0, column: 0 },
                 end_position: Point { row: 0, column: 7 },
-                value: "value_a".into(),
+                value: "value_a",
             }],
         };
 
@@ -1233,14 +1233,14 @@ mod tests {
                         kind: "kind_b",
                         start_position: Point { row: 0, column: 0 },
                         end_position: Point { row: 0, column: 7 },
-                        value: "value_c".into(),
+                        value: "value_c",
                     }],
                 },
                 CSTNode::Terminal {
                     kind: "kind_a",
                     start_position: Point { row: 0, column: 0 },
                     end_position: Point { row: 0, column: 7 },
-                    value: "value_a".into(),
+                    value: "value_a",
                 },
             ],
         };
@@ -1258,13 +1258,13 @@ mod tests {
                             kind: "subtree",
                             children: vec![MergedCSTNode::Terminal {
                                 kind: "kind_b",
-                                value: "value_c".into(),
+                                value: "value_c".to_string(),
                             }],
                         })),
                     },
                     MergedCSTNode::Terminal {
                         kind: "kind_a",
-                        value: "value_a".into(),
+                        value: "value_a".to_string(),
                     },
                 ],
             },
@@ -1281,14 +1281,14 @@ mod tests {
                             kind: "subtree",
                             children: vec![MergedCSTNode::Terminal {
                                 kind: "kind_b",
-                                value: "value_c".into(),
+                                value: "value_c".to_string(),
                             }],
                         })),
                         right: None,
                     },
                     MergedCSTNode::Terminal {
                         kind: "kind_a",
-                        value: "value_a".into(),
+                        value: "value_a".to_string(),
                     },
                 ],
             },
@@ -1312,7 +1312,7 @@ mod tests {
                 kind: "kind_a",
                 start_position: Point { row: 0, column: 0 },
                 end_position: Point { row: 0, column: 7 },
-                value: "value_a".into(),
+                value: "value_a",
             }],
         };
 
@@ -1325,13 +1325,13 @@ mod tests {
                     kind: "kind_c",
                     start_position: Point { row: 0, column: 0 },
                     end_position: Point { row: 0, column: 7 },
-                    value: "value_c".into(),
+                    value: "value_c",
                 },
                 CSTNode::Terminal {
                     kind: "kind_a",
                     start_position: Point { row: 0, column: 0 },
                     end_position: Point { row: 0, column: 7 },
-                    value: "value_a".into(),
+                    value: "value_a",
                 },
             ],
         };
@@ -1341,11 +1341,11 @@ mod tests {
             children: vec![
                 MergedCSTNode::Terminal {
                     kind: "kind_c",
-                    value: "value_c".into(),
+                    value: "value_c".to_string(),
                 },
                 MergedCSTNode::Terminal {
                     kind: "kind_a",
-                    value: "value_a".into(),
+                    value: "value_a".to_string(),
                 },
             ],
         };
@@ -1369,13 +1369,13 @@ mod tests {
                     kind: "kind_b",
                     start_position: Point { row: 0, column: 0 },
                     end_position: Point { row: 0, column: 7 },
-                    value: "value_b".into(),
+                    value: "value_b",
                 },
                 CSTNode::Terminal {
                     kind: "kind_c",
                     start_position: Point { row: 0, column: 0 },
                     end_position: Point { row: 0, column: 7 },
-                    value: "value_c".into(),
+                    value: "value_c",
                 },
             ],
         };
@@ -1388,7 +1388,7 @@ mod tests {
                 kind: "kind_b",
                 start_position: Point { row: 0, column: 0 },
                 end_position: Point { row: 0, column: 7 },
-                value: "value_b".into(),
+                value: "value_b",
             }],
         };
 
@@ -1400,7 +1400,7 @@ mod tests {
                 kind: "kind_c",
                 start_position: Point { row: 0, column: 0 },
                 end_position: Point { row: 0, column: 7 },
-                value: "value_c".into(),
+                value: "value_c",
             }],
         };
 
@@ -1433,7 +1433,7 @@ mod tests {
                         kind: "kind_b",
                         start_position: Point { row: 0, column: 0 },
                         end_position: Point { row: 0, column: 7 },
-                        value: "value_b".into(),
+                        value: "value_b",
                     }],
                 },
                 CSTNode::NonTerminal {
@@ -1444,7 +1444,7 @@ mod tests {
                         kind: "kind_c",
                         start_position: Point { row: 0, column: 0 },
                         end_position: Point { row: 0, column: 7 },
-                        value: "value_c".into(),
+                        value: "value_c",
                     }],
                 },
             ],
@@ -1462,7 +1462,7 @@ mod tests {
                     kind: "kind_c",
                     start_position: Point { row: 0, column: 0 },
                     end_position: Point { row: 0, column: 7 },
-                    value: "value_c".into(),
+                    value: "value_c",
                 }],
             }],
         };
@@ -1479,7 +1479,7 @@ mod tests {
                     kind: "kind_a",
                     start_position: Point { row: 0, column: 0 },
                     end_position: Point { row: 0, column: 7 },
-                    value: "value_c".into(),
+                    value: "value_c",
                 }],
             }],
         };
@@ -1495,7 +1495,7 @@ mod tests {
                         kind: "subtree_b",
                         children: vec![MergedCSTNode::Terminal {
                             kind: "kind_c",
-                            value: "value_c".into(),
+                            value: "value_c".to_string(),
                         }],
                     })),
                     right: None,
@@ -1514,7 +1514,7 @@ mod tests {
                         kind: "subtree_b",
                         children: vec![MergedCSTNode::Terminal {
                             kind: "kind_c",
-                            value: "value_c".into(),
+                            value: "value_c".to_string(),
                         }],
                     })),
                 }],

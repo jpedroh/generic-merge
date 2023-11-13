@@ -1,5 +1,5 @@
-mod odered_merge;
 mod merged_cst_node;
+mod odered_merge;
 
 use matching::Matchings;
 use merged_cst_node::MergedCSTNode;
