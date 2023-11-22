@@ -53,7 +53,6 @@ pub fn unordered_merge<'a>(
             CSTNode::NonTerminal { .. },
         ) => {
             let mut result_children = vec![];
-            let mut processed_children = HashSet::<&CSTNode>::new();
 
             for left_node in children_left.iter() {
                 let matching_base_left = base_left_matchings.find_matching_for(left_node);
@@ -63,9 +62,17 @@ pub fn unordered_merge<'a>(
                     // Added only by left
                     (None, None) => {
                         result_children.push(left_node.to_owned().into());
-                        processed_children.insert(left_node);
                     }
-                    (None, Some(_)) => todo!(),
+                    (None, Some(right_matching)) => {
+                        result_children.push(merge(
+                            left_node,
+                            left_node,
+                            right_matching.matching_node,
+                            base_left_matchings,
+                            base_right_matchings,
+                            left_right_matchings,
+                        ));
+                    }
                     (Some(_), None) => todo!(),
                     (Some(_), Some(right_matching)) => {
                         result_children.push(merge(
@@ -76,8 +83,6 @@ pub fn unordered_merge<'a>(
                             base_right_matchings,
                             left_right_matchings,
                         ));
-                        processed_children.insert(left_node);
-                        processed_children.insert(right_matching.matching_node);
                     }
                 }
             }
@@ -231,6 +236,114 @@ mod tests {
                 MergedCSTNode::Terminal {
                     kind: "method_declaration",
                     value: String::from("main"),
+                },
+                MergedCSTNode::Terminal {
+                    kind: "}",
+                    value: String::from("}"),
+                },
+            ],
+        };
+
+        assert_merge_output_is(&base, &left, &right, &merge);
+    }
+
+    #[test]
+    fn test_both_left_and_right_add_the_same_node_and_both_subtrees_are_equal() {
+        let base = CSTNode::NonTerminal {
+            kind: "interface_body",
+            start_position: model::Point { row: 0, column: 0 },
+            end_position: model::Point { row: 0, column: 0 },
+            children: vec![
+                CSTNode::Terminal {
+                    kind: "{",
+                    value: "{",
+                    start_position: model::Point { row: 0, column: 1 },
+                    end_position: model::Point { row: 0, column: 1 },
+                },
+                CSTNode::Terminal {
+                    kind: "}",
+                    value: "}",
+                    start_position: model::Point { row: 1, column: 1 },
+                    end_position: model::Point { row: 1, column: 1 },
+                },
+            ],
+        };
+
+        let left = CSTNode::NonTerminal {
+            kind: "interface_body",
+            start_position: model::Point { row: 0, column: 0 },
+            end_position: model::Point { row: 0, column: 0 },
+            children: vec![
+                CSTNode::Terminal {
+                    kind: "{",
+                    value: "{",
+                    start_position: model::Point { row: 0, column: 1 },
+                    end_position: model::Point { row: 0, column: 1 },
+                },
+                CSTNode::NonTerminal {
+                    kind: "method_declaration",
+                    start_position: model::Point { row: 1, column: 0 },
+                    end_position: model::Point { row: 1, column: 4 },
+                    children: vec![CSTNode::Terminal {
+                        kind: "identifier",
+                        value: "main",
+                        start_position: model::Point { row: 0, column: 1 },
+                        end_position: model::Point { row: 0, column: 1 },
+                    }],
+                },
+                CSTNode::Terminal {
+                    kind: "}",
+                    value: "}",
+                    start_position: model::Point { row: 2, column: 1 },
+                    end_position: model::Point { row: 2, column: 1 },
+                },
+            ],
+        };
+
+        let right = CSTNode::NonTerminal {
+            kind: "interface_body",
+            start_position: model::Point { row: 0, column: 0 },
+            end_position: model::Point { row: 0, column: 0 },
+            children: vec![
+                CSTNode::Terminal {
+                    kind: "{",
+                    value: "{",
+                    start_position: model::Point { row: 0, column: 1 },
+                    end_position: model::Point { row: 0, column: 1 },
+                },
+                CSTNode::NonTerminal {
+                    kind: "method_declaration",
+                    start_position: model::Point { row: 1, column: 0 },
+                    end_position: model::Point { row: 1, column: 4 },
+                    children: vec![CSTNode::Terminal {
+                        kind: "identifier",
+                        value: "main",
+                        start_position: model::Point { row: 0, column: 1 },
+                        end_position: model::Point { row: 0, column: 1 },
+                    }],
+                },
+                CSTNode::Terminal {
+                    kind: "}",
+                    value: "}",
+                    start_position: model::Point { row: 2, column: 1 },
+                    end_position: model::Point { row: 2, column: 1 },
+                },
+            ],
+        };
+
+        let merge = MergedCSTNode::NonTerminal {
+            kind: "interface_body",
+            children: vec![
+                MergedCSTNode::Terminal {
+                    kind: "{",
+                    value: String::from("{"),
+                },
+                MergedCSTNode::NonTerminal {
+                    kind: "method_declaration",
+                    children: vec![MergedCSTNode::Terminal {
+                        kind: "identifier",
+                        value: String::from("main"),
+                    }],
                 },
                 MergedCSTNode::Terminal {
                     kind: "}",
