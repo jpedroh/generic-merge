@@ -1,10 +1,10 @@
 mod merged_cst_node;
-mod odered_merge;
+mod ordered_merge;
 
 use matching::Matchings;
 use merged_cst_node::MergedCSTNode;
 use model::CSTNode;
-use odered_merge::ordered_merge;
+use ordered_merge::ordered_merge;
 
 pub fn merge<'a>(
     base: &'a CSTNode<'a>,
