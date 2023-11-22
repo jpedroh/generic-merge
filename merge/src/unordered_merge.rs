@@ -1,5 +1,3 @@
-use std::collections::HashSet;
-
 use matching::Matchings;
 use model::CSTNode;
 
