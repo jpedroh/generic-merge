@@ -1,3 +1,5 @@
+use std::collections::HashSet;
+
 use matching::Matchings;
 use model::CSTNode;
 
@@ -48,11 +50,24 @@ pub fn unordered_merge<'a>(
                 children: children_left,
                 ..
             },
-            CSTNode::NonTerminal { .. },
+            CSTNode::NonTerminal {
+                children: children_right,
+                ..
+            },
         ) => {
             let mut result_children = vec![];
+            let mut processed_nodes: HashSet<&CSTNode> = HashSet::new();
 
             for left_child in children_left.iter() {
+                match left_child {
+                    CSTNode::Terminal { value, .. } => {
+                        if value == &"}" {
+                            break;
+                        }
+                    }
+                    CSTNode::NonTerminal { .. } => {}
+                }
+
                 let matching_base_left = base_left_matchings.find_matching_for(left_child);
                 let matching_left_right = left_right_matchings.find_matching_for(left_child);
 
@@ -60,6 +75,7 @@ pub fn unordered_merge<'a>(
                     // Added only by left
                     (None, None) => {
                         result_children.push(left_child.to_owned().into());
+                        processed_nodes.insert(left_child);
                     }
                     (None, Some(right_matching)) => {
                         result_children.push(merge(
@@ -70,6 +86,8 @@ pub fn unordered_merge<'a>(
                             base_right_matchings,
                             left_right_matchings,
                         ));
+                        processed_nodes.insert(left_child);
+                        processed_nodes.insert(right_matching.matching_node);
                     }
                     // Removed in right
                     (Some(matching_base_left), None) => {
@@ -80,12 +98,61 @@ pub fn unordered_merge<'a>(
                                 right: None,
                             })
                         }
+                        processed_nodes.insert(left_child);
                     }
                     (Some(_), Some(right_matching)) => {
                         result_children.push(merge(
                             left_child,
                             left_child,
                             right_matching.matching_node,
+                            base_left_matchings,
+                            base_right_matchings,
+                            left_right_matchings,
+                        ));
+                        processed_nodes.insert(left_child);
+                        processed_nodes.insert(right_matching.matching_node);
+                    }
+                }
+            }
+
+            for right_child in children_right.iter() {
+                if processed_nodes.contains(right_child) {
+                    continue;
+                }
+
+                let matching_base_right = base_right_matchings.find_matching_for(right_child);
+                let matching_left_right = left_right_matchings.find_matching_for(right_child);
+
+                match (matching_base_right, matching_left_right) {
+                    // Added only by right
+                    (None, None) => {
+                        result_children.push(right_child.to_owned().into());
+                    }
+                    (None, Some(matching_left_right)) => {
+                        result_children.push(merge(
+                            right_child,
+                            matching_left_right.matching_node,
+                            right_child,
+                            base_left_matchings,
+                            base_right_matchings,
+                            left_right_matchings,
+                        ));
+                    }
+                    // Removed in left
+                    (Some(matching_base_right), None) => {
+                        // Changed in right, conflict!
+                        if !matching_base_right.is_perfect_match {
+                            result_children.push(MergedCSTNode::Conflict {
+                                left: None,
+                                right: Some(Box::new(right_child.to_owned().into())),
+                            })
+                        }
+                    }
+                    (Some(_), Some(matching_left_right)) => {
+                        result_children.push(merge(
+                            right_child,
+                            matching_left_right.matching_node,
+                            right_child,
                             base_left_matchings,
                             base_right_matchings,
                             left_right_matchings,
@@ -112,7 +179,7 @@ mod tests {
 
     use super::unordered_merge;
 
-    fn _assert_merge_is_correct_and_idempotent_with_respect_to_parent_side(
+    fn assert_merge_is_correct_and_idempotent_with_respect_to_parent_side(
         base: &CSTNode,
         parent_a: &CSTNode,
         parent_b: &CSTNode,
@@ -166,7 +233,7 @@ mod tests {
     }
 
     #[test]
-    fn test_merge_node_added_only_by_left() {
+    fn test_merge_node_added_only_by_one_parent() {
         let base = CSTNode::NonTerminal {
             kind: "interface_body",
             start_position: model::Point { row: 0, column: 0 },
@@ -187,7 +254,7 @@ mod tests {
             ],
         };
 
-        let left = CSTNode::NonTerminal {
+        let parent_a = CSTNode::NonTerminal {
             kind: "interface_body",
             start_position: model::Point { row: 0, column: 0 },
             end_position: model::Point { row: 0, column: 0 },
@@ -251,11 +318,13 @@ mod tests {
             ],
         };
 
-        assert_merge_output_is(&base, &left, &right, &merge);
+        assert_merge_is_correct_and_idempotent_with_respect_to_parent_side(
+            &base, &parent_a, &right, &merge,
+        );
     }
 
     #[test]
-    fn test_both_left_and_right_add_the_same_node_and_both_subtrees_are_equal() {
+    fn test_both_parents_add_the_same_node_and_both_subtrees_are_equal() {
         let base = CSTNode::NonTerminal {
             kind: "interface_body",
             start_position: model::Point { row: 0, column: 0 },
@@ -276,7 +345,7 @@ mod tests {
             ],
         };
 
-        let left = CSTNode::NonTerminal {
+        let parent_a = CSTNode::NonTerminal {
             kind: "interface_body",
             start_position: model::Point { row: 0, column: 0 },
             end_position: model::Point { row: 0, column: 0 },
@@ -307,7 +376,7 @@ mod tests {
             ],
         };
 
-        let right = CSTNode::NonTerminal {
+        let parent_b = CSTNode::NonTerminal {
             kind: "interface_body",
             start_position: model::Point { row: 0, column: 0 },
             end_position: model::Point { row: 0, column: 0 },
@@ -338,7 +407,7 @@ mod tests {
             ],
         };
 
-        let merge = MergedCSTNode::NonTerminal {
+        let expected_merge = MergedCSTNode::NonTerminal {
             kind: "interface_body",
             children: vec![
                 MergedCSTNode::Terminal {
@@ -359,11 +428,16 @@ mod tests {
             ],
         };
 
-        assert_merge_output_is(&base, &left, &right, &merge);
+        assert_merge_is_correct_and_idempotent_with_respect_to_parent_side(
+            &base,
+            &parent_a,
+            &parent_b,
+            &expected_merge,
+        );
     }
 
     #[test]
-    fn test_merge_right_removes_a_node_and_left_keeps_unchanged() {
+    fn test_merge_one_parent_removes_a_node_while_the_other_keeps_it_unchanged() {
         let base = CSTNode::NonTerminal {
             kind: "interface_body",
             start_position: model::Point { row: 0, column: 0 },
@@ -395,7 +469,7 @@ mod tests {
             ],
         };
 
-        let left = CSTNode::NonTerminal {
+        let parent_a = CSTNode::NonTerminal {
             kind: "interface_body",
             start_position: model::Point { row: 0, column: 0 },
             end_position: model::Point { row: 0, column: 0 },
@@ -426,7 +500,7 @@ mod tests {
             ],
         };
 
-        let right = CSTNode::NonTerminal {
+        let parent_b = CSTNode::NonTerminal {
             kind: "interface_body",
             start_position: model::Point { row: 0, column: 0 },
             end_position: model::Point { row: 0, column: 0 },
@@ -446,7 +520,7 @@ mod tests {
             ],
         };
 
-        let merge = MergedCSTNode::NonTerminal {
+        let expected_merge = MergedCSTNode::NonTerminal {
             kind: "interface_body",
             children: vec![
                 MergedCSTNode::Terminal {
@@ -460,11 +534,16 @@ mod tests {
             ],
         };
 
-        assert_merge_output_is(&base, &left, &right, &merge);
+        assert_merge_is_correct_and_idempotent_with_respect_to_parent_side(
+            &base,
+            &parent_a,
+            &parent_b,
+            &expected_merge,
+        );
     }
 
     #[test]
-    fn test_merge_right_removes_a_node_but_left_changed_it() {
+    fn test_merge_one_parent_removes_a_node_while_the_other_changed_it() {
         let base = CSTNode::NonTerminal {
             kind: "interface_body",
             start_position: model::Point { row: 0, column: 0 },
@@ -504,7 +583,7 @@ mod tests {
             ],
         };
 
-        let left = CSTNode::NonTerminal {
+        let parent_a = CSTNode::NonTerminal {
             kind: "interface_body",
             start_position: model::Point { row: 0, column: 0 },
             end_position: model::Point { row: 0, column: 0 },
@@ -543,7 +622,7 @@ mod tests {
             ],
         };
 
-        let right = CSTNode::NonTerminal {
+        let parent_b = CSTNode::NonTerminal {
             kind: "interface_body",
             start_position: model::Point { row: 0, column: 0 },
             end_position: model::Point { row: 0, column: 0 },
@@ -563,36 +642,73 @@ mod tests {
             ],
         };
 
-        let merge = MergedCSTNode::NonTerminal {
-            kind: "interface_body",
-            children: vec![
-                MergedCSTNode::Terminal {
-                    kind: "{",
-                    value: String::from("{"),
-                },
-                MergedCSTNode::Conflict {
-                    left: Some(Box::new(MergedCSTNode::NonTerminal {
-                        kind: "method_declaration",
-                        children: vec![
-                            MergedCSTNode::Terminal {
-                                kind: "kind_a",
-                                value: String::from("value_a"),
-                            },
-                            MergedCSTNode::Terminal {
-                                kind: "kind_b",
-                                value: String::from("new_value_b"),
-                            },
-                        ],
-                    })),
-                    right: None,
-                },
-                MergedCSTNode::Terminal {
-                    kind: "}",
-                    value: String::from("}"),
-                },
-            ],
-        };
-
-        assert_merge_output_is(&base, &left, &right, &merge);
+        assert_merge_output_is(
+            &base,
+            &parent_a,
+            &parent_b,
+            &MergedCSTNode::NonTerminal {
+                kind: "interface_body",
+                children: vec![
+                    MergedCSTNode::Terminal {
+                        kind: "{",
+                        value: String::from("{"),
+                    },
+                    MergedCSTNode::Conflict {
+                        left: Some(Box::new(MergedCSTNode::NonTerminal {
+                            kind: "method_declaration",
+                            children: vec![
+                                MergedCSTNode::Terminal {
+                                    kind: "kind_a",
+                                    value: String::from("value_a"),
+                                },
+                                MergedCSTNode::Terminal {
+                                    kind: "kind_b",
+                                    value: String::from("new_value_b"),
+                                },
+                            ],
+                        })),
+                        right: None,
+                    },
+                    MergedCSTNode::Terminal {
+                        kind: "}",
+                        value: String::from("}"),
+                    },
+                ],
+            },
+        );
+        assert_merge_output_is(
+            &base,
+            &parent_b,
+            &parent_a,
+            &MergedCSTNode::NonTerminal {
+                kind: "interface_body",
+                children: vec![
+                    MergedCSTNode::Terminal {
+                        kind: "{",
+                        value: String::from("{"),
+                    },
+                    MergedCSTNode::Conflict {
+                        left: None,
+                        right: Some(Box::new(MergedCSTNode::NonTerminal {
+                            kind: "method_declaration",
+                            children: vec![
+                                MergedCSTNode::Terminal {
+                                    kind: "kind_a",
+                                    value: String::from("value_a"),
+                                },
+                                MergedCSTNode::Terminal {
+                                    kind: "kind_b",
+                                    value: String::from("new_value_b"),
+                                },
+                            ],
+                        })),
+                    },
+                    MergedCSTNode::Terminal {
+                        kind: "}",
+                        value: String::from("}"),
+                    },
+                ],
+            },
+        );
     }
 }
