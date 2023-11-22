@@ -56,8 +56,8 @@ pub fn unordered_merge<'a>(
             let mut processed_children = HashSet::<&CSTNode>::new();
 
             for left_node in children_left.iter() {
-                let matching_base_left = base_left_matchings.find_matching_for(&left_node);
-                let matching_left_right = left_right_matchings.find_matching_for(&left_node);
+                let matching_base_left = base_left_matchings.find_matching_for(left_node);
+                let matching_left_right = left_right_matchings.find_matching_for(left_node);
 
                 match (matching_base_left, matching_left_right) {
                     // Added only by left
