@@ -1,16 +1,16 @@
 fn main() {
-    let base = r#"
+    let _base = r#"
         public interface Repository {
         }
     "#;
-    let left: &str = r#"
+    let _left: &str = r#"
         public interface Repository {
             void create(Pessoa pessoa);
             void delete(Pessoa pessoa);
         }
     "#;
 
-    let right = r#"
+    let _right = r#"
         public interface Repository {
             void create(Pessoa pessoa);
             void delete(Pessoa pessoa);
