@@ -19,33 +19,34 @@ fn main() {
         }
     "#;
 
-    // let base = r#"
-    //     public class Main {
-    //         public static void main(String[] args) {
-    //             System.out.println("Hello, world!");
-    //             int y = 4;
-    //             int j = 0;
-    //         }
-    //     }
-    // "#;
-    // let left = r#"
-    //     public class Main {
-    //         public static void main(String[] args) {
-    //             int x = 0;
-    //             System.out.println("Hello, João!");
-    //             int y = 3;
-    //             int j = 0;
-    //         }
-    //     }
-    // "#;
-    // let right = r#"
-    //     public class Main {
-    //         public static void main(String[] args) {
-    //             System.out.println("Hello, Paulo!");
-    //             int y = 3;
-    //         }
-    //     }
-    // "#;
+    let base = r#"
+        public class Main {
+            public static void main(String[] args) {
+                System.out.println("Hello, world!");
+                int y = 4;
+                int j = 0;
+            }
+        }
+    "#;
+    let left = r#"
+        public class Main {
+            void create(Pessoa pessoa);
+            public static void main(String[] args) {
+                int x = 0;
+                System.out.println("Hello, João!");
+                int y = 3;
+            }
+        }
+    "#;
+    let right = r#"
+        public class Main {
+            public static void main(String[] args) {
+                System.out.println("Hello, Paulo!");
+                int y = 5;
+            }
+            void create(Pessoa pessoa);
+        }
+    "#;
 
     let parser_configuration = parsing::ParserConfiguration::from(model::Language::Java);
 
