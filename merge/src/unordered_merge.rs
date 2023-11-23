@@ -280,7 +280,7 @@ mod tests {
             ],
         };
 
-        let right = CSTNode::NonTerminal {
+        let parent_b = CSTNode::NonTerminal {
             kind: "interface_body",
             start_position: model::Point { row: 0, column: 0 },
             end_position: model::Point { row: 0, column: 0 },
@@ -319,7 +319,7 @@ mod tests {
         };
 
         assert_merge_is_correct_and_idempotent_with_respect_to_parent_side(
-            &base, &parent_a, &right, &merge,
+            &base, &parent_a, &parent_b, &merge,
         );
     }
 
