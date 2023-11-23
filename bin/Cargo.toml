@@ -11,3 +11,9 @@ model = { path = "../model" }
 parsing = { path = "../parsing" }
 matching = { path = "../matching" }
 utils = { path = "../utils" }
+assert_cmd = "2.0.12"
+predicates = "3.0.4"
+
+[[bin]]
+name = "generic-merge"
+path = "src/main.rs"
