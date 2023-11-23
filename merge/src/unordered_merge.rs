@@ -15,36 +15,6 @@ pub fn unordered_merge<'a>(
 ) -> MergedCSTNode<'a> {
     match (base, left, right) {
         (
-            CSTNode::Terminal {
-                kind,
-                value: value_base,
-                ..
-            },
-            CSTNode::Terminal {
-                value: value_left, ..
-            },
-            CSTNode::Terminal {
-                value: value_right, ..
-            },
-        ) => {
-            // Unchanged
-            if value_left == value_base && value_right == value_base {
-                base.to_owned().into()
-            // Changed in both
-            } else if value_left != value_base && value_right != value_base {
-                match diffy::merge(value_base, value_left, value_right) {
-                    Ok(value) => MergedCSTNode::Terminal { kind, value },
-                    Err(value) => MergedCSTNode::Terminal { kind, value },
-                }
-            // Only left changed
-            } else if value_left != value_base {
-                left.to_owned().into()
-            // Only right changed
-            } else {
-                right.to_owned().into()
-            }
-        }
-        (
             CSTNode::NonTerminal { kind, .. },
             CSTNode::NonTerminal {
                 children: children_left,
