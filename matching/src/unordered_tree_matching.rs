@@ -68,7 +68,18 @@ pub fn unordered_tree_matching<'a>(left: &'a CSTNode, right: &'a CSTNode) -> cra
 
 fn compute_matching_score<'a>(left: &'a CSTNode, right: &'a CSTNode) -> usize {
     match (left, right) {
-        (CSTNode::Terminal { .. }, CSTNode::Terminal { .. }) => (left == right).into(),
+        (
+            CSTNode::Terminal {
+                kind: kind_left,
+                value: value_left,
+                ..
+            },
+            CSTNode::Terminal {
+                kind: kind_right,
+                value: value_right,
+                ..
+            },
+        ) => (kind_left == kind_right && value_left == value_right).into(),
         (
             CSTNode::NonTerminal {
                 children: children_left,
