@@ -24,7 +24,7 @@ impl CSTNode<'_> {
     pub fn are_children_unordered(&self) -> bool {
         match self {
             CSTNode::Terminal { .. } => false,
-            CSTNode::NonTerminal { kind, .. } => ["interface_body"].contains(kind),
+            CSTNode::NonTerminal { kind, .. } => ["interface_body", "class_body"].contains(kind),
         }
     }
 }

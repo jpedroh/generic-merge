@@ -25,15 +25,17 @@ pub fn unordered_tree_matching<'a>(left: &'a CSTNode, right: &'a CSTNode) -> cra
         }
         (
             CSTNode::NonTerminal {
+                kind: kind_left,
                 children: children_left,
                 ..
             },
             CSTNode::NonTerminal {
+                kind: kind_right,
                 children: children_right,
                 ..
             },
         ) => {
-            let root_matching: usize = (left == right).into();
+            let root_matching: usize = (kind_left == kind_right).into();
 
             let mut sum = 0;
             let mut result = Matchings::empty();
@@ -101,7 +103,28 @@ fn compute_matching_score<'a>(left: &'a CSTNode, right: &'a CSTNode) -> usize {
                 _ => false,
             });
 
-            (identifier_left == identifier_right).into()
+            match (identifier_left, identifier_right) {
+                (Some(identifier_left), Some(identifier_right)) => {
+                    match (identifier_left, identifier_right) {
+                        (
+                            CSTNode::Terminal {
+                                value: value_left, ..
+                            },
+                            CSTNode::Terminal {
+                                value: value_right, ..
+                            },
+                        ) if value_left == value_right => {
+                            return 1;
+                        }
+                        (_, _) => {
+                            return 0;
+                        }
+                    }
+                }
+                (_, _) => {
+                    return 0;
+                }
+            }
         }
         (_, _) => 0,
     }

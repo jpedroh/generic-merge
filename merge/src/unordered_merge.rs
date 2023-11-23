@@ -531,6 +531,12 @@ mod tests {
                     end_position: model::Point { row: 1, column: 4 },
                     children: vec![
                         CSTNode::Terminal {
+                            kind: "identifier",
+                            value: "method",
+                            start_position: model::Point { row: 0, column: 1 },
+                            end_position: model::Point { row: 0, column: 1 },
+                        },
+                        CSTNode::Terminal {
                             kind: "kind_a",
                             value: "value_a",
                             start_position: model::Point { row: 0, column: 1 },
@@ -569,6 +575,12 @@ mod tests {
                     start_position: model::Point { row: 1, column: 0 },
                     end_position: model::Point { row: 1, column: 4 },
                     children: vec![
+                        CSTNode::Terminal {
+                            kind: "identifier",
+                            value: "method",
+                            start_position: model::Point { row: 0, column: 1 },
+                            end_position: model::Point { row: 0, column: 1 },
+                        },
                         CSTNode::Terminal {
                             kind: "kind_a",
                             value: "value_a",
@@ -628,6 +640,10 @@ mod tests {
                             kind: "method_declaration",
                             children: vec![
                                 MergedCSTNode::Terminal {
+                                    kind: "identifier",
+                                    value: String::from("method"),
+                                },
+                                MergedCSTNode::Terminal {
                                     kind: "kind_a",
                                     value: String::from("value_a"),
                                 },
@@ -662,6 +678,10 @@ mod tests {
                         right: Some(Box::new(MergedCSTNode::NonTerminal {
                             kind: "method_declaration",
                             children: vec![
+                                MergedCSTNode::Terminal {
+                                    kind: "identifier",
+                                    value: String::from("method"),
+                                },
                                 MergedCSTNode::Terminal {
                                     kind: "kind_a",
                                     value: String::from("value_a"),
