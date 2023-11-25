@@ -30,6 +30,7 @@ fn main() {
     "#;
     let left = r#"
         public class Main {
+            void delete(Pessoa pessoa);
             void create(Pessoa pessoa);
             public static void main(String[] args) {
                 int x = 0;
@@ -40,6 +41,7 @@ fn main() {
     "#;
     let right = r#"
         public class Main {
+            void upsert(Pessoa pessoa);
             public static void main(String[] args) {
                 System.out.println("Hello, Paulo!");
                 int y = 5;
