@@ -13,6 +13,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let parser_configuration =
         parser_configuration::get_parser_configuration_by_file_path(&args.base_path)?;
 
+    if base == left {
+        std::fs::write(args.merge_path, right)?;
+        return Ok(());
+    }
+
+    if base == right {
+        std::fs::write(args.merge_path, left)?;
+        return Ok(());
+    }
+
     let base_tree = parsing::parse_string(&base, &parser_configuration).unwrap();
     let left_tree = parsing::parse_string(&left, &parser_configuration).unwrap();
     let right_tree = parsing::parse_string(&right, &parser_configuration).unwrap();
