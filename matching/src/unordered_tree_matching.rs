@@ -113,17 +113,11 @@ fn compute_matching_score<'a>(left: &'a CSTNode, right: &'a CSTNode) -> usize {
                             CSTNode::Terminal {
                                 value: value_right, ..
                             },
-                        ) if value_left == value_right => {
-                            1
-                        }
-                        (_, _) => {
-                            0
-                        }
+                        ) if value_left == value_right => 1,
+                        (_, _) => 0,
                     }
                 }
-                (_, _) => {
-                    0
-                }
+                (_, _) => 0,
             }
         }
         (_, _) => 0,
