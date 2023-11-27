@@ -1,60 +1,53 @@
-fn main() {
-    let _base = r#"
-        public interface Repository {
-        }
-    "#;
-    let _left: &str = r#"
-        public interface Repository {
-            void create(Pessoa pessoa);
-            void delete(Pessoa pessoa);
-        }
-    "#;
+use std::{error::Error, ffi::OsStr, fs};
 
-    let _right = r#"
-        public interface Repository {
-            void create(Pessoa pessoa);
-            void delete(Pessoa pessoa);
-            void remove(Pessoa pessoa);
-            void insert(Pessoa pessoa);
-        }
-    "#;
+use clap::Parser;
 
-    let base = r#"
-        public class Main {
-            public static void main(String[] args) {
-                System.out.println("Hello, world!");
-                int y = 4;
-                int j = 0;
-            }
-        }
-    "#;
-    let left = r#"
-        public class Main {
-            void delete(Pessoa pessoa);
-            void create(Pessoa pessoa);
-            public static void main(String[] args) {
-                int x = 0;
-                System.out.println("Hello, João!");
-                int y = 3;
-            }
-        }
-    "#;
-    let right = r#"
-        public class Main {
-            void upsert(Pessoa pessoa);
-            public static void main(String[] args) {
-                System.out.println("Hello, Paulo!");
-                int y = 5;
-            }
-            void create(Pessoa pessoa);
-        }
-    "#;
+#[derive(Parser, Debug)]
+#[command(author, version, about, long_about = None)]
+struct Args {
+    /// Path to file in base revision
+    #[arg(short, long)]
+    base_path: std::path::PathBuf,
 
-    let parser_configuration = parsing::ParserConfiguration::from(model::Language::Java);
+    /// Path to file in left revision
+    #[arg(short, long)]
+    left_path: std::path::PathBuf,
 
-    let base_tree = parsing::parse_string(base, &parser_configuration).unwrap();
-    let left_tree = parsing::parse_string(left, &parser_configuration).unwrap();
-    let right_tree = parsing::parse_string(right, &parser_configuration).unwrap();
+    /// Path to file in right revision
+    #[arg(short, long)]
+    right_path: std::path::PathBuf,
+
+    /// Path where the merged file should be written
+    #[arg(short, long)]
+    merge_path: std::path::PathBuf,
+}
+
+fn get_parser_configuration_by_file_path(
+    file_path: &std::path::PathBuf,
+) -> Result<parsing::ParserConfiguration, String> {
+    file_path
+        .extension()
+        .and_then(OsStr::to_str)
+        .and_then(|extension| match extension {
+            "java" => Some(model::Language::Java),
+            _ => None,
+        })
+        .map(parsing::ParserConfiguration::from)
+        .ok_or(format!("Could not retrieve parsing configuration for file {}", file_path.display()))
+}
+
+fn main() -> Result<(), Box<dyn Error>> {
+    let args = Args::parse();
+    
+    let base = fs::read_to_string(&args.base_path)?;
+    let left = fs::read_to_string(args.left_path)?;
+    let right = fs::read_to_string(args.right_path)?;
+    
+    let parser_configuration = get_parser_configuration_by_file_path(&args.base_path)?;
+
+    let base_tree = parsing::parse_string(&base, &parser_configuration).unwrap();
+    let left_tree = parsing::parse_string(&left, &parser_configuration).unwrap();
+    let right_tree = parsing::parse_string(&right, &parser_configuration).unwrap();
 
     let matchings_left_base = matching::calculate_matchings(&left_tree, &base_tree);
     let matchings_right_base = matching::calculate_matchings(&right_tree, &base_tree);
@@ -69,5 +62,7 @@ fn main() {
         &matchings_left_right,
     );
 
-    println!("{}", result.to_string())
+    std::fs::write(args.merge_path, result.to_string())?;
+
+    Ok(())
 }
