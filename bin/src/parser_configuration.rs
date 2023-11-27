@@ -26,7 +26,7 @@ mod tests {
     }
 
     #[test]
-    fn if_the_file_extension_has_a_parser_available_it_returns_error() {
+    fn if_the_file_extension_has_a_parser_available_it_returns_a_parser_configuration() {
         let file_path = std::path::PathBuf::from("/path/for/java/file/Example.java");
         assert!(get_parser_configuration_by_file_path(&file_path).is_ok())
     }
