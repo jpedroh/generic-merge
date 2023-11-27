@@ -1,35 +1,14 @@
+mod cli_args;
 mod parser_configuration;
-
-use std::{error::Error, fs};
 
 use clap::Parser;
 
-#[derive(Parser, Debug)]
-#[command(author, version, about, long_about = None)]
-struct Args {
-    /// Path to file in base revision
-    #[arg(short, long)]
-    base_path: std::path::PathBuf,
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let args = cli_args::CliArgs::parse();
 
-    /// Path to file in left revision
-    #[arg(short, long)]
-    left_path: std::path::PathBuf,
-
-    /// Path to file in right revision
-    #[arg(short, long)]
-    right_path: std::path::PathBuf,
-
-    /// Path where the merged file should be written
-    #[arg(short, long)]
-    merge_path: std::path::PathBuf,
-}
-
-fn main() -> Result<(), Box<dyn Error>> {
-    let args = Args::parse();
-
-    let base = fs::read_to_string(&args.base_path)?;
-    let left = fs::read_to_string(args.left_path)?;
-    let right = fs::read_to_string(args.right_path)?;
+    let base = std::fs::read_to_string(&args.base_path)?;
+    let left = std::fs::read_to_string(args.left_path)?;
+    let right = std::fs::read_to_string(args.right_path)?;
 
     let parser_configuration =
         parser_configuration::get_parser_configuration_by_file_path(&args.base_path)?;
