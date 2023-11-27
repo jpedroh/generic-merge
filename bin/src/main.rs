@@ -1,4 +1,6 @@
-use std::{error::Error, ffi::OsStr, fs};
+mod parser_configuration;
+
+use std::{error::Error, fs};
 
 use clap::Parser;
 
@@ -22,28 +24,15 @@ struct Args {
     merge_path: std::path::PathBuf,
 }
 
-fn get_parser_configuration_by_file_path(
-    file_path: &std::path::PathBuf,
-) -> Result<parsing::ParserConfiguration, String> {
-    file_path
-        .extension()
-        .and_then(OsStr::to_str)
-        .and_then(|extension| match extension {
-            "java" => Some(model::Language::Java),
-            _ => None,
-        })
-        .map(parsing::ParserConfiguration::from)
-        .ok_or(format!("Could not retrieve parsing configuration for file {}", file_path.display()))
-}
-
 fn main() -> Result<(), Box<dyn Error>> {
     let args = Args::parse();
-    
+
     let base = fs::read_to_string(&args.base_path)?;
     let left = fs::read_to_string(args.left_path)?;
     let right = fs::read_to_string(args.right_path)?;
-    
-    let parser_configuration = get_parser_configuration_by_file_path(&args.base_path)?;
+
+    let parser_configuration =
+        parser_configuration::get_parser_configuration_by_file_path(&args.base_path)?;
 
     let base_tree = parsing::parse_string(&base, &parser_configuration).unwrap();
     let left_tree = parsing::parse_string(&left, &parser_configuration).unwrap();
