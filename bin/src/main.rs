@@ -1,60 +1,31 @@
-fn main() {
-    let _base = r#"
-        public interface Repository {
-        }
-    "#;
-    let _left: &str = r#"
-        public interface Repository {
-            void create(Pessoa pessoa);
-            void delete(Pessoa pessoa);
-        }
-    "#;
+mod cli_args;
+mod parser_configuration;
 
-    let _right = r#"
-        public interface Repository {
-            void create(Pessoa pessoa);
-            void delete(Pessoa pessoa);
-            void remove(Pessoa pessoa);
-            void insert(Pessoa pessoa);
-        }
-    "#;
+use clap::Parser;
 
-    let base = r#"
-        public class Main {
-            public static void main(String[] args) {
-                System.out.println("Hello, world!");
-                int y = 4;
-                int j = 0;
-            }
-        }
-    "#;
-    let left = r#"
-        public class Main {
-            void delete(Pessoa pessoa);
-            void create(Pessoa pessoa);
-            public static void main(String[] args) {
-                int x = 0;
-                System.out.println("Hello, João!");
-                int y = 3;
-            }
-        }
-    "#;
-    let right = r#"
-        public class Main {
-            void upsert(Pessoa pessoa);
-            public static void main(String[] args) {
-                System.out.println("Hello, Paulo!");
-                int y = 5;
-            }
-            void create(Pessoa pessoa);
-        }
-    "#;
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    let args = cli_args::CliArgs::parse();
 
-    let parser_configuration = parsing::ParserConfiguration::from(model::Language::Java);
+    let base = std::fs::read_to_string(&args.base_path)?;
+    let left = std::fs::read_to_string(args.left_path)?;
+    let right = std::fs::read_to_string(args.right_path)?;
 
-    let base_tree = parsing::parse_string(base, &parser_configuration).unwrap();
-    let left_tree = parsing::parse_string(left, &parser_configuration).unwrap();
-    let right_tree = parsing::parse_string(right, &parser_configuration).unwrap();
+    let parser_configuration =
+        parser_configuration::get_parser_configuration_by_file_path(&args.base_path)?;
+
+    if base == left {
+        std::fs::write(args.merge_path, right)?;
+        return Ok(());
+    }
+
+    if base == right {
+        std::fs::write(args.merge_path, left)?;
+        return Ok(());
+    }
+
+    let base_tree = parsing::parse_string(&base, &parser_configuration).unwrap();
+    let left_tree = parsing::parse_string(&left, &parser_configuration).unwrap();
+    let right_tree = parsing::parse_string(&right, &parser_configuration).unwrap();
 
     let matchings_left_base = matching::calculate_matchings(&left_tree, &base_tree);
     let matchings_right_base = matching::calculate_matchings(&right_tree, &base_tree);
@@ -69,5 +40,7 @@ fn main() {
         &matchings_left_right,
     );
 
-    println!("{}", result.to_string())
+    std::fs::write(args.merge_path, result.to_string())?;
+
+    Ok(())
 }
