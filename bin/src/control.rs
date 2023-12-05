@@ -1,8 +1,24 @@
+use std::{error::Error, fmt};
+
 use parsing::ParserConfiguration;
 
 #[derive(Debug)]
 pub enum ExecutionError {
     ParsingError,
+}
+
+impl fmt::Display for ExecutionError {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            ExecutionError::ParsingError => write!(f, "Parsing error occurred"),
+        }
+    }
+}
+
+impl Error for ExecutionError {
+    fn source(&self) -> Option<&(dyn Error + 'static)> {
+        None
+    }
 }
 
 #[derive(Debug)]

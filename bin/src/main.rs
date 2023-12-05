@@ -34,7 +34,11 @@ fn main() {
         .unwrap_or_else(|_| std::process::exit(cli_exit_codes::WRITING_FILE_ERROR));
 
     match result {
-        control::ExecutionResult::WithConflicts(_) => std::process::exit(cli_exit_codes::SUCCESS_WITH_CONFLICTS),
-        control::ExecutionResult::WithoutConflicts(_) => std::process::exit(cli_exit_codes::SUCCESS_WITHOUT_CONFLICTS),
+        control::ExecutionResult::WithConflicts(_) => {
+            std::process::exit(cli_exit_codes::SUCCESS_WITH_CONFLICTS)
+        }
+        control::ExecutionResult::WithoutConflicts(_) => {
+            std::process::exit(cli_exit_codes::SUCCESS_WITHOUT_CONFLICTS)
+        }
     }
 }
