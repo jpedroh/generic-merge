@@ -1,18 +1,9 @@
 mod cli_args;
+mod cli_exit_codes;
 mod control;
 mod language;
 
 use clap::Parser;
-
-mod cli_exit_codes {
-    pub const SUCCESS_WITHOUT_CONFLICTS: i32 = 0;
-    pub const SUCCESS_WITH_CONFLICTS: i32 = 1;
-
-    pub const READING_FILE_ERROR: i32 = 129;
-    pub const GUESS_LANGUAGE_ERROR: i32 = 130;
-    pub const WRITING_FILE_ERROR: i32 = 131;
-    pub const INTERNAL_EXECUTION_ERROR: i32 = 132;
-}
 
 fn main() {
     let args = cli_args::CliArgs::parse();
