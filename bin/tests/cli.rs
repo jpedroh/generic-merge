@@ -29,8 +29,10 @@ fn if_left_equals_base_then_output_right_as_result() {
         .code(0);
 
     assert_eq!(
-        std::fs::read_to_string("tests/samples/one_parent_equals_base/changed_parent.java").unwrap(),
-        std::fs::read_to_string("tests/samples/one_parent_equals_base/merge.output.right.java").unwrap()
+        std::fs::read_to_string("tests/samples/one_parent_equals_base/changed_parent.java")
+            .unwrap(),
+        std::fs::read_to_string("tests/samples/one_parent_equals_base/merge.output.right.java")
+            .unwrap()
     )
 }
 
@@ -45,7 +47,25 @@ fn if_right_equals_base_then_output_left_as_result() {
         .code(0);
 
     assert_eq!(
-        std::fs::read_to_string("tests/samples/one_parent_equals_base/changed_parent.java").unwrap(),
-        std::fs::read_to_string("tests/samples/one_parent_equals_base/merge.output.left.java").unwrap()
+        std::fs::read_to_string("tests/samples/one_parent_equals_base/changed_parent.java")
+            .unwrap(),
+        std::fs::read_to_string("tests/samples/one_parent_equals_base/merge.output.left.java")
+            .unwrap()
+    )
+}
+
+#[test]
+fn it_works_on_semi_structured_merge() {
+    let mut cmd = Command::cargo_bin("generic-merge").unwrap();
+    cmd.arg("--base-path=tests/samples/semi_structured/base.java")
+        .arg("--left-path=tests/samples/semi_structured/left.java")
+        .arg("--right-path=tests/samples/semi_structured/right.java")
+        .arg("--merge-path=tests/samples/semi_structured/merge.output.java")
+        .assert()
+        .code(0);
+
+    assert_eq!(
+        std::fs::read_to_string("tests/samples/semi_structured/merge.expected.java").unwrap(),
+        std::fs::read_to_string("tests/samples/semi_structured/merge.output.java").unwrap()
     )
 }

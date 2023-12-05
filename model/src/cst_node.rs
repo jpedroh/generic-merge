@@ -1,10 +1,20 @@
-#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, Hash, PartialOrd, Ord)]
+use std::hash::{Hasher,Hash};
+
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Point {
     pub row: usize,
     pub column: usize,
 }
 
-#[derive(Debug, PartialEq, Clone, Eq, Hash, PartialOrd, Ord)]
+impl Hash for Point {
+    fn hash<H: Hasher>(&self, hasher: &mut H) {
+        let mut hasher = std::collections::hash_map::DefaultHasher::new();
+        self.row.hash(&mut hasher);
+        self.column.hash(&mut hasher);
+    }
+}
+
+#[derive(Debug, PartialEq, Clone, Eq, PartialOrd, Ord)]
 pub enum CSTNode<'a> {
     Terminal {
         kind: &'a str,
@@ -18,6 +28,37 @@ pub enum CSTNode<'a> {
         start_position: Point,
         end_position: Point,
     },
+}
+
+impl<'a> Hash for CSTNode<'a> {
+    fn hash<H: Hasher>(&self, hasher: &mut H) {
+        let mut hasher = std::collections::hash_map::DefaultHasher::new();
+
+        match self {
+            CSTNode::Terminal {
+                kind,
+                value,
+                start_position,
+                end_position,
+            } => {
+                kind.hash(&mut hasher);
+                value.hash(&mut hasher);
+                start_position.hash(&mut hasher);
+                end_position.hash(&mut hasher);
+            }
+            CSTNode::NonTerminal {
+                kind,
+                children,
+                start_position,
+                end_position,
+            } => {
+                kind.hash(&mut hasher);
+                children.hash(&mut hasher);
+                start_position.hash(&mut hasher);
+                end_position.hash(&mut hasher);
+            }
+        }
+    }
 }
 
 impl CSTNode<'_> {
