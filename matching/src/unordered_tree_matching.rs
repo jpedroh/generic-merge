@@ -1,4 +1,7 @@
-use model::CSTNode;
+use model::{
+    cst_node::{NonTerminal, Terminal},
+    CSTNode,
+};
 use unordered_pair::UnorderedPair;
 
 use crate::{calculate_matchings, MatchingEntry, Matchings};
@@ -6,16 +9,16 @@ use crate::{calculate_matchings, MatchingEntry, Matchings};
 pub fn unordered_tree_matching<'a>(left: &'a CSTNode, right: &'a CSTNode) -> crate::Matchings<'a> {
     match (left, right) {
         (
-            CSTNode::Terminal {
+            CSTNode::Terminal(Terminal {
                 kind: kind_left,
                 value: value_left,
                 ..
-            },
-            CSTNode::Terminal {
+            }),
+            CSTNode::Terminal(Terminal {
                 kind: kind_right,
                 value: value_right,
                 ..
-            },
+            }),
         ) => {
             let is_perfetch_match = kind_left == kind_right && value_left == value_right;
             Matchings::from_single(
@@ -24,16 +27,16 @@ pub fn unordered_tree_matching<'a>(left: &'a CSTNode, right: &'a CSTNode) -> cra
             )
         }
         (
-            CSTNode::NonTerminal {
+            CSTNode::NonTerminal(NonTerminal {
                 kind: kind_left,
                 children: children_left,
                 ..
-            },
-            CSTNode::NonTerminal {
+            }),
+            CSTNode::NonTerminal(NonTerminal {
                 kind: kind_right,
                 children: children_right,
                 ..
-            },
+            }),
         ) => {
             let root_matching: usize = (kind_left == kind_right).into();
 
@@ -71,35 +74,35 @@ pub fn unordered_tree_matching<'a>(left: &'a CSTNode, right: &'a CSTNode) -> cra
 fn compute_matching_score<'a>(left: &'a CSTNode, right: &'a CSTNode) -> usize {
     match (left, right) {
         (
-            CSTNode::Terminal {
+            CSTNode::Terminal(Terminal {
                 kind: kind_left,
                 value: value_left,
                 ..
-            },
-            CSTNode::Terminal {
+            }),
+            CSTNode::Terminal(Terminal {
                 kind: kind_right,
                 value: value_right,
                 ..
-            },
+            }),
         ) => (kind_left == kind_right && value_left == value_right).into(),
         (
-            CSTNode::NonTerminal {
+            CSTNode::NonTerminal(NonTerminal {
                 children: children_left,
                 ..
-            },
-            CSTNode::NonTerminal {
+            }),
+            CSTNode::NonTerminal(NonTerminal {
                 children: children_right,
                 ..
-            },
+            }),
         ) => {
             // Try to find an identifier on children, and compare them
             let identifier_left = children_left.iter().find(|node| match node {
-                CSTNode::Terminal { kind, .. } => kind == &"identifier",
+                CSTNode::Terminal(Terminal { kind, .. }) => kind == &"identifier",
                 _ => false,
             });
 
             let identifier_right = children_right.iter().find(|node| match node {
-                CSTNode::Terminal { kind, .. } => kind == &"identifier",
+                CSTNode::Terminal(Terminal { kind, .. }) => kind == &"identifier",
                 _ => false,
             });
 
@@ -107,12 +110,12 @@ fn compute_matching_score<'a>(left: &'a CSTNode, right: &'a CSTNode) -> usize {
                 (Some(identifier_left), Some(identifier_right)) => {
                     match (identifier_left, identifier_right) {
                         (
-                            CSTNode::Terminal {
+                            CSTNode::Terminal(Terminal {
                                 value: value_left, ..
-                            },
-                            CSTNode::Terminal {
+                            }),
+                            CSTNode::Terminal(Terminal {
                                 value: value_right, ..
-                            },
+                            }),
                         ) if value_left == value_right => 1,
                         (_, _) => 0,
                     }

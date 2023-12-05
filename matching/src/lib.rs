@@ -6,6 +6,7 @@ mod unordered_tree_matching;
 
 pub use matching_entry::MatchingEntry;
 pub use matchings::Matchings;
+use model::cst_node::Terminal;
 pub use ordered_tree_matching::ordered_tree_matching;
 use unordered_pair::UnorderedPair;
 pub use unordered_tree_matching::unordered_tree_matching;
@@ -23,16 +24,16 @@ pub fn calculate_matchings<'a>(
             }
         }
         (
-            model::CSTNode::Terminal {
+            model::CSTNode::Terminal(Terminal {
                 kind: kind_left,
                 value: value_left,
                 ..
-            },
-            model::CSTNode::Terminal {
+            }),
+            model::CSTNode::Terminal(Terminal {
                 kind: kind_right,
                 value: value_right,
                 ..
-            },
+            }),
         ) => {
             let is_perfetch_match = kind_left == kind_right && value_left == value_right;
             Matchings::from_single(
@@ -46,24 +47,24 @@ pub fn calculate_matchings<'a>(
 
 #[cfg(test)]
 mod tests {
-    use model::{CSTNode, Point};
+    use model::{cst_node::Terminal, CSTNode, Point};
 
     use crate::{calculate_matchings, MatchingEntry};
 
     #[test]
     fn two_terminal_nodes_matches_with_a_score_of_one_if_they_have_the_same_kind_and_value() {
-        let left = CSTNode::Terminal {
+        let left = CSTNode::Terminal(Terminal {
             kind: "kind",
             value: "value",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 5 },
-        };
-        let right = CSTNode::Terminal {
+        });
+        let right = CSTNode::Terminal(Terminal {
             kind: "kind",
             value: "value",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 5 },
-        };
+        });
 
         let matchings = calculate_matchings(&left, &right);
 
@@ -75,18 +76,18 @@ mod tests {
 
     #[test]
     fn two_terminal_nodes_have_a_match_with_score_zero_if_they_have_different_value() {
-        let left = CSTNode::Terminal {
+        let left = CSTNode::Terminal(Terminal {
             kind: "kind",
             value: "value_a",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
-        };
-        let right = CSTNode::Terminal {
+        });
+        let right = CSTNode::Terminal(Terminal {
             kind: "kind",
             value: "value_b",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
-        };
+        });
 
         let matchings = calculate_matchings(&left, &right);
 
@@ -98,18 +99,18 @@ mod tests {
 
     #[test]
     fn two_terminal_nodes_have_a_match_with_score_zero_if_they_have_different_kind() {
-        let left = CSTNode::Terminal {
+        let left = CSTNode::Terminal(Terminal {
             kind: "kind_a",
             value: "value",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 5 },
-        };
-        let right = CSTNode::Terminal {
+        });
+        let right = CSTNode::Terminal(Terminal {
             kind: "kind_b",
             value: "value",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 5 },
-        };
+        });
 
         let matchings = calculate_matchings(&left, &right);
 
@@ -121,18 +122,18 @@ mod tests {
 
     #[test]
     fn two_terminal_nodes_have_a_match_with_score_zero_if_they_have_different_kind_and_value() {
-        let left = CSTNode::Terminal {
+        let left = CSTNode::Terminal(Terminal {
             kind: "kind_a",
             value: "value_a",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
-        };
-        let right = CSTNode::Terminal {
+        });
+        let right = CSTNode::Terminal(Terminal {
             kind: "kind_b",
             value: "value_a",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
-        };
+        });
 
         let matchings = calculate_matchings(&left, &right);
 

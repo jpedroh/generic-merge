@@ -82,30 +82,30 @@ impl<'a> IntoIterator for Matchings<'a> {
 
 #[cfg(test)]
 mod tests {
-    use model::Point;
+    use model::{cst_node::Terminal, Point};
 
     use super::*;
 
     #[test]
     fn returns_none_if_a_matching_for_the_node_is_not_found() {
-        let a_node = CSTNode::Terminal {
+        let a_node = CSTNode::Terminal(Terminal {
             kind: "kind",
             value: "value",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 5 },
-        };
+        });
 
         assert_eq!(None, Matchings::empty().find_matching_for(&a_node))
     }
 
     #[test]
     fn returns_some_match_if_a_matching_for_the_node_is_found() {
-        let a_node = CSTNode::Terminal {
+        let a_node = CSTNode::Terminal(Terminal {
             kind: "kind",
             value: "value",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 5 },
-        };
+        });
 
         let mut matchings = HashMap::new();
         matchings.insert(UnorderedPair(&a_node, &a_node), MatchingEntry::new(1, true));

@@ -16,18 +16,8 @@ impl Hash for Point {
 
 #[derive(Debug, PartialEq, Clone, Eq, PartialOrd, Ord)]
 pub enum CSTNode<'a> {
-    Terminal {
-        kind: &'a str,
-        value: &'a str,
-        start_position: Point,
-        end_position: Point,
-    },
-    NonTerminal {
-        kind: &'a str,
-        children: Vec<CSTNode<'a>>,
-        start_position: Point,
-        end_position: Point,
-    },
+    Terminal(Terminal<'a>),
+    NonTerminal(NonTerminal<'a>),
 }
 
 impl<'a> Hash for CSTNode<'a> {
@@ -35,37 +25,61 @@ impl<'a> Hash for CSTNode<'a> {
         let mut hasher = std::collections::hash_map::DefaultHasher::new();
 
         match self {
-            CSTNode::Terminal {
-                kind,
-                value,
-                start_position,
-                end_position,
-            } => {
-                kind.hash(&mut hasher);
-                value.hash(&mut hasher);
-                start_position.hash(&mut hasher);
-                end_position.hash(&mut hasher);
+            CSTNode::Terminal(node) => {
+                node.hash(&mut hasher);
             }
-            CSTNode::NonTerminal {
-                kind,
-                children,
-                start_position,
-                end_position,
-            } => {
-                kind.hash(&mut hasher);
-                children.hash(&mut hasher);
-                start_position.hash(&mut hasher);
-                end_position.hash(&mut hasher);
+            CSTNode::NonTerminal(node) => {
+                node.hash(&mut hasher);
             }
         }
+    }
+}
+
+#[derive(Debug, PartialEq, Clone, Eq, PartialOrd, Ord)]
+pub struct NonTerminal<'a> {
+    pub kind: &'a str,
+    pub children: Vec<CSTNode<'a>>,
+    pub start_position: Point,
+    pub end_position: Point,
+}
+
+impl<'a> Hash for NonTerminal<'a> {
+    fn hash<H: Hasher>(&self, _hasher: &mut H) {
+        let mut hasher = std::collections::hash_map::DefaultHasher::new();
+
+        self.kind.hash(&mut hasher);
+        self.children.hash(&mut hasher);
+        self.start_position.hash(&mut hasher);
+        self.end_position.hash(&mut hasher);
+    }
+}
+
+#[derive(Debug, PartialEq, Clone, Eq, PartialOrd, Ord)]
+pub struct Terminal<'a> {
+    pub kind: &'a str,
+    pub value: &'a str,
+    pub start_position: Point,
+    pub end_position: Point,
+}
+
+impl<'a> Hash for Terminal<'a> {
+    fn hash<H: Hasher>(&self, _hasher: &mut H) {
+        let mut hasher = std::collections::hash_map::DefaultHasher::new();
+
+        self.kind.hash(&mut hasher);
+        self.value.hash(&mut hasher);
+        self.start_position.hash(&mut hasher);
+        self.end_position.hash(&mut hasher);
     }
 }
 
 impl CSTNode<'_> {
     pub fn are_children_unordered(&self) -> bool {
         match self {
-            CSTNode::Terminal { .. } => false,
-            CSTNode::NonTerminal { kind, .. } => ["interface_body", "class_body"].contains(kind),
+            CSTNode::Terminal(_) => false,
+            CSTNode::NonTerminal(NonTerminal { kind, .. }) => {
+                ["interface_body", "class_body"].contains(kind)
+            }
         }
     }
 }

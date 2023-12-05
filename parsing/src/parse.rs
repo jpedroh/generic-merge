@@ -1,10 +1,13 @@
 use crate::tree_sitter_parser::ParserConfiguration;
-use model::{CSTNode, Point};
+use model::{
+    cst_node::{NonTerminal, Terminal},
+    CSTNode, Point,
+};
 use tree_sitter::Node;
 
 fn explore_node<'a>(node: Node, src: &'a str, config: &'a ParserConfiguration) -> CSTNode<'a> {
     if node.child_count() == 0 || config.stop_compilation_at.contains(node.kind()) {
-        CSTNode::Terminal {
+        CSTNode::Terminal(Terminal {
             kind: node.kind(),
             start_position: Point {
                 row: node.start_position().row,
@@ -15,10 +18,10 @@ fn explore_node<'a>(node: Node, src: &'a str, config: &'a ParserConfiguration) -
                 column: node.end_position().column,
             },
             value: &src[node.byte_range()],
-        }
+        })
     } else {
         let mut cursor = node.walk();
-        CSTNode::NonTerminal {
+        CSTNode::NonTerminal(NonTerminal {
             kind: node.kind(),
             start_position: Point {
                 row: node.start_position().row,
@@ -32,7 +35,7 @@ fn explore_node<'a>(node: Node, src: &'a str, config: &'a ParserConfiguration) -
                 .children(&mut cursor)
                 .map(|child| explore_node(child, src, config))
                 .collect(),
-        }
+        })
     }
 }
 
@@ -54,7 +57,8 @@ pub fn parse_string<'a>(
 
 #[cfg(test)]
 mod tests {
-    use model::CSTNode::{NonTerminal, Terminal};
+    use model::cst_node::{NonTerminal, Terminal};
+    use model::CSTNode;
     use model::Point;
 
     use super::*;
@@ -71,79 +75,79 @@ mod tests {
             stop_compilation_at: [].into_iter().collect(),
         };
         let result = parse_string(code, &parser_configuration);
-        let expected = NonTerminal {
+        let expected = CSTNode::NonTerminal(NonTerminal {
             kind: "program",
-            children: vec![NonTerminal {
+            children: vec![CSTNode::NonTerminal(NonTerminal {
                 kind: "interface_declaration",
                 children: vec![
-                    NonTerminal {
+                    CSTNode::NonTerminal(NonTerminal {
                         kind: "modifiers",
                         children: vec![
-                            Terminal {
+                            CSTNode::Terminal(Terminal {
                                 kind: "public",
                                 value: "public",
                                 start_position: Point { row: 1, column: 12 },
                                 end_position: Point { row: 1, column: 18 },
-                            },
-                            Terminal {
+                            }),
+                            CSTNode::Terminal(Terminal {
                                 kind: "static",
                                 value: "static",
                                 start_position: Point { row: 1, column: 19 },
                                 end_position: Point { row: 1, column: 25 },
-                            },
+                            }),
                         ],
                         start_position: Point { row: 1, column: 12 },
                         end_position: Point { row: 1, column: 25 },
-                    },
-                    Terminal {
+                    }),
+                    CSTNode::Terminal(Terminal {
                         kind: "interface",
                         value: "interface",
                         start_position: Point { row: 1, column: 26 },
                         end_position: Point { row: 1, column: 35 },
-                    },
-                    Terminal {
+                    }),
+                    CSTNode::Terminal(Terminal {
                         kind: "identifier",
                         value: "HelloWorld",
                         start_position: Point { row: 1, column: 36 },
                         end_position: Point { row: 1, column: 46 },
-                    },
-                    NonTerminal {
+                    }),
+                    CSTNode::NonTerminal(NonTerminal {
                         kind: "interface_body",
                         children: vec![
-                            Terminal {
+                            CSTNode::Terminal(Terminal {
                                 kind: "{",
                                 value: "{",
                                 start_position: Point { row: 1, column: 47 },
                                 end_position: Point { row: 1, column: 48 },
-                            },
-                            NonTerminal {
+                            }),
+                            CSTNode::NonTerminal(NonTerminal {
                                 kind: "method_declaration",
                                 children: vec![
-                                    Terminal {
+                                    CSTNode::Terminal(Terminal {
                                         kind: "void_type",
                                         value: "void",
                                         start_position: Point { row: 2, column: 16 },
                                         end_position: Point { row: 2, column: 20 },
-                                    },
-                                    Terminal {
+                                    }),
+                                    CSTNode::Terminal(Terminal {
                                         kind: "identifier",
                                         value: "sayHello",
                                         start_position: Point { row: 2, column: 21 },
                                         end_position: Point { row: 2, column: 29 },
-                                    },
-                                    NonTerminal {
+                                    }),
+                                    CSTNode::NonTerminal(NonTerminal {
                                         kind: "formal_parameters",
                                         children: vec![
-                                            Terminal {
+                                            CSTNode::Terminal(Terminal {
                                                 kind: "(",
                                                 value: "(",
                                                 start_position: Point { row: 2, column: 29 },
                                                 end_position: Point { row: 2, column: 30 },
-                                            },
-                                            NonTerminal {
+                                            }),
+                                            CSTNode::NonTerminal(NonTerminal {
                                                 kind: "formal_parameter",
                                                 children: vec![
-                                                    Terminal {
+                                                    CSTNode::Terminal(Terminal {
                                                         kind: "type_identifier",
                                                         value: "String",
                                                         start_position: Point {
@@ -151,8 +155,8 @@ mod tests {
                                                             column: 30,
                                                         },
                                                         end_position: Point { row: 2, column: 36 },
-                                                    },
-                                                    Terminal {
+                                                    }),
+                                                    CSTNode::Terminal(Terminal {
                                                         kind: "identifier",
                                                         value: "name",
                                                         start_position: Point {
@@ -160,48 +164,48 @@ mod tests {
                                                             column: 37,
                                                         },
                                                         end_position: Point { row: 2, column: 41 },
-                                                    },
+                                                    }),
                                                 ],
                                                 start_position: Point { row: 2, column: 30 },
                                                 end_position: Point { row: 2, column: 41 },
-                                            },
-                                            Terminal {
+                                            }),
+                                            CSTNode::Terminal(Terminal {
                                                 kind: ")",
                                                 value: ")",
                                                 start_position: Point { row: 2, column: 41 },
                                                 end_position: Point { row: 2, column: 42 },
-                                            },
+                                            }),
                                         ],
                                         start_position: Point { row: 2, column: 29 },
                                         end_position: Point { row: 2, column: 42 },
-                                    },
-                                    Terminal {
+                                    }),
+                                    CSTNode::Terminal(Terminal {
                                         kind: ";",
                                         value: ";",
                                         start_position: Point { row: 2, column: 42 },
                                         end_position: Point { row: 2, column: 43 },
-                                    },
+                                    }),
                                 ],
                                 start_position: Point { row: 2, column: 16 },
                                 end_position: Point { row: 2, column: 43 },
-                            },
-                            Terminal {
+                            }),
+                            CSTNode::Terminal(Terminal {
                                 kind: "}",
                                 value: "}",
                                 start_position: Point { row: 3, column: 12 },
                                 end_position: Point { row: 3, column: 13 },
-                            },
+                            }),
                         ],
                         start_position: Point { row: 1, column: 47 },
                         end_position: Point { row: 3, column: 13 },
-                    },
+                    }),
                 ],
                 start_position: Point { row: 1, column: 12 },
                 end_position: Point { row: 3, column: 13 },
-            }],
+            })],
             start_position: Point { row: 1, column: 12 },
             end_position: Point { row: 4, column: 8 },
-        };
+        });
         assert_eq!(expected, result.unwrap())
     }
 
@@ -214,55 +218,55 @@ mod tests {
         };
         let result = parse_string(code, &parser_configuration);
 
-        let expected = NonTerminal {
+        let expected = CSTNode::NonTerminal(NonTerminal {
             kind: "program",
-            children: vec![NonTerminal {
+            children: vec![CSTNode::NonTerminal(NonTerminal {
                 kind: "interface_declaration",
                 children: vec![
-                    NonTerminal {
+                    CSTNode::NonTerminal(NonTerminal {
                         kind: "modifiers",
                         children: vec![
-                            Terminal {
+                            CSTNode::Terminal(Terminal {
                                 kind: "public",
                                 value: "public",
                                 start_position: Point { row: 0, column: 0 },
                                 end_position: Point { row: 0, column: 6 },
-                            },
-                            Terminal {
+                            }),
+                            CSTNode::Terminal(Terminal {
                                 kind: "static",
                                 value: "static",
                                 start_position: Point { row: 0, column: 7 },
                                 end_position: Point { row: 0, column: 13 },
-                            },
+                            }),
                         ],
                         start_position: Point { row: 0, column: 0 },
                         end_position: Point { row: 0, column: 13 },
-                    },
-                    Terminal {
+                    }),
+                    CSTNode::Terminal(Terminal {
                         kind: "interface",
                         value: "interface",
                         start_position: Point { row: 0, column: 14 },
                         end_position: Point { row: 0, column: 23 },
-                    },
-                    Terminal {
+                    }),
+                    CSTNode::Terminal(Terminal {
                         kind: "identifier",
                         value: "HelloWorld",
                         start_position: Point { row: 0, column: 24 },
                         end_position: Point { row: 0, column: 34 },
-                    },
-                    Terminal {
+                    }),
+                    CSTNode::Terminal(Terminal {
                         kind: "interface_body",
                         value: "{void sayHello(String name);}",
                         start_position: Point { row: 0, column: 35 },
                         end_position: Point { row: 0, column: 64 },
-                    },
+                    }),
                 ],
                 start_position: Point { row: 0, column: 0 },
                 end_position: Point { row: 0, column: 64 },
-            }],
+            })],
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 64 },
-        };
+        });
         assert_eq!(expected, result.unwrap())
     }
 }
