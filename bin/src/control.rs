@@ -52,11 +52,11 @@ pub fn run_tool_on_merge_scenario(
 
     let parser_configuration = ParserConfiguration::from(language);
 
-    let base_tree = parsing::parse_string(&base, &parser_configuration)
+    let base_tree = parsing::parse_string(base, &parser_configuration)
         .map_err(|_| ExecutionError::ParsingError)?;
-    let left_tree = parsing::parse_string(&left, &parser_configuration)
+    let left_tree = parsing::parse_string(left, &parser_configuration)
         .map_err(|_| ExecutionError::ParsingError)?;
-    let right_tree = parsing::parse_string(&right, &parser_configuration)
+    let right_tree = parsing::parse_string(right, &parser_configuration)
         .map_err(|_| ExecutionError::ParsingError)?;
 
     let matchings_left_base = matching::calculate_matchings(&left_tree, &base_tree);
@@ -81,7 +81,7 @@ pub fn run_tool_on_merge_scenario(
 fn has_conflict(result: &merge::MergedCSTNode) -> bool {
     match result {
         merge::MergedCSTNode::NonTerminal { children, .. } => {
-            children.into_iter().any(|child| has_conflict(child))
+            children.iter().any(|child| has_conflict(child))
         }
         merge::MergedCSTNode::Terminal { .. } => false,
         merge::MergedCSTNode::Conflict { .. } => true,

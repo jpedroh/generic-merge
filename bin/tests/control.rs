@@ -18,7 +18,6 @@ fn all_java_samples_work_correctly() -> Result<(), Box<dyn std::error::Error>> {
 
 fn get_samples_names() -> Result<Vec<std::path::PathBuf>, std::io::Error> {
     std::fs::read_dir("tests/samples")?
-        .into_iter()
         .filter(|sample| {
             sample
                 .as_ref()
