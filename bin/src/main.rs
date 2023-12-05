@@ -1,46 +1,35 @@
 mod cli_args;
-mod parser_configuration;
+mod cli_exit_codes;
+mod control;
+mod language;
 
 use clap::Parser;
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+fn main() {
     let args = cli_args::CliArgs::parse();
 
-    let base = std::fs::read_to_string(&args.base_path)?;
-    let left = std::fs::read_to_string(args.left_path)?;
-    let right = std::fs::read_to_string(args.right_path)?;
+    let base = std::fs::read_to_string(&args.base_path)
+        .unwrap_or_else(|_| std::process::exit(cli_exit_codes::READING_FILE_ERROR));
+    let left = std::fs::read_to_string(args.left_path)
+        .unwrap_or_else(|_| std::process::exit(cli_exit_codes::READING_FILE_ERROR));
+    let right = std::fs::read_to_string(args.right_path)
+        .unwrap_or_else(|_| std::process::exit(cli_exit_codes::READING_FILE_ERROR));
 
-    let parser_configuration =
-        parser_configuration::get_parser_configuration_by_file_path(&args.base_path)?;
+    let language = language::get_language_by_file_path(&args.base_path)
+        .unwrap_or_else(|_| std::process::exit(cli_exit_codes::GUESS_LANGUAGE_ERROR));
 
-    if base == left {
-        std::fs::write(args.merge_path, right)?;
-        return Ok(());
+    let result = control::run_tool_on_merge_scenario(language, &base, &left, &right)
+        .unwrap_or_else(|_| std::process::exit(cli_exit_codes::INTERNAL_EXECUTION_ERROR));
+
+    std::fs::write(args.merge_path, result.to_string())
+        .unwrap_or_else(|_| std::process::exit(cli_exit_codes::WRITING_FILE_ERROR));
+
+    match result {
+        control::ExecutionResult::WithConflicts(_) => {
+            std::process::exit(cli_exit_codes::SUCCESS_WITH_CONFLICTS)
+        }
+        control::ExecutionResult::WithoutConflicts(_) => {
+            std::process::exit(cli_exit_codes::SUCCESS_WITHOUT_CONFLICTS)
+        }
     }
-
-    if base == right {
-        std::fs::write(args.merge_path, left)?;
-        return Ok(());
-    }
-
-    let base_tree = parsing::parse_string(&base, &parser_configuration).unwrap();
-    let left_tree = parsing::parse_string(&left, &parser_configuration).unwrap();
-    let right_tree = parsing::parse_string(&right, &parser_configuration).unwrap();
-
-    let matchings_left_base = matching::calculate_matchings(&left_tree, &base_tree);
-    let matchings_right_base = matching::calculate_matchings(&right_tree, &base_tree);
-    let matchings_left_right = matching::calculate_matchings(&left_tree, &right_tree);
-
-    let result = merge::merge(
-        &base_tree,
-        &left_tree,
-        &right_tree,
-        &matchings_left_base,
-        &matchings_right_base,
-        &matchings_left_right,
-    );
-
-    std::fs::write(args.merge_path, result.to_string())?;
-
-    Ok(())
 }
