@@ -69,6 +69,11 @@ fn it_works_on_no_conflicts() {
     run_tool_on_scenario("no_conflicts")
 }
 
+#[test]
+fn it_works_on_arithmetic_expression() {
+    run_tool_on_scenario("arithmetic_expression")
+}
+
 fn run_tool_on_scenario(scenario_name: &str) {
     let mut cmd = Command::cargo_bin("generic-merge").unwrap();
     cmd.arg(format!("-b=tests/samples/{}/base.java", scenario_name))
