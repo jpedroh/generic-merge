@@ -84,7 +84,6 @@ dependencies = [
  "merge",
  "model",
  "parsing",
- "utils",
 ]
 
 [[package]]
@@ -203,7 +202,7 @@ name = "matching"
 version = "0.1.0"
 dependencies = [
  "model",
- "utils",
+ "unordered-pair",
 ]
 
 [[package]]
@@ -219,7 +218,6 @@ dependencies = [
  "diffy",
  "matching",
  "model",
- "utils",
 ]
 
 [[package]]
@@ -390,14 +388,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3354b9ac3fae1ff6755cb6db53683adb661634f67557942dea4facebec0fee4b"
 
 [[package]]
+name = "unordered-pair"
+version = "0.2.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d82c34093ea7dd15b4e42ecbc22adf732b466ac6e03abc83a56741fad611b0ec"
+
+[[package]]
 name = "utf8parse"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "711b9620af191e0cdc7468a8d14e709c3dcdb115b36f838e601583af800a370a"
-
-[[package]]
-name = "utils"
-version = "0.1.0"
 
 [[package]]
 name = "wait-timeout"

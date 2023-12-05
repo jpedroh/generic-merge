@@ -8,5 +8,4 @@ edition = "2021"
 [dependencies]
 model = { path = "../model" }
 matching = { path = "../matching" }
-utils = { path = "../utils" }
 diffy = "0.3.0"

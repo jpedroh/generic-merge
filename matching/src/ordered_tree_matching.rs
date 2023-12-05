@@ -1,6 +1,6 @@
 use crate::{calculate_matchings, matching_entry::MatchingEntry, Matchings};
 use model::CSTNode;
-use utils::unordered_pair::UnorderedPair;
+use unordered_pair::UnorderedPair;
 
 #[derive(PartialEq, Eq, Debug, Clone)]
 enum Direction {
@@ -72,7 +72,7 @@ pub fn ordered_tree_matching<'a>(left: &'a CSTNode, right: &'a CSTNode) -> Match
             let mut j = n;
 
             let mut matchings = Matchings::from_single(
-                UnorderedPair::new(left, right),
+                UnorderedPair(left, right),
                 MatchingEntry::new(matrix_m[m][n] + root_matching, left == right),
             );
 
@@ -106,14 +106,11 @@ pub fn ordered_tree_matching<'a>(left: &'a CSTNode, right: &'a CSTNode) -> Match
         ) => {
             let is_perfetch_match = kind_left == kind_right && value_left == value_right;
             Matchings::from_single(
-                UnorderedPair::new(left, right),
+                UnorderedPair(left, right),
                 MatchingEntry::new(is_perfetch_match.into(), is_perfetch_match),
             )
         }
-        (_, _) => Matchings::from_single(
-            UnorderedPair::new(left, right),
-            MatchingEntry::new(0, false),
-        ),
+        (_, _) => Matchings::from_single(UnorderedPair(left, right), MatchingEntry::new(0, false)),
     }
 }
 

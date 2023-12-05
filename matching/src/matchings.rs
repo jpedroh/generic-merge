@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use model::CSTNode;
-use utils::unordered_pair::UnorderedPair;
+use unordered_pair::UnorderedPair;
 
 use crate::matching::Matching;
 use crate::matching_entry::MatchingEntry;
@@ -47,7 +47,7 @@ impl<'a> Matchings<'a> {
         left: &'a CSTNode<'a>,
         right: &'a CSTNode<'a>,
     ) -> Option<&MatchingEntry> {
-        self.matching_entries.get(&UnorderedPair::new(left, right))
+        self.matching_entries.get(&UnorderedPair(left, right))
     }
 
     pub fn has_bidirectional_matching(
