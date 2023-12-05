@@ -85,3 +85,19 @@ fn it_works_on_node_reordering() {
         std::fs::read_to_string("tests/samples/node_reordering/merge.output.java").unwrap()
     )
 }
+
+#[test]
+fn it_works_on_no_conflicts() {
+    let mut cmd = Command::cargo_bin("generic-merge").unwrap();
+    cmd.arg("--base-path=tests/samples/no_conflicts/base.java")
+        .arg("--left-path=tests/samples/no_conflicts/left.java")
+        .arg("--right-path=tests/samples/no_conflicts/right.java")
+        .arg("--merge-path=tests/samples/no_conflicts/merge.output.java")
+        .assert()
+        .code(0);
+
+    assert_eq!(
+        std::fs::read_to_string("tests/samples/no_conflicts/merge.expected.java").unwrap(),
+        std::fs::read_to_string("tests/samples/no_conflicts/merge.output.java").unwrap()
+    )
+}
