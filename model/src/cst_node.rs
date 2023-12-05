@@ -1,4 +1,4 @@
-use std::hash::{Hasher,Hash};
+use std::hash::{Hash, Hasher};
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord)]
 pub struct Point {
