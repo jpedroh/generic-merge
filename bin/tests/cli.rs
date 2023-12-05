@@ -56,16 +56,36 @@ fn if_right_equals_base_then_output_left_as_result() {
 
 #[test]
 fn it_works_on_semi_structured_merge() {
+    run_tool_on_scenario("semi_structured")
+}
+
+#[test]
+fn it_works_on_node_reordering() {
+    run_tool_on_scenario("node_reordering")
+}
+
+#[test]
+fn it_works_on_no_conflicts() {
+    run_tool_on_scenario("no_conflicts")
+}
+
+fn run_tool_on_scenario(scenario_name: &str) {
     let mut cmd = Command::cargo_bin("generic-merge").unwrap();
-    cmd.arg("--base-path=tests/samples/semi_structured/base.java")
-        .arg("--left-path=tests/samples/semi_structured/left.java")
-        .arg("--right-path=tests/samples/semi_structured/right.java")
-        .arg("--merge-path=tests/samples/semi_structured/merge.output.java")
+    cmd.arg(format!("-b=tests/samples/{}/base.java", scenario_name))
+        .arg(format!("-l=tests/samples/{}/left.java", scenario_name))
+        .arg(format!("-r=tests/samples/{}/right.java", scenario_name))
+        .arg(format!(
+            "-m=tests/samples/{}/merge.output.java",
+            scenario_name
+        ))
         .assert()
         .code(0);
 
+    let expected_result_path = format!("tests/samples/{}/merge.expected.java", scenario_name);
+    let actual_result_path = format!("tests/samples/{}/merge.output.java", scenario_name);
+
     assert_eq!(
-        std::fs::read_to_string("tests/samples/semi_structured/merge.expected.java").unwrap(),
-        std::fs::read_to_string("tests/samples/semi_structured/merge.output.java").unwrap()
+        std::fs::read_to_string(expected_result_path).unwrap(),
+        std::fs::read_to_string(actual_result_path).unwrap()
     )
 }
