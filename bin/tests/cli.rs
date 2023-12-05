@@ -69,3 +69,19 @@ fn it_works_on_semi_structured_merge() {
         std::fs::read_to_string("tests/samples/semi_structured/merge.output.java").unwrap()
     )
 }
+
+#[test]
+fn it_works_on_node_reordering() {
+    let mut cmd = Command::cargo_bin("generic-merge").unwrap();
+    cmd.arg("--base-path=tests/samples/node_reordering/base.java")
+        .arg("--left-path=tests/samples/node_reordering/left.java")
+        .arg("--right-path=tests/samples/node_reordering/right.java")
+        .arg("--merge-path=tests/samples/node_reordering/merge.output.java")
+        .assert()
+        .code(0);
+
+    assert_eq!(
+        std::fs::read_to_string("tests/samples/node_reordering/merge.expected.java").unwrap(),
+        std::fs::read_to_string("tests/samples/node_reordering/merge.output.java").unwrap()
+    )
+}
