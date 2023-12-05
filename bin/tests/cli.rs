@@ -74,6 +74,11 @@ fn it_works_on_arithmetic_expression() {
     run_tool_on_scenario("arithmetic_expression")
 }
 
+#[test]
+fn it_works_on_consecutive_lines() {
+    run_tool_on_scenario("consecutive_lines")
+}
+
 fn run_tool_on_scenario(scenario_name: &str) {
     let mut cmd = Command::cargo_bin("generic-merge").unwrap();
     cmd.arg(format!("-b=tests/samples/{}/base.java", scenario_name))
