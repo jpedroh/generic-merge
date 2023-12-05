@@ -7,7 +7,7 @@ pub struct Point {
 }
 
 impl Hash for Point {
-    fn hash<H: Hasher>(&self, hasher: &mut H) {
+    fn hash<H: Hasher>(&self, _hasher: &mut H) {
         let mut hasher = std::collections::hash_map::DefaultHasher::new();
         self.row.hash(&mut hasher);
         self.column.hash(&mut hasher);
@@ -31,7 +31,7 @@ pub enum CSTNode<'a> {
 }
 
 impl<'a> Hash for CSTNode<'a> {
-    fn hash<H: Hasher>(&self, hasher: &mut H) {
+    fn hash<H: Hasher>(&self, _hasher: &mut H) {
         let mut hasher = std::collections::hash_map::DefaultHasher::new();
 
         match self {
