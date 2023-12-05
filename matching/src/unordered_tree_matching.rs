@@ -1,5 +1,5 @@
 use model::CSTNode;
-use utils::unordered_pair::UnorderedPair;
+use unordered_pair::UnorderedPair;
 
 use crate::{calculate_matchings, MatchingEntry, Matchings};
 
@@ -19,7 +19,7 @@ pub fn unordered_tree_matching<'a>(left: &'a CSTNode, right: &'a CSTNode) -> cra
         ) => {
             let is_perfetch_match = kind_left == kind_right && value_left == value_right;
             Matchings::from_single(
-                UnorderedPair::new(left, right),
+                UnorderedPair(left, right),
                 MatchingEntry::new(is_perfetch_match.into(), is_perfetch_match),
             )
         }
