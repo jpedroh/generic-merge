@@ -92,24 +92,6 @@ pub fn ordered_tree_matching<'a>(left: &'a CSTNode, right: &'a CSTNode) -> Match
 
             matchings
         }
-        (
-            CSTNode::Terminal {
-                kind: kind_left,
-                value: value_left,
-                ..
-            },
-            CSTNode::Terminal {
-                kind: kind_right,
-                value: value_right,
-                ..
-            },
-        ) => {
-            let is_perfetch_match = kind_left == kind_right && value_left == value_right;
-            Matchings::from_single(
-                UnorderedPair(left, right),
-                MatchingEntry::new(is_perfetch_match.into(), is_perfetch_match),
-            )
-        }
         (_, _) => Matchings::from_single(UnorderedPair(left, right), MatchingEntry::new(0, false)),
     }
 }
@@ -118,98 +100,6 @@ pub fn ordered_tree_matching<'a>(left: &'a CSTNode, right: &'a CSTNode) -> Match
 mod tests {
     use crate::{matching_entry::MatchingEntry, *};
     use model::{CSTNode, Point};
-
-    #[test]
-    fn two_terminal_nodes_matches_with_a_score_of_one_if_they_have_the_same_kind_and_value() {
-        let left = CSTNode::Terminal {
-            kind: "kind",
-            value: "value",
-            start_position: Point { row: 0, column: 0 },
-            end_position: Point { row: 0, column: 5 },
-        };
-        let right = CSTNode::Terminal {
-            kind: "kind",
-            value: "value",
-            start_position: Point { row: 0, column: 0 },
-            end_position: Point { row: 0, column: 5 },
-        };
-
-        let matchings = ordered_tree_matching(&left, &right);
-
-        assert_eq!(
-            Some(&MatchingEntry::new(1, true)),
-            matchings.get_matching_entry(&left, &right)
-        )
-    }
-
-    #[test]
-    fn two_terminal_nodes_have_a_match_with_score_zero_if_they_have_different_value() {
-        let left = CSTNode::Terminal {
-            kind: "kind",
-            value: "value_a",
-            start_position: Point { row: 0, column: 0 },
-            end_position: Point { row: 0, column: 7 },
-        };
-        let right = CSTNode::Terminal {
-            kind: "kind",
-            value: "value_b",
-            start_position: Point { row: 0, column: 0 },
-            end_position: Point { row: 0, column: 7 },
-        };
-
-        let matchings = ordered_tree_matching(&left, &right);
-
-        assert_eq!(
-            Some(&MatchingEntry::new(0, false)),
-            matchings.get_matching_entry(&left, &right)
-        )
-    }
-
-    #[test]
-    fn two_terminal_nodes_have_a_match_with_score_zero_if_they_have_different_kind() {
-        let left = CSTNode::Terminal {
-            kind: "kind_a",
-            value: "value",
-            start_position: Point { row: 0, column: 0 },
-            end_position: Point { row: 0, column: 5 },
-        };
-        let right = CSTNode::Terminal {
-            kind: "kind_b",
-            value: "value",
-            start_position: Point { row: 0, column: 0 },
-            end_position: Point { row: 0, column: 5 },
-        };
-
-        let matchings = ordered_tree_matching(&left, &right);
-
-        assert_eq!(
-            Some(&MatchingEntry::new(0, false)),
-            matchings.get_matching_entry(&left, &right)
-        )
-    }
-
-    #[test]
-    fn two_terminal_nodes_have_a_match_with_score_zero_if_they_have_different_kind_and_value() {
-        let left = CSTNode::Terminal {
-            kind: "kind_a",
-            value: "value_a",
-            start_position: Point { row: 0, column: 0 },
-            end_position: Point { row: 0, column: 7 },
-        };
-        let right = CSTNode::Terminal {
-            kind: "kind_b",
-            value: "value_a",
-            start_position: Point { row: 0, column: 0 },
-            end_position: Point { row: 0, column: 7 },
-        };
-
-        let matchings = ordered_tree_matching(&left, &right);
-
-        assert_eq!(
-            Some(&MatchingEntry::new(0, false)),
-            matchings.get_matching_entry(&left, &right)
-        )
-    }
 
     #[test]
     fn it_matches_deep_nodes_as_well() {
