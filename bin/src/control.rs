@@ -72,18 +72,8 @@ pub fn run_tool_on_merge_scenario(
         &matchings_left_right,
     );
 
-    match has_conflict(&result) {
+    match result.has_conflict() {
         true => Ok(ExecutionResult::WithConflicts(result.to_string())),
         false => Ok(ExecutionResult::WithoutConflicts(result.to_string())),
-    }
-}
-
-fn has_conflict(result: &merge::MergedCSTNode) -> bool {
-    match result {
-        merge::MergedCSTNode::NonTerminal { children, .. } => {
-            children.iter().any(|child| has_conflict(child))
-        }
-        merge::MergedCSTNode::Terminal { .. } => false,
-        merge::MergedCSTNode::Conflict { .. } => true,
     }
 }

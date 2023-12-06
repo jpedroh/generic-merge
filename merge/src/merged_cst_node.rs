@@ -66,3 +66,15 @@ impl ToString for MergedCSTNode<'_> {
         }
     }
 }
+
+impl MergedCSTNode<'_> {
+    pub fn has_conflict(&self) -> bool {
+        match self {
+            MergedCSTNode::NonTerminal { children, .. } => {
+                children.iter().any(|child| child.has_conflict())
+            }
+            MergedCSTNode::Terminal { .. } => false,
+            MergedCSTNode::Conflict { .. } => true,
+        }
+    }
+}
