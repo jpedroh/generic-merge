@@ -1,5 +1,5 @@
 use crate::{calculate_matchings, matching_entry::MatchingEntry, Matchings};
-use model::CSTNode;
+use model::{cst_node::NonTerminal, CSTNode};
 use unordered_pair::UnorderedPair;
 
 #[derive(PartialEq, Eq, Debug, Clone)]
@@ -21,16 +21,16 @@ impl<'a> Default for Entry<'a> {
 pub fn ordered_tree_matching<'a>(left: &'a CSTNode, right: &'a CSTNode) -> Matchings<'a> {
     match (left, right) {
         (
-            CSTNode::NonTerminal {
+            CSTNode::NonTerminal(NonTerminal {
                 kind: kind_left,
                 children: children_left,
                 ..
-            },
-            CSTNode::NonTerminal {
+            }),
+            CSTNode::NonTerminal(NonTerminal {
                 kind: kind_right,
                 children: children_right,
                 ..
-            },
+            }),
         ) => {
             let root_matching: usize = (kind_left == kind_right).into();
 
@@ -99,28 +99,31 @@ pub fn ordered_tree_matching<'a>(left: &'a CSTNode, right: &'a CSTNode) -> Match
 #[cfg(test)]
 mod tests {
     use crate::{matching_entry::MatchingEntry, *};
-    use model::{CSTNode, Point};
+    use model::{
+        cst_node::{NonTerminal, Terminal},
+        CSTNode, Point,
+    };
 
     #[test]
     fn it_matches_deep_nodes_as_well() {
-        let child = CSTNode::Terminal {
+        let child = CSTNode::Terminal(Terminal {
             kind: "kind_b",
             value: "value_b",
             start_position: Point { row: 1, column: 0 },
             end_position: Point { row: 1, column: 7 },
-        };
-        let left = CSTNode::NonTerminal {
+        });
+        let left = CSTNode::NonTerminal(NonTerminal {
             kind: "kind_a",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 1, column: 7 },
             children: vec![child.clone()],
-        };
-        let right = CSTNode::NonTerminal {
+        });
+        let right = CSTNode::NonTerminal(NonTerminal {
             kind: "kind_a",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 1, column: 7 },
             children: vec![child.clone()],
-        };
+        });
 
         let matchings = ordered_tree_matching(&left, &right);
 
@@ -132,31 +135,31 @@ mod tests {
 
     #[test]
     fn if_no_match_is_found_it_returns_none() {
-        let left_child = CSTNode::Terminal {
+        let left_child = CSTNode::Terminal(Terminal {
             kind: "kind_b",
             value: "value_b",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
-        };
-        let right_child = CSTNode::Terminal {
+        });
+        let right_child = CSTNode::Terminal(Terminal {
             kind: "kind_c",
             value: "value_c",
             start_position: Point { row: 1, column: 0 },
             end_position: Point { row: 1, column: 7 },
-        };
+        });
 
-        let left = CSTNode::NonTerminal {
+        let left = CSTNode::NonTerminal(NonTerminal {
             kind: "kind_a",
             children: vec![left_child.clone()],
             start_position: Point { row: 1, column: 0 },
             end_position: Point { row: 0, column: 7 },
-        };
-        let right = CSTNode::NonTerminal {
+        });
+        let right = CSTNode::NonTerminal(NonTerminal {
             kind: "kind_a",
             children: vec![right_child.clone()],
             start_position: Point { row: 1, column: 0 },
             end_position: Point { row: 0, column: 7 },
-        };
+        });
 
         let matchings = ordered_tree_matching(&left, &right);
 
@@ -168,31 +171,31 @@ mod tests {
 
     #[test]
     fn the_matching_between_two_subtrees_is_the_sum_of_the_matchings_plus_the_root() {
-        let common_child = CSTNode::Terminal {
+        let common_child = CSTNode::Terminal(Terminal {
             kind: "kind_b",
             value: "value_b",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
-        };
-        let unique_right_child = CSTNode::Terminal {
+        });
+        let unique_right_child = CSTNode::Terminal(Terminal {
             kind: "kind_c",
             value: "value_c",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
-        };
+        });
 
-        let left = CSTNode::NonTerminal {
+        let left = CSTNode::NonTerminal(NonTerminal {
             kind: "kind_a",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![common_child.clone()],
-        };
-        let right = CSTNode::NonTerminal {
+        });
+        let right = CSTNode::NonTerminal(NonTerminal {
             kind: "kind_a",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![common_child.clone(), unique_right_child],
-        };
+        });
 
         let matchings = ordered_tree_matching(&left, &right);
 
@@ -204,25 +207,25 @@ mod tests {
 
     #[test]
     fn perfect_matching_deep_nodes() {
-        let common_child = CSTNode::Terminal {
+        let common_child = CSTNode::Terminal(Terminal {
             kind: "kind_b",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             value: "value_b",
-        };
+        });
 
-        let left = CSTNode::NonTerminal {
+        let left = CSTNode::NonTerminal(NonTerminal {
             kind: "kind_a",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![common_child.clone()],
-        };
-        let right = CSTNode::NonTerminal {
+        });
+        let right = CSTNode::NonTerminal(NonTerminal {
             kind: "kind_a",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![common_child.clone()],
-        };
+        });
 
         let matchings = ordered_tree_matching(&left, &right);
 
@@ -234,32 +237,32 @@ mod tests {
 
     #[test]
     fn perfect_matching_deeper_nodes() {
-        let leaf = CSTNode::Terminal {
+        let leaf = CSTNode::Terminal(Terminal {
             kind: "kind_b",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             value: "value_b",
-        };
+        });
 
-        let intermediate = CSTNode::NonTerminal {
+        let intermediate = CSTNode::NonTerminal(NonTerminal {
             kind: "intermediate",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![leaf],
-        };
+        });
 
-        let left = CSTNode::NonTerminal {
+        let left = CSTNode::NonTerminal(NonTerminal {
             kind: "kind_a",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![intermediate.clone()],
-        };
-        let right = CSTNode::NonTerminal {
+        });
+        let right = CSTNode::NonTerminal(NonTerminal {
             kind: "kind_a",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![intermediate.clone()],
-        };
+        });
 
         let matchings = ordered_tree_matching(&left, &right);
 

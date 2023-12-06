@@ -1,6 +1,7 @@
 use crate::ordered_merge;
 use crate::unordered_merge;
 use matching::Matchings;
+use model::cst_node::Terminal;
 use model::CSTNode;
 
 use crate::merged_cst_node::MergedCSTNode;
@@ -15,17 +16,17 @@ pub fn merge<'a>(
 ) -> MergedCSTNode<'a> {
     match (base, left, right) {
         (
-            CSTNode::Terminal {
+            CSTNode::Terminal(Terminal {
                 kind,
                 value: value_base,
                 ..
-            },
-            CSTNode::Terminal {
+            }),
+            CSTNode::Terminal(Terminal {
                 value: value_left, ..
-            },
-            CSTNode::Terminal {
+            }),
+            CSTNode::Terminal(Terminal {
                 value: value_right, ..
-            },
+            }),
         ) => {
             // Unchanged
             if value_left == value_base && value_right == value_base {
@@ -44,8 +45,14 @@ pub fn merge<'a>(
                 right.to_owned().into()
             }
         }
-        (CSTNode::NonTerminal { .. }, CSTNode::NonTerminal { .. }, CSTNode::NonTerminal { .. }) => {
-            if right.are_children_unordered() && left.are_children_unordered() {
+        (
+            CSTNode::NonTerminal { .. },
+            CSTNode::NonTerminal(non_terminal_left),
+            CSTNode::NonTerminal(non_terminal_right),
+        ) => {
+            if non_terminal_left.are_children_unordered()
+                && non_terminal_right.are_children_unordered()
+            {
                 unordered_merge(
                     base,
                     left,
@@ -74,7 +81,10 @@ mod tests {
     use std::vec;
 
     use matching::{ordered_tree_matching, Matchings};
-    use model::{CSTNode, Point};
+    use model::{
+        cst_node::{NonTerminal, Terminal},
+        CSTNode, Point,
+    };
 
     use crate::MergedCSTNode;
 
@@ -113,12 +123,12 @@ mod tests {
 
     #[test]
     fn if_i_am_merging_three_unchanged_nodes_it_is_a_success() {
-        let node = CSTNode::Terminal {
+        let node = CSTNode::Terminal(Terminal {
             kind: "kind",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             value: "value",
-        };
+        });
 
         assert_merge_is_correct_and_idempotent_with_respect_to_parent_side(
             &node,
@@ -130,24 +140,24 @@ mod tests {
 
     #[test]
     fn returns_success_if_there_are_changes_in_both_parents_and_they_are_not_conflicting() {
-        let base = CSTNode::Terminal {
+        let base = CSTNode::Terminal(Terminal {
             kind: "kind",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             value: "\nvalue\n",
-        };
-        let left = CSTNode::Terminal {
+        });
+        let left = CSTNode::Terminal(Terminal {
             kind: "kind",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             value: "left\nvalue\n",
-        };
-        let right = CSTNode::Terminal {
+        });
+        let right = CSTNode::Terminal(Terminal {
             kind: "kind",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             value: "\nvalue\nright",
-        };
+        });
 
         assert_merge_is_correct_and_idempotent_with_respect_to_parent_side(
             &base,
@@ -162,24 +172,24 @@ mod tests {
 
     #[test]
     fn returns_conflict_if_there_are_changes_in_both_parents_and_they_are_conflicting() {
-        let base = CSTNode::Terminal {
+        let base = CSTNode::Terminal(Terminal {
             kind: "kind",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             value: "value",
-        };
-        let left = CSTNode::Terminal {
+        });
+        let left = CSTNode::Terminal(Terminal {
             kind: "kind",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             value: "left_value",
-        };
-        let right = CSTNode::Terminal {
+        });
+        let right = CSTNode::Terminal(Terminal {
             kind: "kind",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             value: "right_value",
-        };
+        });
 
         assert_eq!(
             merge(&base, &left, &right, &Matchings::empty(), &Matchings::empty(),
@@ -193,18 +203,18 @@ mod tests {
 
     #[test]
     fn if_there_is_a_change_only_in_one_parent_it_returns_the_changes_from_this_parent() {
-        let base_and_left = CSTNode::Terminal {
+        let base_and_left = CSTNode::Terminal(Terminal {
             kind: "kind",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             value: "value",
-        };
-        let changed_parent = CSTNode::Terminal {
+        });
+        let changed_parent = CSTNode::Terminal(Terminal {
             kind: "kind",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             value: "value_right",
-        };
+        });
 
         assert_merge_is_correct_and_idempotent_with_respect_to_parent_side(
             &base_and_left,
@@ -218,24 +228,24 @@ mod tests {
     #[should_panic(expected = "Can not merge Terminal with Non-Terminal")]
     fn test_can_not_merge_terminal_with_non_terminal() {
         merge(
-            &CSTNode::Terminal {
+            &CSTNode::Terminal(Terminal {
                 kind: "kind",
                 start_position: Point { row: 0, column: 0 },
                 end_position: Point { row: 0, column: 7 },
                 value: "value",
-            },
-            &CSTNode::Terminal {
+            }),
+            &CSTNode::Terminal(Terminal {
                 kind: "kind",
                 start_position: Point { row: 0, column: 0 },
                 end_position: Point { row: 0, column: 7 },
                 value: "value",
-            },
-            &CSTNode::NonTerminal {
+            }),
+            &CSTNode::NonTerminal(NonTerminal {
                 kind: "kind",
                 start_position: Point { row: 0, column: 0 },
                 end_position: Point { row: 0, column: 7 },
                 children: vec![],
-            },
+            }),
             &Matchings::empty(),
             &Matchings::empty(),
             &Matchings::empty(),

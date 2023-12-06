@@ -1,4 +1,7 @@
-use model::CSTNode;
+use model::{
+    cst_node::{NonTerminal, Terminal},
+    CSTNode,
+};
 
 #[derive(Debug, PartialEq, Clone, Eq, Hash, PartialOrd, Ord)]
 pub enum MergedCSTNode<'a> {
@@ -19,14 +22,16 @@ pub enum MergedCSTNode<'a> {
 impl<'a> From<CSTNode<'a>> for MergedCSTNode<'a> {
     fn from(val: CSTNode<'a>) -> Self {
         match val {
-            CSTNode::Terminal { kind, value, .. } => MergedCSTNode::Terminal {
+            CSTNode::Terminal(Terminal { kind, value, .. }) => MergedCSTNode::Terminal {
                 kind,
                 value: value.to_string(),
             },
-            CSTNode::NonTerminal { kind, children, .. } => MergedCSTNode::NonTerminal {
-                kind,
-                children: children.into_iter().map(|node| node.into()).collect(),
-            },
+            CSTNode::NonTerminal(NonTerminal { kind, children, .. }) => {
+                MergedCSTNode::NonTerminal {
+                    kind,
+                    children: children.into_iter().map(|node| node.into()).collect(),
+                }
+            }
         }
     }
 }

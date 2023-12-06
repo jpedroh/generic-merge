@@ -1,7 +1,10 @@
 use std::collections::HashSet;
 
 use matching::Matchings;
-use model::CSTNode;
+use model::{
+    cst_node::{NonTerminal, Terminal},
+    CSTNode,
+};
 
 use crate::{merge, MergedCSTNode};
 
@@ -15,22 +18,22 @@ pub fn unordered_merge<'a>(
 ) -> MergedCSTNode<'a> {
     match (base, left, right) {
         (
-            CSTNode::NonTerminal { kind, .. },
-            CSTNode::NonTerminal {
+            CSTNode::NonTerminal(NonTerminal { kind, .. }),
+            CSTNode::NonTerminal(NonTerminal {
                 children: children_left,
                 ..
-            },
-            CSTNode::NonTerminal {
+            }),
+            CSTNode::NonTerminal(NonTerminal {
                 children: children_right,
                 ..
-            },
+            }),
         ) => {
             let mut result_children = vec![];
             let mut processed_nodes: HashSet<&CSTNode> = HashSet::new();
 
             for left_child in children_left.iter() {
                 match left_child {
-                    CSTNode::Terminal { value, .. } => {
+                    CSTNode::Terminal(Terminal { value, .. }) => {
                         if value == &"}" {
                             break;
                         }
@@ -143,7 +146,10 @@ pub fn unordered_merge<'a>(
 #[cfg(test)]
 mod tests {
     use matching::unordered_tree_matching;
-    use model::CSTNode;
+    use model::{
+        cst_node::{NonTerminal, Terminal},
+        CSTNode,
+    };
 
     use crate::MergedCSTNode;
 
@@ -204,71 +210,71 @@ mod tests {
 
     #[test]
     fn test_merge_node_added_only_by_one_parent() {
-        let base = CSTNode::NonTerminal {
+        let base = CSTNode::NonTerminal(NonTerminal {
             kind: "interface_body",
             start_position: model::Point { row: 0, column: 0 },
             end_position: model::Point { row: 0, column: 0 },
             children: vec![
-                CSTNode::Terminal {
+                CSTNode::Terminal(Terminal {
                     kind: "{",
                     value: "{",
                     start_position: model::Point { row: 0, column: 1 },
                     end_position: model::Point { row: 0, column: 1 },
-                },
-                CSTNode::Terminal {
+                }),
+                CSTNode::Terminal(Terminal {
                     kind: "}",
                     value: "}",
                     start_position: model::Point { row: 1, column: 1 },
                     end_position: model::Point { row: 1, column: 1 },
-                },
+                }),
             ],
-        };
+        });
 
-        let parent_a = CSTNode::NonTerminal {
+        let parent_a = CSTNode::NonTerminal(NonTerminal {
             kind: "interface_body",
             start_position: model::Point { row: 0, column: 0 },
             end_position: model::Point { row: 0, column: 0 },
             children: vec![
-                CSTNode::Terminal {
+                CSTNode::Terminal(Terminal {
                     kind: "{",
                     value: "{",
                     start_position: model::Point { row: 0, column: 1 },
                     end_position: model::Point { row: 0, column: 1 },
-                },
-                CSTNode::Terminal {
+                }),
+                CSTNode::Terminal(Terminal {
                     kind: "method_declaration",
                     value: "main",
                     start_position: model::Point { row: 1, column: 0 },
                     end_position: model::Point { row: 1, column: 4 },
-                },
-                CSTNode::Terminal {
+                }),
+                CSTNode::Terminal(Terminal {
                     kind: "}",
                     value: "}",
                     start_position: model::Point { row: 2, column: 1 },
                     end_position: model::Point { row: 2, column: 1 },
-                },
+                }),
             ],
-        };
+        });
 
-        let parent_b = CSTNode::NonTerminal {
+        let parent_b = CSTNode::NonTerminal(NonTerminal {
             kind: "interface_body",
             start_position: model::Point { row: 0, column: 0 },
             end_position: model::Point { row: 0, column: 0 },
             children: vec![
-                CSTNode::Terminal {
+                CSTNode::Terminal(Terminal {
                     kind: "{",
                     value: "{",
                     start_position: model::Point { row: 0, column: 1 },
                     end_position: model::Point { row: 0, column: 1 },
-                },
-                CSTNode::Terminal {
+                }),
+                CSTNode::Terminal(Terminal {
                     kind: "}",
                     value: "}",
                     start_position: model::Point { row: 1, column: 1 },
                     end_position: model::Point { row: 1, column: 1 },
-                },
+                }),
             ],
-        };
+        });
 
         let merge = MergedCSTNode::NonTerminal {
             kind: "interface_body",
@@ -295,87 +301,87 @@ mod tests {
 
     #[test]
     fn test_both_parents_add_the_same_node_and_both_subtrees_are_equal() {
-        let base = CSTNode::NonTerminal {
+        let base = CSTNode::NonTerminal(NonTerminal {
             kind: "interface_body",
             start_position: model::Point { row: 0, column: 0 },
             end_position: model::Point { row: 0, column: 0 },
             children: vec![
-                CSTNode::Terminal {
+                CSTNode::Terminal(Terminal {
                     kind: "{",
                     value: "{",
                     start_position: model::Point { row: 0, column: 1 },
                     end_position: model::Point { row: 0, column: 1 },
-                },
-                CSTNode::Terminal {
+                }),
+                CSTNode::Terminal(Terminal {
                     kind: "}",
                     value: "}",
                     start_position: model::Point { row: 1, column: 1 },
                     end_position: model::Point { row: 1, column: 1 },
-                },
+                }),
             ],
-        };
+        });
 
-        let parent_a = CSTNode::NonTerminal {
+        let parent_a = CSTNode::NonTerminal(NonTerminal {
             kind: "interface_body",
             start_position: model::Point { row: 0, column: 0 },
             end_position: model::Point { row: 0, column: 0 },
             children: vec![
-                CSTNode::Terminal {
+                CSTNode::Terminal(Terminal {
                     kind: "{",
                     value: "{",
                     start_position: model::Point { row: 0, column: 1 },
                     end_position: model::Point { row: 0, column: 1 },
-                },
-                CSTNode::NonTerminal {
+                }),
+                CSTNode::NonTerminal(NonTerminal {
                     kind: "method_declaration",
                     start_position: model::Point { row: 1, column: 0 },
                     end_position: model::Point { row: 1, column: 4 },
-                    children: vec![CSTNode::Terminal {
+                    children: vec![CSTNode::Terminal(Terminal {
                         kind: "identifier",
                         value: "main",
                         start_position: model::Point { row: 0, column: 1 },
                         end_position: model::Point { row: 0, column: 1 },
-                    }],
-                },
-                CSTNode::Terminal {
+                    })],
+                }),
+                CSTNode::Terminal(Terminal {
                     kind: "}",
                     value: "}",
                     start_position: model::Point { row: 2, column: 1 },
                     end_position: model::Point { row: 2, column: 1 },
-                },
+                }),
             ],
-        };
+        });
 
-        let parent_b = CSTNode::NonTerminal {
+        let parent_b = CSTNode::NonTerminal(NonTerminal {
             kind: "interface_body",
             start_position: model::Point { row: 0, column: 0 },
             end_position: model::Point { row: 0, column: 0 },
             children: vec![
-                CSTNode::Terminal {
+                CSTNode::Terminal(Terminal {
                     kind: "{",
                     value: "{",
                     start_position: model::Point { row: 0, column: 1 },
                     end_position: model::Point { row: 0, column: 1 },
-                },
-                CSTNode::NonTerminal {
+                }),
+                CSTNode::NonTerminal(NonTerminal {
                     kind: "method_declaration",
                     start_position: model::Point { row: 1, column: 0 },
                     end_position: model::Point { row: 1, column: 4 },
-                    children: vec![CSTNode::Terminal {
+                    children: vec![CSTNode::Terminal(Terminal {
                         kind: "identifier",
                         value: "main",
                         start_position: model::Point { row: 0, column: 1 },
                         end_position: model::Point { row: 0, column: 1 },
-                    }],
-                },
-                CSTNode::Terminal {
+                    })],
+                }),
+                CSTNode::Terminal(Terminal {
                     kind: "}",
                     value: "}",
                     start_position: model::Point { row: 2, column: 1 },
                     end_position: model::Point { row: 2, column: 1 },
-                },
+                }),
             ],
-        };
+        });
 
         let expected_merge = MergedCSTNode::NonTerminal {
             kind: "interface_body",
@@ -408,87 +414,87 @@ mod tests {
 
     #[test]
     fn test_merge_one_parent_removes_a_node_while_the_other_keeps_it_unchanged() {
-        let base = CSTNode::NonTerminal {
+        let base = CSTNode::NonTerminal(NonTerminal {
             kind: "interface_body",
             start_position: model::Point { row: 0, column: 0 },
             end_position: model::Point { row: 0, column: 0 },
             children: vec![
-                CSTNode::Terminal {
+                CSTNode::Terminal(Terminal {
                     kind: "{",
                     value: "{",
                     start_position: model::Point { row: 0, column: 1 },
                     end_position: model::Point { row: 0, column: 1 },
-                },
-                CSTNode::NonTerminal {
+                }),
+                CSTNode::NonTerminal(NonTerminal {
                     kind: "method_declaration",
                     start_position: model::Point { row: 1, column: 0 },
                     end_position: model::Point { row: 1, column: 4 },
-                    children: vec![CSTNode::Terminal {
+                    children: vec![CSTNode::Terminal(Terminal {
                         kind: "identifier",
                         value: "main",
                         start_position: model::Point { row: 0, column: 1 },
                         end_position: model::Point { row: 0, column: 1 },
-                    }],
-                },
-                CSTNode::Terminal {
+                    })],
+                }),
+                CSTNode::Terminal(Terminal {
                     kind: "}",
                     value: "}",
                     start_position: model::Point { row: 1, column: 1 },
                     end_position: model::Point { row: 1, column: 1 },
-                },
+                }),
             ],
-        };
+        });
 
-        let parent_a = CSTNode::NonTerminal {
+        let parent_a = CSTNode::NonTerminal(NonTerminal {
             kind: "interface_body",
             start_position: model::Point { row: 0, column: 0 },
             end_position: model::Point { row: 0, column: 0 },
             children: vec![
-                CSTNode::Terminal {
+                CSTNode::Terminal(Terminal {
                     kind: "{",
                     value: "{",
                     start_position: model::Point { row: 0, column: 1 },
                     end_position: model::Point { row: 0, column: 1 },
-                },
-                CSTNode::NonTerminal {
+                }),
+                CSTNode::NonTerminal(NonTerminal {
                     kind: "method_declaration",
                     start_position: model::Point { row: 1, column: 0 },
                     end_position: model::Point { row: 1, column: 4 },
-                    children: vec![CSTNode::Terminal {
+                    children: vec![CSTNode::Terminal(Terminal {
                         kind: "identifier",
                         value: "main",
                         start_position: model::Point { row: 0, column: 1 },
                         end_position: model::Point { row: 0, column: 1 },
-                    }],
-                },
-                CSTNode::Terminal {
+                    })],
+                }),
+                CSTNode::Terminal(Terminal {
                     kind: "}",
                     value: "}",
                     start_position: model::Point { row: 2, column: 1 },
                     end_position: model::Point { row: 2, column: 1 },
-                },
+                }),
             ],
-        };
+        });
 
-        let parent_b = CSTNode::NonTerminal {
+        let parent_b = CSTNode::NonTerminal(NonTerminal {
             kind: "interface_body",
             start_position: model::Point { row: 0, column: 0 },
             end_position: model::Point { row: 0, column: 0 },
             children: vec![
-                CSTNode::Terminal {
+                CSTNode::Terminal(Terminal {
                     kind: "{",
                     value: "{",
                     start_position: model::Point { row: 0, column: 1 },
                     end_position: model::Point { row: 0, column: 1 },
-                },
-                CSTNode::Terminal {
+                }),
+                CSTNode::Terminal(Terminal {
                     kind: "}",
                     value: "}",
                     start_position: model::Point { row: 2, column: 1 },
                     end_position: model::Point { row: 2, column: 1 },
-                },
+                }),
             ],
-        };
+        });
 
         let expected_merge = MergedCSTNode::NonTerminal {
             kind: "interface_body",
@@ -514,115 +520,115 @@ mod tests {
 
     #[test]
     fn test_merge_one_parent_removes_a_node_while_the_other_changed_it() {
-        let base = CSTNode::NonTerminal {
+        let base = CSTNode::NonTerminal(NonTerminal {
             kind: "interface_body",
             start_position: model::Point { row: 0, column: 0 },
             end_position: model::Point { row: 0, column: 0 },
             children: vec![
-                CSTNode::Terminal {
+                CSTNode::Terminal(Terminal {
                     kind: "{",
                     value: "{",
                     start_position: model::Point { row: 0, column: 1 },
                     end_position: model::Point { row: 0, column: 1 },
-                },
-                CSTNode::NonTerminal {
+                }),
+                CSTNode::NonTerminal(NonTerminal {
                     kind: "method_declaration",
                     start_position: model::Point { row: 1, column: 0 },
                     end_position: model::Point { row: 1, column: 4 },
                     children: vec![
-                        CSTNode::Terminal {
+                        CSTNode::Terminal(Terminal {
                             kind: "identifier",
                             value: "method",
                             start_position: model::Point { row: 0, column: 1 },
                             end_position: model::Point { row: 0, column: 1 },
-                        },
-                        CSTNode::Terminal {
+                        }),
+                        CSTNode::Terminal(Terminal {
                             kind: "kind_a",
                             value: "value_a",
                             start_position: model::Point { row: 0, column: 1 },
                             end_position: model::Point { row: 0, column: 1 },
-                        },
-                        CSTNode::Terminal {
+                        }),
+                        CSTNode::Terminal(Terminal {
                             kind: "kind_b",
                             value: "value_b",
                             start_position: model::Point { row: 0, column: 1 },
                             end_position: model::Point { row: 0, column: 1 },
-                        },
+                        }),
                     ],
-                },
-                CSTNode::Terminal {
+                }),
+                CSTNode::Terminal(Terminal {
                     kind: "}",
                     value: "}",
                     start_position: model::Point { row: 1, column: 1 },
                     end_position: model::Point { row: 1, column: 1 },
-                },
+                }),
             ],
-        };
+        });
 
-        let parent_a = CSTNode::NonTerminal {
+        let parent_a = CSTNode::NonTerminal(NonTerminal {
             kind: "interface_body",
             start_position: model::Point { row: 0, column: 0 },
             end_position: model::Point { row: 0, column: 0 },
             children: vec![
-                CSTNode::Terminal {
+                CSTNode::Terminal(Terminal {
                     kind: "{",
                     value: "{",
                     start_position: model::Point { row: 0, column: 1 },
                     end_position: model::Point { row: 0, column: 1 },
-                },
-                CSTNode::NonTerminal {
+                }),
+                CSTNode::NonTerminal(NonTerminal {
                     kind: "method_declaration",
                     start_position: model::Point { row: 1, column: 0 },
                     end_position: model::Point { row: 1, column: 4 },
                     children: vec![
-                        CSTNode::Terminal {
+                        CSTNode::Terminal(Terminal {
                             kind: "identifier",
                             value: "method",
                             start_position: model::Point { row: 0, column: 1 },
                             end_position: model::Point { row: 0, column: 1 },
-                        },
-                        CSTNode::Terminal {
+                        }),
+                        CSTNode::Terminal(Terminal {
                             kind: "kind_a",
                             value: "value_a",
                             start_position: model::Point { row: 0, column: 1 },
                             end_position: model::Point { row: 0, column: 1 },
-                        },
-                        CSTNode::Terminal {
+                        }),
+                        CSTNode::Terminal(Terminal {
                             kind: "kind_b",
                             value: "new_value_b",
                             start_position: model::Point { row: 0, column: 1 },
                             end_position: model::Point { row: 0, column: 1 },
-                        },
+                        }),
                     ],
-                },
-                CSTNode::Terminal {
+                }),
+                CSTNode::Terminal(Terminal {
                     kind: "}",
                     value: "}",
                     start_position: model::Point { row: 2, column: 1 },
                     end_position: model::Point { row: 2, column: 1 },
-                },
+                }),
             ],
-        };
+        });
 
-        let parent_b = CSTNode::NonTerminal {
+        let parent_b = CSTNode::NonTerminal(NonTerminal {
             kind: "interface_body",
             start_position: model::Point { row: 0, column: 0 },
             end_position: model::Point { row: 0, column: 0 },
             children: vec![
-                CSTNode::Terminal {
+                CSTNode::Terminal(Terminal {
                     kind: "{",
                     value: "{",
                     start_position: model::Point { row: 0, column: 1 },
                     end_position: model::Point { row: 0, column: 1 },
-                },
-                CSTNode::Terminal {
+                }),
+                CSTNode::Terminal(Terminal {
                     kind: "}",
                     value: "}",
                     start_position: model::Point { row: 2, column: 1 },
                     end_position: model::Point { row: 2, column: 1 },
-                },
+                }),
             ],
-        };
+        });
 
         assert_merge_output_is(
             &base,
