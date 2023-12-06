@@ -56,7 +56,7 @@ impl ToString for MergedCSTNode<'_> {
                 )
                 .to_string(),
                 (Some(left), None) => {
-                    format!("<<<<<<<<< ========= {} >>>>>>>>>", left.to_string()).to_string()
+                    format!("<<<<<<<<< {} ========= >>>>>>>>>", left.to_string()).to_string()
                 }
                 (None, Some(right)) => {
                     format!("<<<<<<<<< ========= {} >>>>>>>>>", right.to_string()).to_string()
