@@ -20,8 +20,7 @@ pub fn calculate_matchings<'a>(
             model::CSTNode::NonTerminal(non_terminal_left),
             model::CSTNode::NonTerminal(non_terminal_right),
         ) => {
-            if non_terminal_left.are_children_unordered()
-                && non_terminal_right.are_children_unordered()
+            if non_terminal_left.are_children_unordered && non_terminal_right.are_children_unordered
             {
                 unordered_tree_matching::unordered_tree_matching(left, right)
             } else {

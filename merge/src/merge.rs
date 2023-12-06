@@ -50,8 +50,7 @@ pub fn merge<'a>(
             CSTNode::NonTerminal(non_terminal_left),
             CSTNode::NonTerminal(non_terminal_right),
         ) => {
-            if non_terminal_left.are_children_unordered()
-                && non_terminal_right.are_children_unordered()
+            if non_terminal_left.are_children_unordered && non_terminal_right.are_children_unordered
             {
                 unordered_merge(
                     base,
@@ -242,6 +241,7 @@ mod tests {
             }),
             &CSTNode::NonTerminal(NonTerminal {
                 kind: "kind",
+                are_children_unordered: false,
                 start_position: Point { row: 0, column: 0 },
                 end_position: Point { row: 0, column: 7 },
                 children: vec![],

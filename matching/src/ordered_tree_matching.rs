@@ -114,12 +114,14 @@ mod tests {
         });
         let left = CSTNode::NonTerminal(NonTerminal {
             kind: "kind_a",
+            are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 1, column: 7 },
             children: vec![child.clone()],
         });
         let right = CSTNode::NonTerminal(NonTerminal {
             kind: "kind_a",
+            are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 1, column: 7 },
             children: vec![child.clone()],
@@ -150,12 +152,14 @@ mod tests {
 
         let left = CSTNode::NonTerminal(NonTerminal {
             kind: "kind_a",
+            are_children_unordered: false,
             children: vec![left_child.clone()],
             start_position: Point { row: 1, column: 0 },
             end_position: Point { row: 0, column: 7 },
         });
         let right = CSTNode::NonTerminal(NonTerminal {
             kind: "kind_a",
+            are_children_unordered: false,
             children: vec![right_child.clone()],
             start_position: Point { row: 1, column: 0 },
             end_position: Point { row: 0, column: 7 },
@@ -186,12 +190,14 @@ mod tests {
 
         let left = CSTNode::NonTerminal(NonTerminal {
             kind: "kind_a",
+            are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![common_child.clone()],
         });
         let right = CSTNode::NonTerminal(NonTerminal {
             kind: "kind_a",
+            are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![common_child.clone(), unique_right_child],
@@ -216,12 +222,14 @@ mod tests {
 
         let left = CSTNode::NonTerminal(NonTerminal {
             kind: "kind_a",
+            are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![common_child.clone()],
         });
         let right = CSTNode::NonTerminal(NonTerminal {
             kind: "kind_a",
+            are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![common_child.clone()],
@@ -246,6 +254,7 @@ mod tests {
 
         let intermediate = CSTNode::NonTerminal(NonTerminal {
             kind: "intermediate",
+            are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![leaf],
@@ -253,12 +262,14 @@ mod tests {
 
         let left = CSTNode::NonTerminal(NonTerminal {
             kind: "kind_a",
+            are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![intermediate.clone()],
         });
         let right = CSTNode::NonTerminal(NonTerminal {
             kind: "kind_a",
+            are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![intermediate.clone()],

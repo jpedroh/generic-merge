@@ -212,6 +212,7 @@ mod tests {
     fn test_merge_node_added_only_by_one_parent() {
         let base = CSTNode::NonTerminal(NonTerminal {
             kind: "interface_body",
+            are_children_unordered: true,
             start_position: model::Point { row: 0, column: 0 },
             end_position: model::Point { row: 0, column: 0 },
             children: vec![
@@ -232,6 +233,7 @@ mod tests {
 
         let parent_a = CSTNode::NonTerminal(NonTerminal {
             kind: "interface_body",
+            are_children_unordered: true,
             start_position: model::Point { row: 0, column: 0 },
             end_position: model::Point { row: 0, column: 0 },
             children: vec![
@@ -258,6 +260,7 @@ mod tests {
 
         let parent_b = CSTNode::NonTerminal(NonTerminal {
             kind: "interface_body",
+            are_children_unordered: true,
             start_position: model::Point { row: 0, column: 0 },
             end_position: model::Point { row: 0, column: 0 },
             children: vec![
@@ -303,6 +306,7 @@ mod tests {
     fn test_both_parents_add_the_same_node_and_both_subtrees_are_equal() {
         let base = CSTNode::NonTerminal(NonTerminal {
             kind: "interface_body",
+            are_children_unordered: true,
             start_position: model::Point { row: 0, column: 0 },
             end_position: model::Point { row: 0, column: 0 },
             children: vec![
@@ -323,6 +327,7 @@ mod tests {
 
         let parent_a = CSTNode::NonTerminal(NonTerminal {
             kind: "interface_body",
+            are_children_unordered: true,
             start_position: model::Point { row: 0, column: 0 },
             end_position: model::Point { row: 0, column: 0 },
             children: vec![
@@ -334,6 +339,7 @@ mod tests {
                 }),
                 CSTNode::NonTerminal(NonTerminal {
                     kind: "method_declaration",
+                    are_children_unordered: false,
                     start_position: model::Point { row: 1, column: 0 },
                     end_position: model::Point { row: 1, column: 4 },
                     children: vec![CSTNode::Terminal(Terminal {
@@ -354,6 +360,7 @@ mod tests {
 
         let parent_b = CSTNode::NonTerminal(NonTerminal {
             kind: "interface_body",
+            are_children_unordered: true,
             start_position: model::Point { row: 0, column: 0 },
             end_position: model::Point { row: 0, column: 0 },
             children: vec![
@@ -365,6 +372,7 @@ mod tests {
                 }),
                 CSTNode::NonTerminal(NonTerminal {
                     kind: "method_declaration",
+                    are_children_unordered: false,
                     start_position: model::Point { row: 1, column: 0 },
                     end_position: model::Point { row: 1, column: 4 },
                     children: vec![CSTNode::Terminal(Terminal {
@@ -416,6 +424,7 @@ mod tests {
     fn test_merge_one_parent_removes_a_node_while_the_other_keeps_it_unchanged() {
         let base = CSTNode::NonTerminal(NonTerminal {
             kind: "interface_body",
+            are_children_unordered: true,
             start_position: model::Point { row: 0, column: 0 },
             end_position: model::Point { row: 0, column: 0 },
             children: vec![
@@ -427,6 +436,7 @@ mod tests {
                 }),
                 CSTNode::NonTerminal(NonTerminal {
                     kind: "method_declaration",
+                    are_children_unordered: false,
                     start_position: model::Point { row: 1, column: 0 },
                     end_position: model::Point { row: 1, column: 4 },
                     children: vec![CSTNode::Terminal(Terminal {
@@ -447,6 +457,7 @@ mod tests {
 
         let parent_a = CSTNode::NonTerminal(NonTerminal {
             kind: "interface_body",
+            are_children_unordered: true,
             start_position: model::Point { row: 0, column: 0 },
             end_position: model::Point { row: 0, column: 0 },
             children: vec![
@@ -458,6 +469,7 @@ mod tests {
                 }),
                 CSTNode::NonTerminal(NonTerminal {
                     kind: "method_declaration",
+                    are_children_unordered: false,
                     start_position: model::Point { row: 1, column: 0 },
                     end_position: model::Point { row: 1, column: 4 },
                     children: vec![CSTNode::Terminal(Terminal {
@@ -478,6 +490,7 @@ mod tests {
 
         let parent_b = CSTNode::NonTerminal(NonTerminal {
             kind: "interface_body",
+            are_children_unordered: true,
             start_position: model::Point { row: 0, column: 0 },
             end_position: model::Point { row: 0, column: 0 },
             children: vec![
@@ -522,6 +535,7 @@ mod tests {
     fn test_merge_one_parent_removes_a_node_while_the_other_changed_it() {
         let base = CSTNode::NonTerminal(NonTerminal {
             kind: "interface_body",
+            are_children_unordered: true,
             start_position: model::Point { row: 0, column: 0 },
             end_position: model::Point { row: 0, column: 0 },
             children: vec![
@@ -533,6 +547,7 @@ mod tests {
                 }),
                 CSTNode::NonTerminal(NonTerminal {
                     kind: "method_declaration",
+                    are_children_unordered: false,
                     start_position: model::Point { row: 1, column: 0 },
                     end_position: model::Point { row: 1, column: 4 },
                     children: vec![
@@ -567,6 +582,7 @@ mod tests {
 
         let parent_a = CSTNode::NonTerminal(NonTerminal {
             kind: "interface_body",
+            are_children_unordered: true,
             start_position: model::Point { row: 0, column: 0 },
             end_position: model::Point { row: 0, column: 0 },
             children: vec![
@@ -578,6 +594,7 @@ mod tests {
                 }),
                 CSTNode::NonTerminal(NonTerminal {
                     kind: "method_declaration",
+                    are_children_unordered: false,
                     start_position: model::Point { row: 1, column: 0 },
                     end_position: model::Point { row: 1, column: 4 },
                     children: vec![
@@ -612,6 +629,7 @@ mod tests {
 
         let parent_b = CSTNode::NonTerminal(NonTerminal {
             kind: "interface_body",
+            are_children_unordered: true,
             start_position: model::Point { row: 0, column: 0 },
             end_position: model::Point { row: 0, column: 0 },
             children: vec![

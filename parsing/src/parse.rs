@@ -35,6 +35,7 @@ fn explore_node<'a>(node: Node, src: &'a str, config: &'a ParserConfiguration) -
                 .children(&mut cursor)
                 .map(|child| explore_node(child, src, config))
                 .collect(),
+            are_children_unordered: config.kinds_with_unordered_children.contains(node.kind()),
         })
     }
 }
@@ -73,15 +74,19 @@ mod tests {
         let parser_configuration = ParserConfiguration {
             language: tree_sitter_java::language(),
             stop_compilation_at: [].into_iter().collect(),
+            kinds_with_unordered_children: [].into(),
         };
         let result = parse_string(code, &parser_configuration);
         let expected = CSTNode::NonTerminal(NonTerminal {
             kind: "program",
+            are_children_unordered: false,
             children: vec![CSTNode::NonTerminal(NonTerminal {
                 kind: "interface_declaration",
+                are_children_unordered: false,
                 children: vec![
                     CSTNode::NonTerminal(NonTerminal {
                         kind: "modifiers",
+                        are_children_unordered: false,
                         children: vec![
                             CSTNode::Terminal(Terminal {
                                 kind: "public",
@@ -113,6 +118,7 @@ mod tests {
                     }),
                     CSTNode::NonTerminal(NonTerminal {
                         kind: "interface_body",
+                        are_children_unordered: false,
                         children: vec![
                             CSTNode::Terminal(Terminal {
                                 kind: "{",
@@ -122,6 +128,7 @@ mod tests {
                             }),
                             CSTNode::NonTerminal(NonTerminal {
                                 kind: "method_declaration",
+                                are_children_unordered: false,
                                 children: vec![
                                     CSTNode::Terminal(Terminal {
                                         kind: "void_type",
@@ -137,6 +144,7 @@ mod tests {
                                     }),
                                     CSTNode::NonTerminal(NonTerminal {
                                         kind: "formal_parameters",
+                                        are_children_unordered: false,
                                         children: vec![
                                             CSTNode::Terminal(Terminal {
                                                 kind: "(",
@@ -146,6 +154,7 @@ mod tests {
                                             }),
                                             CSTNode::NonTerminal(NonTerminal {
                                                 kind: "formal_parameter",
+                                                are_children_unordered: false,
                                                 children: vec![
                                                     CSTNode::Terminal(Terminal {
                                                         kind: "type_identifier",
@@ -215,16 +224,20 @@ mod tests {
         let parser_configuration = ParserConfiguration {
             language: tree_sitter_java::language(),
             stop_compilation_at: ["interface_body"].into_iter().collect(),
+            kinds_with_unordered_children: [].into(),
         };
         let result = parse_string(code, &parser_configuration);
 
         let expected = CSTNode::NonTerminal(NonTerminal {
             kind: "program",
+            are_children_unordered: false,
             children: vec![CSTNode::NonTerminal(NonTerminal {
                 kind: "interface_declaration",
+                are_children_unordered: false,
                 children: vec![
                     CSTNode::NonTerminal(NonTerminal {
                         kind: "modifiers",
+                        are_children_unordered: false,
                         children: vec![
                             CSTNode::Terminal(Terminal {
                                 kind: "public",
@@ -259,6 +272,91 @@ mod tests {
                         value: "{void sayHello(String name);}",
                         start_position: Point { row: 0, column: 35 },
                         end_position: Point { row: 0, column: 64 },
+                    }),
+                ],
+                start_position: Point { row: 0, column: 0 },
+                end_position: Point { row: 0, column: 64 },
+            })],
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 64 },
+        });
+        assert_eq!(expected, result.unwrap())
+    }
+
+    #[test]
+    fn it_marks_nodes_with_unordered_children_as_unordered() {
+        let code = "public static interface HelloWorld {void sayHello(String name);}";
+        let parser_configuration = ParserConfiguration {
+            language: tree_sitter_java::language(),
+            stop_compilation_at: ["method_declaration"].into_iter().collect(),
+            kinds_with_unordered_children: ["interface_body"].into(),
+        };
+        let result = parse_string(code, &parser_configuration);
+
+        let expected = CSTNode::NonTerminal(NonTerminal {
+            kind: "program",
+            are_children_unordered: false,
+            children: vec![CSTNode::NonTerminal(NonTerminal {
+                kind: "interface_declaration",
+                are_children_unordered: false,
+                children: vec![
+                    CSTNode::NonTerminal(NonTerminal {
+                        kind: "modifiers",
+                        are_children_unordered: false,
+                        children: vec![
+                            CSTNode::Terminal(Terminal {
+                                kind: "public",
+                                value: "public",
+                                start_position: Point { row: 0, column: 0 },
+                                end_position: Point { row: 0, column: 6 },
+                            }),
+                            CSTNode::Terminal(Terminal {
+                                kind: "static",
+                                value: "static",
+                                start_position: Point { row: 0, column: 7 },
+                                end_position: Point { row: 0, column: 13 },
+                            }),
+                        ],
+                        start_position: Point { row: 0, column: 0 },
+                        end_position: Point { row: 0, column: 13 },
+                    }),
+                    CSTNode::Terminal(Terminal {
+                        kind: "interface",
+                        value: "interface",
+                        start_position: Point { row: 0, column: 14 },
+                        end_position: Point { row: 0, column: 23 },
+                    }),
+                    CSTNode::Terminal(Terminal {
+                        kind: "identifier",
+                        value: "HelloWorld",
+                        start_position: Point { row: 0, column: 24 },
+                        end_position: Point { row: 0, column: 34 },
+                    }),
+                    CSTNode::NonTerminal(NonTerminal {
+                        kind: "interface_body",
+                        children: vec![
+                            CSTNode::Terminal(Terminal {
+                                kind: "{",
+                                value: "{",
+                                start_position: Point { row: 0, column: 35 },
+                                end_position: Point { row: 0, column: 36 },
+                            }),
+                            CSTNode::Terminal(Terminal {
+                                kind: "method_declaration",
+                                value: "void sayHello(String name);",
+                                start_position: Point { row: 0, column: 36 },
+                                end_position: Point { row: 0, column: 63 },
+                            }),
+                            CSTNode::Terminal(Terminal {
+                                kind: "}",
+                                value: "}",
+                                start_position: Point { row: 0, column: 63 },
+                                end_position: Point { row: 0, column: 64 },
+                            }),
+                        ],
+                        start_position: Point { row: 0, column: 35 },
+                        end_position: Point { row: 0, column: 64 },
+                        are_children_unordered: true,
                     }),
                 ],
                 start_position: Point { row: 0, column: 0 },

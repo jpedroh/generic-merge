@@ -41,6 +41,7 @@ pub struct NonTerminal<'a> {
     pub children: Vec<CSTNode<'a>>,
     pub start_position: Point,
     pub end_position: Point,
+    pub are_children_unordered: bool,
 }
 
 impl<'a> Hash for NonTerminal<'a> {
@@ -70,11 +71,5 @@ impl<'a> Hash for Terminal<'a> {
         self.value.hash(&mut hasher);
         self.start_position.hash(&mut hasher);
         self.end_position.hash(&mut hasher);
-    }
-}
-
-impl NonTerminal<'_> {
-    pub fn are_children_unordered(&self) -> bool {
-        ["interface_body", "class_body"].contains(&self.kind)
     }
 }

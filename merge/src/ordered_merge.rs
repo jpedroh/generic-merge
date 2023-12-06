@@ -283,6 +283,7 @@ mod tests {
     fn it_merges_non_terminals_if_there_are_non_changes() {
         let tree = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
+            are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![
@@ -313,12 +314,14 @@ mod tests {
     fn it_merges_non_terminals_if_both_left_and_right_add_the_same_things() {
         let base = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
+            are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![],
         });
         let parent = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
+            are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![
@@ -350,6 +353,7 @@ mod tests {
     {
         let base = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
+            are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![],
@@ -357,6 +361,7 @@ mod tests {
 
         let initially_empty_parent = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
+            are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![],
@@ -364,6 +369,7 @@ mod tests {
 
         let parent_that_added = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
+            are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![CSTNode::Terminal(Terminal {
@@ -394,6 +400,7 @@ mod tests {
     fn it_merges_non_terminals_if_only_one_parent_adds_a_node_in_non_empty_children_list() {
         let base = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
+            are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![CSTNode::Terminal(Terminal {
@@ -406,6 +413,7 @@ mod tests {
 
         let unchanged_parent = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
+            are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![CSTNode::Terminal(Terminal {
@@ -418,6 +426,7 @@ mod tests {
 
         let parent_that_added = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
+            are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![
@@ -438,6 +447,7 @@ mod tests {
 
         let merge = MergedCSTNode::NonTerminal {
             kind: "kind",
+
             children: vec![
                 MergedCSTNode::Terminal {
                     kind: "kind_a",
@@ -462,6 +472,7 @@ mod tests {
     fn it_merges_when_one_parent_adds_a_node_and_removes_one_that_was_not_edited_in_the_other() {
         let base = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
+            are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![CSTNode::Terminal(Terminal {
@@ -474,6 +485,7 @@ mod tests {
 
         let changed_parent = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
+            are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![CSTNode::Terminal(Terminal {
@@ -486,6 +498,7 @@ mod tests {
 
         let unchanged_parent = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
+            are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![CSTNode::Terminal(Terminal {
@@ -498,6 +511,7 @@ mod tests {
 
         let expected_merge = MergedCSTNode::NonTerminal {
             kind: "kind",
+
             children: vec![MergedCSTNode::Terminal {
                 kind: "kind_b",
                 value: "value_b".to_string(),
@@ -516,10 +530,12 @@ mod tests {
     fn it_merges_when_one_parent_adds_a_node_and_removes_from_another_that_was_changed() {
         let base = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
+            are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![CSTNode::NonTerminal(NonTerminal {
                 kind: "subtree",
+                are_children_unordered: false,
                 start_position: Point { row: 0, column: 0 },
                 end_position: Point { row: 0, column: 7 },
                 children: vec![CSTNode::Terminal(Terminal {
@@ -533,10 +549,12 @@ mod tests {
 
         let parent_a = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
+            are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![CSTNode::NonTerminal(NonTerminal {
                 kind: "another_subtree",
+                are_children_unordered: false,
                 start_position: Point { row: 0, column: 0 },
                 end_position: Point { row: 0, column: 7 },
                 children: vec![CSTNode::Terminal(Terminal {
@@ -550,10 +568,12 @@ mod tests {
 
         let parent_b = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
+            are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![CSTNode::NonTerminal(NonTerminal {
                 kind: "subtree",
+                are_children_unordered: false,
                 start_position: Point { row: 0, column: 0 },
                 end_position: Point { row: 0, column: 7 },
                 children: vec![CSTNode::Terminal(Terminal {
@@ -643,6 +663,7 @@ mod tests {
     fn if_both_parents_add_different_nodes_then_we_have_a_conflict() {
         let base = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
+            are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![],
@@ -650,6 +671,7 @@ mod tests {
 
         let left = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
+            are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![CSTNode::Terminal(Terminal {
@@ -662,6 +684,7 @@ mod tests {
 
         let right = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
+            are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![CSTNode::Terminal(Terminal {
@@ -696,6 +719,7 @@ mod tests {
     fn it_merges_when_one_parent_removes_a_node_that_was_not_changed_in_another_parent() {
         let base = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
+            are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![
@@ -716,6 +740,7 @@ mod tests {
 
         let left = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
+            are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![
@@ -736,6 +761,7 @@ mod tests {
 
         let right = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
+            are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![CSTNode::Terminal(Terminal {
@@ -748,6 +774,7 @@ mod tests {
 
         let expected_merge = MergedCSTNode::NonTerminal {
             kind: "kind",
+
             children: vec![MergedCSTNode::Terminal {
                 kind: "kind_b",
                 value: "value_b".to_string(),
@@ -761,11 +788,13 @@ mod tests {
     fn it_detects_a_conflict_when_one_parent_removes_a_node_that_was_changed_in_another_parent() {
         let base = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
+            are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![
                 CSTNode::NonTerminal(NonTerminal {
                     kind: "subtree",
+                    are_children_unordered: false,
                     start_position: Point { row: 0, column: 0 },
                     end_position: Point { row: 0, column: 7 },
                     children: vec![CSTNode::Terminal(Terminal {
@@ -786,11 +815,13 @@ mod tests {
 
         let left = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
+            are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![
                 CSTNode::NonTerminal(NonTerminal {
                     kind: "subtree",
+                    are_children_unordered: false,
                     start_position: Point { row: 0, column: 0 },
                     end_position: Point { row: 0, column: 7 },
                     children: vec![CSTNode::Terminal(Terminal {
@@ -811,6 +842,7 @@ mod tests {
 
         let right = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
+            are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![CSTNode::Terminal(Terminal {
@@ -876,6 +908,7 @@ mod tests {
     fn it_merges_when_a_parent_adds_a_node() {
         let base = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
+            are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![
@@ -896,6 +929,7 @@ mod tests {
 
         let unchanged_parent = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
+            are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![
@@ -916,6 +950,7 @@ mod tests {
 
         let changed_parent = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
+            are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![
@@ -942,6 +977,7 @@ mod tests {
 
         let expected_merge = MergedCSTNode::NonTerminal {
             kind: "kind",
+
             children: vec![
                 MergedCSTNode::Terminal {
                     kind: "kind_a",
@@ -970,6 +1006,7 @@ mod tests {
     fn it_merges_when_one_parent_removes_and_add_a_node() {
         let base = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
+            are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![CSTNode::Terminal(Terminal {
@@ -982,6 +1019,7 @@ mod tests {
 
         let parent_a = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
+            are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![CSTNode::Terminal(Terminal {
@@ -994,6 +1032,7 @@ mod tests {
 
         let parent_b = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
+            are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![
@@ -1014,6 +1053,7 @@ mod tests {
 
         let expected_merge = MergedCSTNode::NonTerminal {
             kind: "kind",
+
             children: vec![MergedCSTNode::Terminal {
                 kind: "kind_a",
                 value: "value_a".to_string(),
@@ -1032,10 +1072,12 @@ mod tests {
     fn it_conflicts_when_one_parent_removes_and_add_a_node() {
         let base = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
+            are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![CSTNode::NonTerminal(NonTerminal {
                 kind: "subtree",
+                are_children_unordered: false,
                 start_position: Point { row: 0, column: 0 },
                 end_position: Point { row: 0, column: 7 },
                 children: vec![CSTNode::Terminal(Terminal {
@@ -1049,6 +1091,7 @@ mod tests {
 
         let parent_a = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
+            are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![CSTNode::Terminal(Terminal {
@@ -1061,11 +1104,13 @@ mod tests {
 
         let parent_b = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
+            are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![
                 CSTNode::NonTerminal(NonTerminal {
                     kind: "subtree",
+                    are_children_unordered: false,
                     start_position: Point { row: 0, column: 0 },
                     end_position: Point { row: 0, column: 7 },
                     children: vec![CSTNode::Terminal(Terminal {
@@ -1138,6 +1183,7 @@ mod tests {
     fn it_merges_when_a_parent_adds_one_node() {
         let base = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
+            are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![],
@@ -1145,6 +1191,7 @@ mod tests {
 
         let parent_a = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
+            are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![CSTNode::Terminal(Terminal {
@@ -1157,6 +1204,7 @@ mod tests {
 
         let parent_b = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
+            are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![
@@ -1177,6 +1225,7 @@ mod tests {
 
         let expected_merge = MergedCSTNode::NonTerminal {
             kind: "kind",
+
             children: vec![
                 MergedCSTNode::Terminal {
                     kind: "kind_c",
@@ -1201,6 +1250,7 @@ mod tests {
     fn it_does_not_detect_a_conflict_if_am_merging_two_subtrees_that_have_not_changed_mutually() {
         let base = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
+            are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![
@@ -1221,6 +1271,7 @@ mod tests {
 
         let parent_a = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
+            are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![CSTNode::Terminal(Terminal {
@@ -1233,6 +1284,7 @@ mod tests {
 
         let parent_b = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
+            are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![CSTNode::Terminal(Terminal {
@@ -1245,6 +1297,7 @@ mod tests {
 
         let expected_merge = MergedCSTNode::NonTerminal {
             kind: "kind",
+
             children: vec![],
         };
 
@@ -1261,11 +1314,13 @@ mod tests {
     ) {
         let base = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
+            are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![
                 CSTNode::NonTerminal(NonTerminal {
                     kind: "subtree_a",
+                    are_children_unordered: false,
                     start_position: Point { row: 0, column: 0 },
                     end_position: Point { row: 0, column: 7 },
                     children: vec![CSTNode::Terminal(Terminal {
@@ -1277,6 +1332,7 @@ mod tests {
                 }),
                 CSTNode::NonTerminal(NonTerminal {
                     kind: "subtree_b",
+                    are_children_unordered: false,
                     start_position: Point { row: 0, column: 0 },
                     end_position: Point { row: 0, column: 7 },
                     children: vec![CSTNode::Terminal(Terminal {
@@ -1291,10 +1347,12 @@ mod tests {
 
         let parent_a = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
+            are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![CSTNode::NonTerminal(NonTerminal {
                 kind: "subtree_b",
+                are_children_unordered: false,
                 start_position: Point { row: 0, column: 0 },
                 end_position: Point { row: 0, column: 7 },
                 children: vec![CSTNode::Terminal(Terminal {
@@ -1307,11 +1365,13 @@ mod tests {
         });
 
         let parent_b = CSTNode::NonTerminal(NonTerminal {
+            are_children_unordered: false,
             kind: "kind",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             children: vec![CSTNode::NonTerminal(NonTerminal {
                 kind: "subtree_a",
+                are_children_unordered: false,
                 start_position: Point { row: 0, column: 0 },
                 end_position: Point { row: 0, column: 7 },
                 children: vec![CSTNode::Terminal(Terminal {
