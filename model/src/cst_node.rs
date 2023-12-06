@@ -73,13 +73,8 @@ impl<'a> Hash for Terminal<'a> {
     }
 }
 
-impl CSTNode<'_> {
+impl NonTerminal<'_> {
     pub fn are_children_unordered(&self) -> bool {
-        match self {
-            CSTNode::Terminal(_) => false,
-            CSTNode::NonTerminal(NonTerminal { kind, .. }) => {
-                ["interface_body", "class_body"].contains(kind)
-            }
-        }
+        ["interface_body", "class_body"].contains(&self.kind)
     }
 }

@@ -45,8 +45,14 @@ pub fn merge<'a>(
                 right.to_owned().into()
             }
         }
-        (CSTNode::NonTerminal { .. }, CSTNode::NonTerminal { .. }, CSTNode::NonTerminal { .. }) => {
-            if right.are_children_unordered() && left.are_children_unordered() {
+        (
+            CSTNode::NonTerminal { .. },
+            CSTNode::NonTerminal(non_terminal_left),
+            CSTNode::NonTerminal(non_terminal_right),
+        ) => {
+            if non_terminal_left.are_children_unordered()
+                && non_terminal_right.are_children_unordered()
+            {
                 unordered_merge(
                     base,
                     left,
