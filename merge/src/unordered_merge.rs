@@ -6,7 +6,7 @@ use model::{
     CSTNode,
 };
 
-use crate::{merge, MergedCSTNode};
+use crate::{merge, MergeError, MergedCSTNode};
 
 pub fn unordered_merge<'a>(
     base: &'a CSTNode<'a>,
@@ -15,7 +15,7 @@ pub fn unordered_merge<'a>(
     base_left_matchings: &'a Matchings<'a>,
     base_right_matchings: &'a Matchings<'a>,
     left_right_matchings: &'a Matchings<'a>,
-) -> MergedCSTNode<'a> {
+) -> Result<MergedCSTNode<'a>, MergeError> {
     match (base, left, right) {
         (
             CSTNode::NonTerminal(NonTerminal { kind, .. }),
@@ -146,12 +146,12 @@ pub fn unordered_merge<'a>(
                 }
             }
 
-            MergedCSTNode::NonTerminal {
+            Ok(MergedCSTNode::NonTerminal {
                 kind,
                 children: result_children,
-            }
+            })
         }
-        (_, _, _) => panic!("Can not merge Terminal with Non-Terminal"),
+        (_, _, _) => Err(MergeError::MergingTerminalWithNonTerminal),
     }
 }
 
@@ -163,7 +163,7 @@ mod tests {
         CSTNode,
     };
 
-    use crate::MergedCSTNode;
+    use crate::{MergeError, MergedCSTNode};
 
     use super::unordered_merge;
 
@@ -172,7 +172,7 @@ mod tests {
         parent_a: &CSTNode,
         parent_b: &CSTNode,
         expected_merge: &MergedCSTNode,
-    ) {
+    ) -> Result<(), MergeError> {
         let matchings_base_parent_a = unordered_tree_matching(base, parent_a);
         let matchings_base_parent_b = unordered_tree_matching(base, parent_b);
         let matchings_parents = unordered_tree_matching(parent_a, parent_b);
@@ -184,7 +184,7 @@ mod tests {
             &matchings_base_parent_a,
             &matchings_base_parent_b,
             &matchings_parents,
-        );
+        )?;
         let merged_tree_swap = unordered_merge(
             base,
             parent_b,
@@ -192,10 +192,12 @@ mod tests {
             &matchings_base_parent_b,
             &matchings_base_parent_a,
             &matchings_parents,
-        );
+        )?;
 
         assert_eq!(expected_merge, &merged_tree);
-        assert_eq!(expected_merge, &merged_tree_swap)
+        assert_eq!(expected_merge, &merged_tree_swap);
+
+        Ok(())
     }
 
     fn assert_merge_output_is(
@@ -203,7 +205,7 @@ mod tests {
         parent_a: &CSTNode,
         parent_b: &CSTNode,
         expected_merge: &MergedCSTNode,
-    ) {
+    ) -> Result<(), MergeError> {
         let matchings_base_parent_a = unordered_tree_matching(base, parent_a);
         let matchings_base_parent_b = unordered_tree_matching(base, parent_b);
         let matchings_parents = unordered_tree_matching(parent_a, parent_b);
@@ -215,13 +217,15 @@ mod tests {
             &matchings_base_parent_a,
             &matchings_base_parent_b,
             &matchings_parents,
-        );
+        )?;
 
         assert_eq!(expected_merge, &merged_tree);
+
+        Ok(())
     }
 
     #[test]
-    fn test_merge_node_added_only_by_one_parent() {
+    fn test_merge_node_added_only_by_one_parent() -> Result<(), MergeError> {
         let base = CSTNode::NonTerminal(NonTerminal {
             kind: "interface_body",
             are_children_unordered: true,
@@ -311,11 +315,11 @@ mod tests {
 
         assert_merge_is_correct_and_idempotent_with_respect_to_parent_side(
             &base, &parent_a, &parent_b, &merge,
-        );
+        )
     }
 
     #[test]
-    fn test_both_parents_add_the_same_node_and_both_subtrees_are_equal() {
+    fn test_both_parents_add_the_same_node_and_both_subtrees_are_equal() -> Result<(), MergeError> {
         let base = CSTNode::NonTerminal(NonTerminal {
             kind: "interface_body",
             are_children_unordered: true,
@@ -429,11 +433,12 @@ mod tests {
             &parent_a,
             &parent_b,
             &expected_merge,
-        );
+        )
     }
 
     #[test]
-    fn test_merge_one_parent_removes_a_node_while_the_other_keeps_it_unchanged() {
+    fn test_merge_one_parent_removes_a_node_while_the_other_keeps_it_unchanged(
+    ) -> Result<(), MergeError> {
         let base = CSTNode::NonTerminal(NonTerminal {
             kind: "interface_body",
             are_children_unordered: true,
@@ -540,11 +545,11 @@ mod tests {
             &parent_a,
             &parent_b,
             &expected_merge,
-        );
+        )
     }
 
     #[test]
-    fn test_merge_one_parent_removes_a_node_while_the_other_changed_it() {
+    fn test_merge_one_parent_removes_a_node_while_the_other_changed_it() -> Result<(), MergeError> {
         let base = CSTNode::NonTerminal(NonTerminal {
             kind: "interface_body",
             are_children_unordered: true,
@@ -697,7 +702,7 @@ mod tests {
                     },
                 ],
             },
-        );
+        )?;
         assert_merge_output_is(
             &base,
             &parent_b,
@@ -735,6 +740,6 @@ mod tests {
                     },
                 ],
             },
-        );
+        )
     }
 }

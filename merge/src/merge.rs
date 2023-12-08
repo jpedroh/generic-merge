@@ -60,7 +60,7 @@ pub fn merge<'a>(
                     base_left_matchings,
                     base_right_matchings,
                     left_right_matchings,
-                ))
+                )?)
             } else {
                 Ok(ordered_merge(
                     base,
