@@ -73,7 +73,7 @@ pub fn run_tool_on_merge_scenario(
         &matchings_right_base,
         &matchings_left_right,
     )
-    .map_err(|error| ExecutionError::MergeError(error))?;
+    .map_err(ExecutionError::MergeError)?;
 
     match result.has_conflict() {
         true => Ok(ExecutionResult::WithConflicts(result.to_string())),
