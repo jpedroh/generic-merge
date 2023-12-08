@@ -163,7 +163,7 @@ mod tests {
         CSTNode, Point,
     };
 
-    use crate::{MergeError, MergedCSTNode, merge};
+    use crate::{merge, MergeError, MergedCSTNode};
 
     use super::unordered_merge;
 
