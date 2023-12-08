@@ -4,13 +4,15 @@ use parsing::ParserConfiguration;
 
 #[derive(Debug)]
 pub enum ExecutionError {
-    ParsingError,
+    ParsingError(&'static str),
+    MergeError(merge::MergeError),
 }
 
 impl fmt::Display for ExecutionError {
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {
-            ExecutionError::ParsingError => write!(f, "Parsing error occurred"),
+            ExecutionError::ParsingError(error) => write!(f, "Parsing error occurred: {}", error),
+            ExecutionError::MergeError(error) => write!(f, "Merge error occurred: {}", error),
         }
     }
 }
@@ -52,12 +54,12 @@ pub fn run_tool_on_merge_scenario(
 
     let parser_configuration = ParserConfiguration::from(language);
 
-    let base_tree = parsing::parse_string(base, &parser_configuration)
-        .map_err(|_| ExecutionError::ParsingError)?;
-    let left_tree = parsing::parse_string(left, &parser_configuration)
-        .map_err(|_| ExecutionError::ParsingError)?;
+    let base_tree =
+        parsing::parse_string(base, &parser_configuration).map_err(ExecutionError::ParsingError)?;
+    let left_tree =
+        parsing::parse_string(left, &parser_configuration).map_err(ExecutionError::ParsingError)?;
     let right_tree = parsing::parse_string(right, &parser_configuration)
-        .map_err(|_| ExecutionError::ParsingError)?;
+        .map_err(ExecutionError::ParsingError)?;
 
     let matchings_left_base = matching::calculate_matchings(&left_tree, &base_tree);
     let matchings_right_base = matching::calculate_matchings(&right_tree, &base_tree);
@@ -70,7 +72,8 @@ pub fn run_tool_on_merge_scenario(
         &matchings_left_base,
         &matchings_right_base,
         &matchings_left_right,
-    );
+    )
+    .map_err(ExecutionError::MergeError)?;
 
     match result.has_conflict() {
         true => Ok(ExecutionResult::WithConflicts(result.to_string())),

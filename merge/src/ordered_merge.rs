@@ -1,7 +1,7 @@
 use matching::Matchings;
 use model::{cst_node::NonTerminal, CSTNode};
 
-use crate::MergedCSTNode;
+use crate::{MergeError, MergedCSTNode};
 
 pub fn ordered_merge<'a>(
     base: &'a CSTNode<'a>,
@@ -10,7 +10,7 @@ pub fn ordered_merge<'a>(
     base_left_matchings: &'a Matchings<'a>,
     base_right_matchings: &'a Matchings<'a>,
     left_right_matchings: &'a Matchings<'a>,
-) -> MergedCSTNode<'a> {
+) -> Result<MergedCSTNode<'a>, MergeError> {
     match (base, left, right) {
         (
             CSTNode::NonTerminal(NonTerminal { kind, .. }),
@@ -57,7 +57,7 @@ pub fn ordered_merge<'a>(
                             base_left_matchings,
                             base_right_matchings,
                             left_right_matchings,
-                        ));
+                        )?);
 
                         cur_left = children_left_it.next();
                         cur_right = children_right_it.next();
@@ -70,7 +70,7 @@ pub fn ordered_merge<'a>(
                             base_left_matchings,
                             base_right_matchings,
                             left_right_matchings,
-                        ));
+                        )?);
 
                         cur_left = children_left_it.next();
                         cur_right = children_right_it.next();
@@ -188,10 +188,13 @@ pub fn ordered_merge<'a>(
                         cur_right = children_right_it.next();
                     }
                     (a, b, c, d, e) => {
-                        panic!(
-                            "[INVARIANT BROKEN]: Ordered merge found a matching configuration that should not be achieved, {} {} {} {} {}",
-                            a, b.is_some(), c.is_some(), d.is_some(), e.is_some()
-                        )
+                        return Err(MergeError::InvalidMatchingConfiguration(
+                            a,
+                            b.is_some(),
+                            c.is_some(),
+                            d.is_some(),
+                            e.is_some(),
+                        ));
                     }
                 }
             }
@@ -206,12 +209,12 @@ pub fn ordered_merge<'a>(
                 cur_right = children_right_it.next();
             }
 
-            MergedCSTNode::NonTerminal {
+            Ok(MergedCSTNode::NonTerminal {
                 kind,
                 children: result_children,
-            }
+            })
         }
-        (_, _, _) => panic!("Can not merge Terminal with Non-Terminal"),
+        (_, _, _) => Err(MergeError::MergingTerminalWithNonTerminal),
     }
 }
 
@@ -219,19 +222,19 @@ pub fn ordered_merge<'a>(
 mod tests {
     use std::vec;
 
-    use matching::ordered_tree_matching;
+    use matching::{ordered_tree_matching, Matchings};
     use model::{cst_node::NonTerminal, cst_node::Terminal, CSTNode, Point};
 
-    use crate::MergedCSTNode;
+    use crate::{MergeError, MergedCSTNode};
 
     use super::ordered_merge;
 
-    fn assert_merge_is_correct_and_idempotent_with_respect_to_parent_side(
-        base: &CSTNode,
-        parent_a: &CSTNode,
-        parent_b: &CSTNode,
-        expected_merge: &MergedCSTNode,
-    ) {
+    fn assert_merge_is_correct_and_idempotent_with_respect_to_parent_side<'a>(
+        base: &'a CSTNode<'a>,
+        parent_a: &'a CSTNode<'a>,
+        parent_b: &'a CSTNode<'a>,
+        expected_merge: &'a MergedCSTNode<'a>,
+    ) -> Result<(), MergeError> {
         let matchings_base_parent_a = ordered_tree_matching(base, parent_a);
         let matchings_base_parent_b = ordered_tree_matching(base, parent_b);
         let matchings_parents = ordered_tree_matching(parent_a, parent_b);
@@ -243,7 +246,7 @@ mod tests {
             &matchings_base_parent_a,
             &matchings_base_parent_b,
             &matchings_parents,
-        );
+        )?;
         let merged_tree_swap = ordered_merge(
             base,
             parent_b,
@@ -251,10 +254,12 @@ mod tests {
             &matchings_base_parent_b,
             &matchings_base_parent_a,
             &matchings_parents,
-        );
+        )?;
 
         assert_eq!(expected_merge, &merged_tree);
-        assert_eq!(expected_merge, &merged_tree_swap)
+        assert_eq!(expected_merge, &merged_tree_swap);
+
+        Ok(())
     }
 
     fn assert_merge_output_is(
@@ -262,7 +267,7 @@ mod tests {
         parent_a: &CSTNode,
         parent_b: &CSTNode,
         expected_merge: &MergedCSTNode,
-    ) {
+    ) -> Result<(), MergeError> {
         let matchings_base_parent_a = ordered_tree_matching(base, parent_a);
         let matchings_base_parent_b = ordered_tree_matching(base, parent_b);
         let matchings_parents = ordered_tree_matching(parent_a, parent_b);
@@ -274,13 +279,15 @@ mod tests {
             &matchings_base_parent_a,
             &matchings_base_parent_b,
             &matchings_parents,
-        );
+        )?;
 
         assert_eq!(expected_merge, &merged_tree);
+
+        Ok(())
     }
 
     #[test]
-    fn it_merges_non_terminals_if_there_are_non_changes() {
+    fn it_merges_non_terminals_if_there_are_non_changes() -> Result<(), MergeError> {
         let tree = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
             are_children_unordered: false,
@@ -311,7 +318,8 @@ mod tests {
     }
 
     #[test]
-    fn it_merges_non_terminals_if_both_left_and_right_add_the_same_things() {
+    fn it_merges_non_terminals_if_both_left_and_right_add_the_same_things() -> Result<(), MergeError>
+    {
         let base = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
             are_children_unordered: false,
@@ -349,8 +357,8 @@ mod tests {
     }
 
     #[test]
-    fn it_merges_non_terminals_if_only_one_parent_adds_a_node_in_an_initially_empty_children_list()
-    {
+    fn it_merges_non_terminals_if_only_one_parent_adds_a_node_in_an_initially_empty_children_list(
+    ) -> Result<(), MergeError> {
         let base = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
             are_children_unordered: false,
@@ -397,7 +405,8 @@ mod tests {
     }
 
     #[test]
-    fn it_merges_non_terminals_if_only_one_parent_adds_a_node_in_non_empty_children_list() {
+    fn it_merges_non_terminals_if_only_one_parent_adds_a_node_in_non_empty_children_list(
+    ) -> Result<(), MergeError> {
         let base = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
             are_children_unordered: false,
@@ -469,7 +478,8 @@ mod tests {
     }
 
     #[test]
-    fn it_merges_when_one_parent_adds_a_node_and_removes_one_that_was_not_edited_in_the_other() {
+    fn it_merges_when_one_parent_adds_a_node_and_removes_one_that_was_not_edited_in_the_other(
+    ) -> Result<(), MergeError> {
         let base = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
             are_children_unordered: false,
@@ -527,7 +537,8 @@ mod tests {
     }
 
     #[test]
-    fn it_merges_when_one_parent_adds_a_node_and_removes_from_another_that_was_changed() {
+    fn it_merges_when_one_parent_adds_a_node_and_removes_from_another_that_was_changed(
+    ) -> Result<(), MergeError> {
         let base = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
             are_children_unordered: false,
@@ -596,7 +607,7 @@ mod tests {
             &matchings_base_parent_a,
             &matchings_base_parent_b,
             &matchings_parents,
-        );
+        )?;
         let merged_tree_swap = ordered_merge(
             &base,
             &parent_b,
@@ -604,7 +615,7 @@ mod tests {
             &matchings_base_parent_b,
             &matchings_base_parent_a,
             &matchings_parents,
-        );
+        )?;
 
         assert_eq!(
             MergedCSTNode::NonTerminal {
@@ -657,10 +668,12 @@ mod tests {
             },
             merged_tree_swap
         );
+
+        Ok(())
     }
 
     #[test]
-    fn if_both_parents_add_different_nodes_then_we_have_a_conflict() {
+    fn if_both_parents_add_different_nodes_then_we_have_a_conflict() -> Result<(), MergeError> {
         let base = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
             are_children_unordered: false,
@@ -716,7 +729,8 @@ mod tests {
     }
 
     #[test]
-    fn it_merges_when_one_parent_removes_a_node_that_was_not_changed_in_another_parent() {
+    fn it_merges_when_one_parent_removes_a_node_that_was_not_changed_in_another_parent(
+    ) -> Result<(), MergeError> {
         let base = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
             are_children_unordered: false,
@@ -785,7 +799,8 @@ mod tests {
     }
 
     #[test]
-    fn it_detects_a_conflict_when_one_parent_removes_a_node_that_was_changed_in_another_parent() {
+    fn it_detects_a_conflict_when_one_parent_removes_a_node_that_was_changed_in_another_parent(
+    ) -> Result<(), MergeError> {
         let base = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
             are_children_unordered: false,
@@ -876,7 +891,7 @@ mod tests {
                     },
                 ],
             },
-        );
+        )?;
 
         assert_merge_output_is(
             &base,
@@ -905,7 +920,7 @@ mod tests {
     }
 
     #[test]
-    fn it_merges_when_a_parent_adds_a_node() {
+    fn it_merges_when_a_parent_adds_a_node() -> Result<(), MergeError> {
         let base = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
             are_children_unordered: false,
@@ -1003,7 +1018,7 @@ mod tests {
     }
 
     #[test]
-    fn it_merges_when_one_parent_removes_and_add_a_node() {
+    fn it_merges_when_one_parent_removes_and_add_a_node() -> Result<(), MergeError> {
         let base = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
             are_children_unordered: false,
@@ -1069,7 +1084,7 @@ mod tests {
     }
 
     #[test]
-    fn it_conflicts_when_one_parent_removes_and_add_a_node() {
+    fn it_conflicts_when_one_parent_removes_and_add_a_node() -> Result<(), MergeError> {
         let base = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
             are_children_unordered: false,
@@ -1152,7 +1167,7 @@ mod tests {
                     },
                 ],
             },
-        );
+        )?;
         assert_merge_output_is(
             &base,
             &parent_b,
@@ -1176,11 +1191,11 @@ mod tests {
                     },
                 ],
             },
-        );
+        )
     }
 
     #[test]
-    fn it_merges_when_a_parent_adds_one_node() {
+    fn it_merges_when_a_parent_adds_one_node() -> Result<(), MergeError> {
         let base = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
             are_children_unordered: false,
@@ -1247,7 +1262,8 @@ mod tests {
     }
 
     #[test]
-    fn it_does_not_detect_a_conflict_if_am_merging_two_subtrees_that_have_not_changed_mutually() {
+    fn it_does_not_detect_a_conflict_if_am_merging_two_subtrees_that_have_not_changed_mutually(
+    ) -> Result<(), MergeError> {
         let base = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
             are_children_unordered: false,
@@ -1306,12 +1322,12 @@ mod tests {
             &parent_a,
             &parent_b,
             &expected_merge,
-        );
+        )
     }
 
     #[test]
     fn it_detects_a_conflict_if_am_merging_two_subtrees_that_delete_a_node_that_was_changed_in_another_parent(
-    ) {
+    ) -> Result<(), MergeError> {
         let base = CSTNode::NonTerminal(NonTerminal {
             kind: "kind",
             are_children_unordered: false,
@@ -1400,7 +1416,7 @@ mod tests {
                     right: None,
                 }],
             },
-        );
+        )?;
         assert_merge_output_is(
             &base,
             &parent_b,
@@ -1418,6 +1434,39 @@ mod tests {
                     })),
                 }],
             },
-        );
+        )
+    }
+
+    #[test]
+    fn test_can_not_merge_terminal_with_non_terminal() -> Result<(), Box<dyn std::error::Error>> {
+        let error = ordered_merge(
+            &CSTNode::Terminal(Terminal {
+                kind: "kind",
+                start_position: Point { row: 0, column: 0 },
+                end_position: Point { row: 0, column: 7 },
+                value: "value",
+            }),
+            &CSTNode::Terminal(Terminal {
+                kind: "kind",
+                start_position: Point { row: 0, column: 0 },
+                end_position: Point { row: 0, column: 7 },
+                value: "value",
+            }),
+            &CSTNode::NonTerminal(NonTerminal {
+                kind: "kind",
+                are_children_unordered: false,
+                start_position: Point { row: 0, column: 0 },
+                end_position: Point { row: 0, column: 7 },
+                children: vec![],
+            }),
+            &Matchings::empty(),
+            &Matchings::empty(),
+            &Matchings::empty(),
+        )
+        .unwrap_err();
+
+        assert_eq!(error, MergeError::MergingTerminalWithNonTerminal);
+
+        Ok(())
     }
 }
