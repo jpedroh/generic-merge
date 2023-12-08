@@ -62,9 +62,9 @@ pub fn merge<'a>(
                 )?)
             } else {
                 Ok(ordered_merge(
-                    base,
-                    left,
-                    right,
+                    a_base,
+                    a_left,
+                    a_right,
                     base_left_matchings,
                     base_right_matchings,
                     left_right_matchings,
