@@ -4,7 +4,6 @@ use model::cst_node::NonTerminal;
 use crate::{MergeError, MergedCSTNode};
 
 pub fn ordered_merge<'a>(
-    _base: &'a NonTerminal<'a>,
     left: &'a NonTerminal<'a>,
     right: &'a NonTerminal<'a>,
     base_left_matchings: &'a Matchings<'a>,
@@ -222,7 +221,6 @@ mod tests {
         let matchings_parents = ordered_tree_matching(parent_a, parent_b);
 
         let merged_tree = ordered_merge(
-            base.try_into().unwrap(),
             parent_a.try_into().unwrap(),
             parent_b.try_into().unwrap(),
             &matchings_base_parent_a,
@@ -230,7 +228,6 @@ mod tests {
             &matchings_parents,
         )?;
         let merged_tree_swap = ordered_merge(
-            base.try_into().unwrap(),
             parent_b.try_into().unwrap(),
             parent_a.try_into().unwrap(),
             &matchings_base_parent_b,
@@ -255,7 +252,6 @@ mod tests {
         let matchings_parents = ordered_tree_matching(parent_a, parent_b);
 
         let merged_tree = ordered_merge(
-            base.try_into().unwrap(),
             parent_a.try_into().unwrap(),
             parent_b.try_into().unwrap(),
             &matchings_base_parent_a,
@@ -583,7 +579,6 @@ mod tests {
         let matchings_parents = ordered_tree_matching(&parent_a, &parent_b);
 
         let merged_tree = ordered_merge(
-            (&base).try_into().unwrap(),
             (&parent_a).try_into().unwrap(),
             (&parent_b).try_into().unwrap(),
             &matchings_base_parent_a,
@@ -591,7 +586,6 @@ mod tests {
             &matchings_parents,
         )?;
         let merged_tree_swap = ordered_merge(
-            (&base).try_into().unwrap(),
             (&parent_b).try_into().unwrap(),
             (&parent_a).try_into().unwrap(),
             &matchings_base_parent_b,
