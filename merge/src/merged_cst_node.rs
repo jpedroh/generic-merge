@@ -36,6 +36,15 @@ impl<'a> From<CSTNode<'a>> for MergedCSTNode<'a> {
     }
 }
 
+impl<'a> From<Terminal<'a>> for MergedCSTNode<'a> {
+    fn from(val: Terminal<'a>) -> Self {
+        MergedCSTNode::Terminal {
+            kind: val.kind,
+            value: val.value.to_string(),
+        }
+    }
+}
+
 impl ToString for MergedCSTNode<'_> {
     fn to_string(&self) -> String {
         match self {

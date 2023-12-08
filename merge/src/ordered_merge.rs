@@ -203,7 +203,7 @@ pub fn ordered_merge<'a>(
 mod tests {
     use std::vec;
 
-    use matching::{ordered_tree_matching, Matchings};
+    use matching::{ordered_tree_matching};
     use model::{cst_node::NonTerminal, cst_node::Terminal, CSTNode, Point};
 
     use crate::{MergeError, MergedCSTNode};
