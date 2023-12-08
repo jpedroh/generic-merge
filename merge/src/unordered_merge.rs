@@ -745,7 +745,7 @@ mod tests {
 
     #[test]
     fn test_can_not_merge_terminal_with_non_terminal() -> Result<(), Box<dyn std::error::Error>> {
-        let error = merge(
+        let error = unordered_merge(
             &CSTNode::Terminal(Terminal {
                 kind: "kind",
                 start_position: Point { row: 0, column: 0 },
