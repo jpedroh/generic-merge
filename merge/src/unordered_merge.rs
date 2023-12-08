@@ -58,7 +58,7 @@ pub fn unordered_merge<'a>(
                             base_left_matchings,
                             base_right_matchings,
                             left_right_matchings,
-                        ));
+                        ).unwrap());
                         processed_nodes.insert(left_child);
                         processed_nodes.insert(right_matching.matching_node);
                     }
@@ -81,7 +81,7 @@ pub fn unordered_merge<'a>(
                             base_left_matchings,
                             base_right_matchings,
                             left_right_matchings,
-                        ));
+                        ).unwrap());
                         processed_nodes.insert(left_child);
                         processed_nodes.insert(right_matching.matching_node);
                     }
@@ -109,7 +109,7 @@ pub fn unordered_merge<'a>(
                             base_left_matchings,
                             base_right_matchings,
                             left_right_matchings,
-                        ));
+                        ).unwrap());
                     }
                     // Removed in left
                     (Some(matching_base_right), None) => {
@@ -129,7 +129,7 @@ pub fn unordered_merge<'a>(
                             base_left_matchings,
                             base_right_matchings,
                             left_right_matchings,
-                        ));
+                        ).unwrap());
                     }
                 }
             }

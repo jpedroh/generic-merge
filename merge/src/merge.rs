@@ -1,3 +1,4 @@
+use crate::merge_error::MergeError;
 use crate::ordered_merge;
 use crate::unordered_merge;
 use matching::Matchings;
@@ -13,7 +14,7 @@ pub fn merge<'a>(
     base_left_matchings: &'a Matchings<'a>,
     base_right_matchings: &'a Matchings<'a>,
     left_right_matchings: &'a Matchings<'a>,
-) -> MergedCSTNode<'a> {
+) -> Result<MergedCSTNode<'a>, MergeError> {
     match (base, left, right) {
         (
             CSTNode::Terminal(Terminal {
@@ -30,19 +31,19 @@ pub fn merge<'a>(
         ) => {
             // Unchanged
             if value_left == value_base && value_right == value_base {
-                base.to_owned().into()
+                Ok(base.to_owned().into())
             // Changed in both
             } else if value_left != value_base && value_right != value_base {
                 match diffy::merge(value_base, value_left, value_right) {
-                    Ok(value) => MergedCSTNode::Terminal { kind, value },
-                    Err(value) => MergedCSTNode::Terminal { kind, value },
+                    Ok(value) => Ok(MergedCSTNode::Terminal { kind, value }),
+                    Err(value) => Ok(MergedCSTNode::Terminal { kind, value }),
                 }
             // Only left changed
             } else if value_left != value_base {
-                left.to_owned().into()
+                Ok(left.to_owned().into())
             // Only right changed
             } else {
-                right.to_owned().into()
+                Ok(right.to_owned().into())
             }
         }
         (
@@ -52,26 +53,26 @@ pub fn merge<'a>(
         ) => {
             if non_terminal_left.are_children_unordered && non_terminal_right.are_children_unordered
             {
-                unordered_merge(
+                Ok(unordered_merge(
                     base,
                     left,
                     right,
                     base_left_matchings,
                     base_right_matchings,
                     left_right_matchings,
-                )
+                ))
             } else {
-                ordered_merge(
+                Ok(ordered_merge(
                     base,
                     left,
                     right,
                     base_left_matchings,
                     base_right_matchings,
                     left_right_matchings,
-                )
+                ))
             }
         }
-        (_, _, _) => panic!("Can not merge Terminal with Non-Terminal"),
+        (_, _, _) => Err(MergeError::MergingTerminalWithNonTerminal),
     }
 }
 
@@ -94,7 +95,7 @@ mod tests {
         parent_a: &CSTNode,
         parent_b: &CSTNode,
         expected_merge: &MergedCSTNode,
-    ) {
+    ) -> Result<(), Box<dyn std::error::Error>> {
         let matchings_base_parent_a = ordered_tree_matching(base, parent_a);
         let matchings_base_parent_b = ordered_tree_matching(base, parent_b);
         let matchings_parents = ordered_tree_matching(parent_a, parent_b);
@@ -106,7 +107,7 @@ mod tests {
             &matchings_base_parent_a,
             &matchings_base_parent_b,
             &matchings_parents,
-        );
+        )?;
         let merged_tree_swap = merge(
             base,
             parent_b,
@@ -114,14 +115,15 @@ mod tests {
             &matchings_base_parent_b,
             &matchings_base_parent_a,
             &matchings_parents,
-        );
+        )?;
 
         assert_eq!(expected_merge, &merged_tree);
-        assert_eq!(expected_merge, &merged_tree_swap)
+        assert_eq!(expected_merge, &merged_tree_swap);
+        Ok(())
     }
 
     #[test]
-    fn if_i_am_merging_three_unchanged_nodes_it_is_a_success() {
+    fn if_i_am_merging_three_unchanged_nodes_it_is_a_success() -> Result<(), Box<dyn std::error::Error>> {
         let node = CSTNode::Terminal(Terminal {
             kind: "kind",
             start_position: Point { row: 0, column: 0 },
@@ -138,7 +140,7 @@ mod tests {
     }
 
     #[test]
-    fn returns_success_if_there_are_changes_in_both_parents_and_they_are_not_conflicting() {
+    fn returns_success_if_there_are_changes_in_both_parents_and_they_are_not_conflicting() -> Result<(), Box<dyn std::error::Error>> {
         let base = CSTNode::Terminal(Terminal {
             kind: "kind",
             start_position: Point { row: 0, column: 0 },
@@ -170,7 +172,7 @@ mod tests {
     }
 
     #[test]
-    fn returns_conflict_if_there_are_changes_in_both_parents_and_they_are_conflicting() {
+    fn returns_conflict_if_there_are_changes_in_both_parents_and_they_are_conflicting() -> Result<(), Box<dyn std::error::Error>> {
         let base = CSTNode::Terminal(Terminal {
             kind: "kind",
             start_position: Point { row: 0, column: 0 },
@@ -192,16 +194,18 @@ mod tests {
 
         assert_eq!(
             merge(&base, &left, &right, &Matchings::empty(), &Matchings::empty(),
-            &Matchings::empty()),
+            &Matchings::empty()).unwrap(),
            MergedCSTNode::Terminal {
                 kind: "kind",
                 value: "<<<<<<< ours\nleft_value||||||| original\nvalue=======\nright_value>>>>>>> theirs\n".to_string()
             }
-        )
+        );
+
+        Ok(())
     }
 
     #[test]
-    fn if_there_is_a_change_only_in_one_parent_it_returns_the_changes_from_this_parent() {
+    fn if_there_is_a_change_only_in_one_parent_it_returns_the_changes_from_this_parent() -> Result<(), Box<dyn std::error::Error>> {
         let base_and_left = CSTNode::Terminal(Terminal {
             kind: "kind",
             start_position: Point { row: 0, column: 0 },
@@ -224,9 +228,8 @@ mod tests {
     }
 
     #[test]
-    #[should_panic(expected = "Can not merge Terminal with Non-Terminal")]
-    fn test_can_not_merge_terminal_with_non_terminal() {
-        merge(
+    fn test_can_not_merge_terminal_with_non_terminal() -> Result<(), Box<dyn std::error::Error>> {
+        assert!(merge(
             &CSTNode::Terminal(Terminal {
                 kind: "kind",
                 start_position: Point { row: 0, column: 0 },
@@ -249,6 +252,8 @@ mod tests {
             &Matchings::empty(),
             &Matchings::empty(),
             &Matchings::empty(),
-        );
+        ).is_err());
+
+        Ok(())
     }
 }

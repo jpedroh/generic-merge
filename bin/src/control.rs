@@ -5,12 +5,14 @@ use parsing::ParserConfiguration;
 #[derive(Debug)]
 pub enum ExecutionError {
     ParsingError,
+    MergeError(merge::MergeError)
 }
 
 impl fmt::Display for ExecutionError {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             ExecutionError::ParsingError => write!(f, "Parsing error occurred"),
+            ExecutionError::MergeError(error) => write!(f, "Merge error occurred: {}", error),
         }
     }
 }
@@ -70,7 +72,7 @@ pub fn run_tool_on_merge_scenario(
         &matchings_left_base,
         &matchings_right_base,
         &matchings_left_right,
-    );
+    ).map_err(|error| ExecutionError::MergeError(error))?;
 
     match result.has_conflict() {
         true => Ok(ExecutionResult::WithConflicts(result.to_string())),

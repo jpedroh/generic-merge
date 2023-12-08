@@ -57,7 +57,7 @@ pub fn ordered_merge<'a>(
                             base_left_matchings,
                             base_right_matchings,
                             left_right_matchings,
-                        ));
+                        ).unwrap());
 
                         cur_left = children_left_it.next();
                         cur_right = children_right_it.next();
@@ -70,7 +70,7 @@ pub fn ordered_merge<'a>(
                             base_left_matchings,
                             base_right_matchings,
                             left_right_matchings,
-                        ));
+                        ).unwrap());
 
                         cur_left = children_left_it.next();
                         cur_right = children_right_it.next();
