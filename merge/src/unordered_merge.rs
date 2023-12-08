@@ -9,158 +9,142 @@ use model::{
 use crate::{merge, MergeError, MergedCSTNode};
 
 pub fn unordered_merge<'a>(
-    base: &'a CSTNode<'a>,
-    left: &'a CSTNode<'a>,
-    right: &'a CSTNode<'a>,
+    left: &'a NonTerminal<'a>,
+    right: &'a NonTerminal<'a>,
     base_left_matchings: &'a Matchings<'a>,
     base_right_matchings: &'a Matchings<'a>,
     left_right_matchings: &'a Matchings<'a>,
 ) -> Result<MergedCSTNode<'a>, MergeError> {
-    match (base, left, right) {
-        (
-            CSTNode::NonTerminal(NonTerminal { kind, .. }),
-            CSTNode::NonTerminal(NonTerminal {
-                children: children_left,
-                ..
-            }),
-            CSTNode::NonTerminal(NonTerminal {
-                children: children_right,
-                ..
-            }),
-        ) => {
-            let mut result_children = vec![];
-            let mut processed_nodes: HashSet<&CSTNode> = HashSet::new();
+    let mut result_children = vec![];
+    let mut processed_nodes: HashSet<&CSTNode> = HashSet::new();
 
-            for left_child in children_left.iter() {
-                match left_child {
-                    CSTNode::Terminal(Terminal { value, .. }) => {
-                        if value == &"}" {
-                            break;
-                        }
-                    }
-                    CSTNode::NonTerminal { .. } => {}
-                }
-
-                let matching_base_left = base_left_matchings.find_matching_for(left_child);
-                let matching_left_right = left_right_matchings.find_matching_for(left_child);
-
-                match (matching_base_left, matching_left_right) {
-                    // Added only by left
-                    (None, None) => {
-                        result_children.push(left_child.to_owned().into());
-                        processed_nodes.insert(left_child);
-                    }
-                    (None, Some(right_matching)) => {
-                        result_children.push(
-                            merge(
-                                left_child,
-                                left_child,
-                                right_matching.matching_node,
-                                base_left_matchings,
-                                base_right_matchings,
-                                left_right_matchings,
-                            )
-                            .unwrap(),
-                        );
-                        processed_nodes.insert(left_child);
-                        processed_nodes.insert(right_matching.matching_node);
-                    }
-                    // Removed in right
-                    (Some(matching_base_left), None) => {
-                        // Changed in left, conflict!
-                        if !matching_base_left.is_perfect_match {
-                            result_children.push(MergedCSTNode::Conflict {
-                                left: Some(Box::new(left_child.to_owned().into())),
-                                right: None,
-                            })
-                        }
-                        processed_nodes.insert(left_child);
-                    }
-                    (Some(_), Some(right_matching)) => {
-                        result_children.push(
-                            merge(
-                                left_child,
-                                left_child,
-                                right_matching.matching_node,
-                                base_left_matchings,
-                                base_right_matchings,
-                                left_right_matchings,
-                            )
-                            .unwrap(),
-                        );
-                        processed_nodes.insert(left_child);
-                        processed_nodes.insert(right_matching.matching_node);
-                    }
+    for left_child in left.children.iter() {
+        match left_child {
+            CSTNode::Terminal(Terminal { value, .. }) => {
+                if value == &"}" {
+                    break;
                 }
             }
-
-            for right_child in children_right.iter() {
-                if processed_nodes.contains(right_child) {
-                    continue;
-                }
-
-                let matching_base_right = base_right_matchings.find_matching_for(right_child);
-                let matching_left_right = left_right_matchings.find_matching_for(right_child);
-
-                match (matching_base_right, matching_left_right) {
-                    // Added only by right
-                    (None, None) => {
-                        result_children.push(right_child.to_owned().into());
-                    }
-                    (None, Some(matching_left_right)) => {
-                        result_children.push(
-                            merge(
-                                right_child,
-                                matching_left_right.matching_node,
-                                right_child,
-                                base_left_matchings,
-                                base_right_matchings,
-                                left_right_matchings,
-                            )
-                            .unwrap(),
-                        );
-                    }
-                    // Removed in left
-                    (Some(matching_base_right), None) => {
-                        // Changed in right, conflict!
-                        if !matching_base_right.is_perfect_match {
-                            result_children.push(MergedCSTNode::Conflict {
-                                left: None,
-                                right: Some(Box::new(right_child.to_owned().into())),
-                            })
-                        }
-                    }
-                    (Some(_), Some(matching_left_right)) => {
-                        result_children.push(
-                            merge(
-                                right_child,
-                                matching_left_right.matching_node,
-                                right_child,
-                                base_left_matchings,
-                                base_right_matchings,
-                                left_right_matchings,
-                            )
-                            .unwrap(),
-                        );
-                    }
-                }
-            }
-
-            Ok(MergedCSTNode::NonTerminal {
-                kind,
-                children: result_children,
-            })
+            CSTNode::NonTerminal { .. } => {}
         }
-        (_, _, _) => Err(MergeError::MergingTerminalWithNonTerminal),
+
+        let matching_base_left = base_left_matchings.find_matching_for(left_child);
+        let matching_left_right = left_right_matchings.find_matching_for(left_child);
+
+        match (matching_base_left, matching_left_right) {
+            // Added only by left
+            (None, None) => {
+                result_children.push(left_child.to_owned().into());
+                processed_nodes.insert(left_child);
+            }
+            (None, Some(right_matching)) => {
+                result_children.push(
+                    merge(
+                        left_child,
+                        left_child,
+                        right_matching.matching_node,
+                        base_left_matchings,
+                        base_right_matchings,
+                        left_right_matchings,
+                    )
+                    .unwrap(),
+                );
+                processed_nodes.insert(left_child);
+                processed_nodes.insert(right_matching.matching_node);
+            }
+            // Removed in right
+            (Some(matching_base_left), None) => {
+                // Changed in left, conflict!
+                if !matching_base_left.is_perfect_match {
+                    result_children.push(MergedCSTNode::Conflict {
+                        left: Some(Box::new(left_child.to_owned().into())),
+                        right: None,
+                    })
+                }
+                processed_nodes.insert(left_child);
+            }
+            (Some(_), Some(right_matching)) => {
+                result_children.push(
+                    merge(
+                        left_child,
+                        left_child,
+                        right_matching.matching_node,
+                        base_left_matchings,
+                        base_right_matchings,
+                        left_right_matchings,
+                    )
+                    .unwrap(),
+                );
+                processed_nodes.insert(left_child);
+                processed_nodes.insert(right_matching.matching_node);
+            }
+        }
     }
+
+    for right_child in right.children.iter() {
+        if processed_nodes.contains(right_child) {
+            continue;
+        }
+
+        let matching_base_right = base_right_matchings.find_matching_for(right_child);
+        let matching_left_right = left_right_matchings.find_matching_for(right_child);
+
+        match (matching_base_right, matching_left_right) {
+            // Added only by right
+            (None, None) => {
+                result_children.push(right_child.to_owned().into());
+            }
+            (None, Some(matching_left_right)) => {
+                result_children.push(
+                    merge(
+                        right_child,
+                        matching_left_right.matching_node,
+                        right_child,
+                        base_left_matchings,
+                        base_right_matchings,
+                        left_right_matchings,
+                    )
+                    .unwrap(),
+                );
+            }
+            // Removed in left
+            (Some(matching_base_right), None) => {
+                // Changed in right, conflict!
+                if !matching_base_right.is_perfect_match {
+                    result_children.push(MergedCSTNode::Conflict {
+                        left: None,
+                        right: Some(Box::new(right_child.to_owned().into())),
+                    })
+                }
+            }
+            (Some(_), Some(matching_left_right)) => {
+                result_children.push(
+                    merge(
+                        right_child,
+                        matching_left_right.matching_node,
+                        right_child,
+                        base_left_matchings,
+                        base_right_matchings,
+                        left_right_matchings,
+                    )
+                    .unwrap(),
+                );
+            }
+        }
+    }
+
+    Ok(MergedCSTNode::NonTerminal {
+        kind: left.kind,
+        children: result_children,
+    })
 }
 
 #[cfg(test)]
 mod tests {
-    use matching::{unordered_tree_matching, Matchings};
+    use matching::unordered_tree_matching;
     use model::{
         cst_node::{NonTerminal, Terminal},
-        CSTNode, Point,
+        CSTNode,
     };
 
     use crate::{MergeError, MergedCSTNode};
@@ -178,17 +162,15 @@ mod tests {
         let matchings_parents = unordered_tree_matching(parent_a, parent_b);
 
         let merged_tree = unordered_merge(
-            base,
-            parent_a,
-            parent_b,
+            parent_a.try_into().unwrap(),
+            parent_b.try_into().unwrap(),
             &matchings_base_parent_a,
             &matchings_base_parent_b,
             &matchings_parents,
         )?;
         let merged_tree_swap = unordered_merge(
-            base,
-            parent_b,
-            parent_a,
+            parent_b.try_into().unwrap(),
+            parent_a.try_into().unwrap(),
             &matchings_base_parent_b,
             &matchings_base_parent_a,
             &matchings_parents,
@@ -211,9 +193,8 @@ mod tests {
         let matchings_parents = unordered_tree_matching(parent_a, parent_b);
 
         let merged_tree = unordered_merge(
-            base,
-            parent_a,
-            parent_b,
+            parent_a.try_into().unwrap(),
+            parent_b.try_into().unwrap(),
             &matchings_base_parent_a,
             &matchings_base_parent_b,
             &matchings_parents,
@@ -741,38 +722,5 @@ mod tests {
                 ],
             },
         )
-    }
-
-    #[test]
-    fn test_can_not_merge_terminal_with_non_terminal() -> Result<(), Box<dyn std::error::Error>> {
-        let error = unordered_merge(
-            &CSTNode::Terminal(Terminal {
-                kind: "kind",
-                start_position: Point { row: 0, column: 0 },
-                end_position: Point { row: 0, column: 7 },
-                value: "value",
-            }),
-            &CSTNode::Terminal(Terminal {
-                kind: "kind",
-                start_position: Point { row: 0, column: 0 },
-                end_position: Point { row: 0, column: 7 },
-                value: "value",
-            }),
-            &CSTNode::NonTerminal(NonTerminal {
-                kind: "kind",
-                are_children_unordered: false,
-                start_position: Point { row: 0, column: 0 },
-                end_position: Point { row: 0, column: 7 },
-                children: vec![],
-            }),
-            &Matchings::empty(),
-            &Matchings::empty(),
-            &Matchings::empty(),
-        )
-        .unwrap_err();
-
-        assert_eq!(error, MergeError::MergingTerminalWithNonTerminal);
-
-        Ok(())
     }
 }

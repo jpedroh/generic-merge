@@ -21,6 +21,17 @@ pub struct NonTerminal<'a> {
     pub are_children_unordered: bool,
 }
 
+impl<'a> TryFrom<&'a CSTNode<'a>> for &'a NonTerminal<'a> {
+    type Error = &'static str;
+
+    fn try_from(node: &'a CSTNode<'a>) -> Result<Self, Self::Error> {
+        match node {
+            CSTNode::NonTerminal(non_terminal) => Ok(non_terminal),
+            CSTNode::Terminal(_) => Err("Cannot convert terminal to non-terminal"),
+        }
+    }
+}
+
 #[derive(Debug, PartialEq, Clone, Eq, PartialOrd, Ord, Hash)]
 pub struct Terminal<'a> {
     pub kind: &'a str,
