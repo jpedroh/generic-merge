@@ -86,7 +86,7 @@ mod tests {
         CSTNode, Point,
     };
 
-    use crate::MergedCSTNode;
+    use crate::{MergeError, MergedCSTNode};
 
     use super::merge;
 
@@ -233,7 +233,7 @@ mod tests {
 
     #[test]
     fn test_can_not_merge_terminal_with_non_terminal() -> Result<(), Box<dyn std::error::Error>> {
-        assert!(merge(
+        let error = merge(
             &CSTNode::Terminal(Terminal {
                 kind: "kind",
                 start_position: Point { row: 0, column: 0 },
@@ -257,7 +257,9 @@ mod tests {
             &Matchings::empty(),
             &Matchings::empty(),
         )
-        .is_err());
+        .unwrap_err();
+
+        assert_eq!(error, MergeError::MergingTerminalWithNonTerminal);
 
         Ok(())
     }

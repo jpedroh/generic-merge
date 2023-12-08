@@ -157,13 +157,13 @@ pub fn unordered_merge<'a>(
 
 #[cfg(test)]
 mod tests {
-    use matching::unordered_tree_matching;
+    use matching::{unordered_tree_matching, Matchings};
     use model::{
         cst_node::{NonTerminal, Terminal},
-        CSTNode,
+        CSTNode, Point,
     };
 
-    use crate::{MergeError, MergedCSTNode};
+    use crate::{MergeError, MergedCSTNode, merge};
 
     use super::unordered_merge;
 
@@ -741,5 +741,38 @@ mod tests {
                 ],
             },
         )
+    }
+
+    #[test]
+    fn test_can_not_merge_terminal_with_non_terminal() -> Result<(), Box<dyn std::error::Error>> {
+        let error = merge(
+            &CSTNode::Terminal(Terminal {
+                kind: "kind",
+                start_position: Point { row: 0, column: 0 },
+                end_position: Point { row: 0, column: 7 },
+                value: "value",
+            }),
+            &CSTNode::Terminal(Terminal {
+                kind: "kind",
+                start_position: Point { row: 0, column: 0 },
+                end_position: Point { row: 0, column: 7 },
+                value: "value",
+            }),
+            &CSTNode::NonTerminal(NonTerminal {
+                kind: "kind",
+                are_children_unordered: false,
+                start_position: Point { row: 0, column: 0 },
+                end_position: Point { row: 0, column: 7 },
+                children: vec![],
+            }),
+            &Matchings::empty(),
+            &Matchings::empty(),
+            &Matchings::empty(),
+        )
+        .unwrap_err();
+
+        assert_eq!(error, MergeError::MergingTerminalWithNonTerminal);
+
+        Ok(())
     }
 }

@@ -1,7 +1,7 @@
 use std::error;
 use std::fmt;
 
-#[derive(Debug)]
+#[derive(Debug, PartialEq)]
 pub enum MergeError {
     MergingTerminalWithNonTerminal,
     InvalidMatchingConfiguration(bool, bool, bool, bool, bool),
