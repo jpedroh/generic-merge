@@ -10,6 +10,14 @@ pub fn ordered_merge<'a>(
     base_right_matchings: &'a Matchings<'a>,
     left_right_matchings: &'a Matchings<'a>,
 ) -> Result<MergedCSTNode<'a>, MergeError> {
+    // Nodes of different kind, early return
+    if left.kind != right.kind {
+        return Err(MergeError::NodesWithDifferentKinds(
+            left.kind.to_string(),
+            right.kind.to_string(),
+        ));
+    }
+
     let mut result_children = vec![];
 
     let mut children_left_it = left.children.iter();
@@ -203,7 +211,7 @@ pub fn ordered_merge<'a>(
 mod tests {
     use std::vec;
 
-    use matching::{ordered_tree_matching};
+    use matching::{ordered_tree_matching, Matchings};
     use model::{cst_node::NonTerminal, cst_node::Terminal, CSTNode, Point};
 
     use crate::{MergeError, MergedCSTNode};
@@ -1411,5 +1419,32 @@ mod tests {
                 }],
             },
         )
+    }
+
+    #[test]
+    fn i_get_an_error_if_i_try_to_merge_nodes_of_different_kinds() {
+        let kind_a = NonTerminal {
+            kind: "kind_a",
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
+            children: vec![],
+            are_children_unordered: true,
+        };
+        let kind_b = NonTerminal {
+            kind: "kind_b",
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
+            children: vec![],
+            are_children_unordered: true,
+        };
+
+        let matchings = Matchings::empty();
+        let result = ordered_merge(&kind_a, &kind_b, &matchings, &matchings, &matchings);
+
+        assert!(result.is_err());
+        assert_eq!(
+            result.unwrap_err(),
+            MergeError::NodesWithDifferentKinds("kind_a".to_string(), "kind_b".to_string())
+        );
     }
 }

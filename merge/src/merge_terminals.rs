@@ -7,6 +7,14 @@ pub fn merge_terminals<'a>(
     left: &'a Terminal<'a>,
     right: &'a Terminal<'a>,
 ) -> Result<MergedCSTNode<'a>, MergeError> {
+    // Nodes of different kind, early return
+    if left.kind != right.kind {
+        return Err(MergeError::NodesWithDifferentKinds(
+            left.kind.to_string(),
+            right.kind.to_string(),
+        ));
+    }
+
     // Unchanged
     if left.value == base.value && right.value == base.value {
         Ok(base.to_owned().into())
@@ -157,5 +165,29 @@ mod tests {
             &changed_parent,
             &changed_parent.clone().into(),
         )
+    }
+
+    #[test]
+    fn i_get_an_error_if_i_try_to_merge_nodes_of_different_kinds() {
+        let kind_a = Terminal {
+            kind: "kind_a",
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
+            value: "value",
+        };
+        let kind_b = Terminal {
+            kind: "kind_b",
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
+            value: "value_right",
+        };
+
+        let result = merge_terminals(&kind_a, &kind_a, &kind_b);
+
+        assert!(result.is_err());
+        assert_eq!(
+            result.unwrap_err(),
+            MergeError::NodesWithDifferentKinds("kind_a".to_string(), "kind_b".to_string())
+        );
     }
 }

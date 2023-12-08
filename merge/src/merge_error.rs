@@ -1,8 +1,9 @@
 use std::error;
 use std::fmt;
 
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum MergeError {
+    NodesWithDifferentKinds(String, String),
     MergingTerminalWithNonTerminal,
     InvalidMatchingConfiguration(bool, bool, bool, bool, bool),
 }
@@ -18,6 +19,13 @@ impl fmt::Display for MergeError {
                 "Invalid matching configuration: {}, {}, {}, {}, {}",
                 a, b, c, d, e
             ),
+            MergeError::NodesWithDifferentKinds(kind_a, kind_b) => {
+                write!(
+                    f,
+                    "Tried to merge node of kind \"{}\" with node of kind \"{}\"",
+                    kind_a, kind_b
+                )
+            }
         }
     }
 }
