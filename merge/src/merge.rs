@@ -69,7 +69,7 @@ pub fn merge<'a>(
                     base_left_matchings,
                     base_right_matchings,
                     left_right_matchings,
-                ))
+                )?)
             }
         }
         (_, _, _) => Err(MergeError::MergingTerminalWithNonTerminal),
@@ -123,7 +123,8 @@ mod tests {
     }
 
     #[test]
-    fn if_i_am_merging_three_unchanged_nodes_it_is_a_success() -> Result<(), Box<dyn std::error::Error>> {
+    fn if_i_am_merging_three_unchanged_nodes_it_is_a_success(
+    ) -> Result<(), Box<dyn std::error::Error>> {
         let node = CSTNode::Terminal(Terminal {
             kind: "kind",
             start_position: Point { row: 0, column: 0 },
@@ -140,7 +141,8 @@ mod tests {
     }
 
     #[test]
-    fn returns_success_if_there_are_changes_in_both_parents_and_they_are_not_conflicting() -> Result<(), Box<dyn std::error::Error>> {
+    fn returns_success_if_there_are_changes_in_both_parents_and_they_are_not_conflicting(
+    ) -> Result<(), Box<dyn std::error::Error>> {
         let base = CSTNode::Terminal(Terminal {
             kind: "kind",
             start_position: Point { row: 0, column: 0 },
@@ -172,7 +174,8 @@ mod tests {
     }
 
     #[test]
-    fn returns_conflict_if_there_are_changes_in_both_parents_and_they_are_conflicting() -> Result<(), Box<dyn std::error::Error>> {
+    fn returns_conflict_if_there_are_changes_in_both_parents_and_they_are_conflicting(
+    ) -> Result<(), Box<dyn std::error::Error>> {
         let base = CSTNode::Terminal(Terminal {
             kind: "kind",
             start_position: Point { row: 0, column: 0 },
@@ -205,7 +208,8 @@ mod tests {
     }
 
     #[test]
-    fn if_there_is_a_change_only_in_one_parent_it_returns_the_changes_from_this_parent() -> Result<(), Box<dyn std::error::Error>> {
+    fn if_there_is_a_change_only_in_one_parent_it_returns_the_changes_from_this_parent(
+    ) -> Result<(), Box<dyn std::error::Error>> {
         let base_and_left = CSTNode::Terminal(Terminal {
             kind: "kind",
             start_position: Point { row: 0, column: 0 },
@@ -252,7 +256,8 @@ mod tests {
             &Matchings::empty(),
             &Matchings::empty(),
             &Matchings::empty(),
-        ).is_err());
+        )
+        .is_err());
 
         Ok(())
     }

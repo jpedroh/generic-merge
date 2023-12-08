@@ -51,14 +51,17 @@ pub fn unordered_merge<'a>(
                         processed_nodes.insert(left_child);
                     }
                     (None, Some(right_matching)) => {
-                        result_children.push(merge(
-                            left_child,
-                            left_child,
-                            right_matching.matching_node,
-                            base_left_matchings,
-                            base_right_matchings,
-                            left_right_matchings,
-                        ).unwrap());
+                        result_children.push(
+                            merge(
+                                left_child,
+                                left_child,
+                                right_matching.matching_node,
+                                base_left_matchings,
+                                base_right_matchings,
+                                left_right_matchings,
+                            )
+                            .unwrap(),
+                        );
                         processed_nodes.insert(left_child);
                         processed_nodes.insert(right_matching.matching_node);
                     }
@@ -74,14 +77,17 @@ pub fn unordered_merge<'a>(
                         processed_nodes.insert(left_child);
                     }
                     (Some(_), Some(right_matching)) => {
-                        result_children.push(merge(
-                            left_child,
-                            left_child,
-                            right_matching.matching_node,
-                            base_left_matchings,
-                            base_right_matchings,
-                            left_right_matchings,
-                        ).unwrap());
+                        result_children.push(
+                            merge(
+                                left_child,
+                                left_child,
+                                right_matching.matching_node,
+                                base_left_matchings,
+                                base_right_matchings,
+                                left_right_matchings,
+                            )
+                            .unwrap(),
+                        );
                         processed_nodes.insert(left_child);
                         processed_nodes.insert(right_matching.matching_node);
                     }
@@ -102,14 +108,17 @@ pub fn unordered_merge<'a>(
                         result_children.push(right_child.to_owned().into());
                     }
                     (None, Some(matching_left_right)) => {
-                        result_children.push(merge(
-                            right_child,
-                            matching_left_right.matching_node,
-                            right_child,
-                            base_left_matchings,
-                            base_right_matchings,
-                            left_right_matchings,
-                        ).unwrap());
+                        result_children.push(
+                            merge(
+                                right_child,
+                                matching_left_right.matching_node,
+                                right_child,
+                                base_left_matchings,
+                                base_right_matchings,
+                                left_right_matchings,
+                            )
+                            .unwrap(),
+                        );
                     }
                     // Removed in left
                     (Some(matching_base_right), None) => {
@@ -122,14 +131,17 @@ pub fn unordered_merge<'a>(
                         }
                     }
                     (Some(_), Some(matching_left_right)) => {
-                        result_children.push(merge(
-                            right_child,
-                            matching_left_right.matching_node,
-                            right_child,
-                            base_left_matchings,
-                            base_right_matchings,
-                            left_right_matchings,
-                        ).unwrap());
+                        result_children.push(
+                            merge(
+                                right_child,
+                                matching_left_right.matching_node,
+                                right_child,
+                                base_left_matchings,
+                                base_right_matchings,
+                                left_right_matchings,
+                            )
+                            .unwrap(),
+                        );
                     }
                 }
             }

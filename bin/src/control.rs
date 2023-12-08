@@ -5,7 +5,7 @@ use parsing::ParserConfiguration;
 #[derive(Debug)]
 pub enum ExecutionError {
     ParsingError,
-    MergeError(merge::MergeError)
+    MergeError(merge::MergeError),
 }
 
 impl fmt::Display for ExecutionError {
@@ -72,7 +72,8 @@ pub fn run_tool_on_merge_scenario(
         &matchings_left_base,
         &matchings_right_base,
         &matchings_left_right,
-    ).map_err(|error| ExecutionError::MergeError(error))?;
+    )
+    .map_err(|error| ExecutionError::MergeError(error))?;
 
     match result.has_conflict() {
         true => Ok(ExecutionResult::WithConflicts(result.to_string())),
