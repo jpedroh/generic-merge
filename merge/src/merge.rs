@@ -47,16 +47,15 @@ pub fn merge<'a>(
             }
         }
         (
-            CSTNode::NonTerminal { .. },
-            CSTNode::NonTerminal(non_terminal_left),
-            CSTNode::NonTerminal(non_terminal_right),
+            CSTNode::NonTerminal(a_base),
+            CSTNode::NonTerminal(a_left),
+            CSTNode::NonTerminal(a_right),
         ) => {
-            if non_terminal_left.are_children_unordered && non_terminal_right.are_children_unordered
-            {
+            if a_left.are_children_unordered && a_right.are_children_unordered {
                 Ok(unordered_merge(
-                    base,
-                    left,
-                    right,
+                    a_base,
+                    a_left,
+                    a_right,
                     base_left_matchings,
                     base_right_matchings,
                     left_right_matchings,
