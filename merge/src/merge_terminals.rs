@@ -67,6 +67,7 @@ mod tests {
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             value: "value",
+            is_block_end_delimiter: false,
         };
 
         assert_merge_is_correct_and_idempotent_with_respect_to_parent_side(
@@ -85,18 +86,21 @@ mod tests {
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             value: "\nvalue\n",
+            is_block_end_delimiter: false,
         };
         let left = Terminal {
             kind: "kind",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             value: "left\nvalue\n",
+            is_block_end_delimiter: false,
         };
         let right = Terminal {
             kind: "kind",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             value: "\nvalue\nright",
+            is_block_end_delimiter: false,
         };
 
         assert_merge_is_correct_and_idempotent_with_respect_to_parent_side(
@@ -118,18 +122,21 @@ mod tests {
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             value: "value",
+            is_block_end_delimiter: false,
         };
         let left = Terminal {
             kind: "kind",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             value: "left_value",
+            is_block_end_delimiter: false,
         };
         let right = Terminal {
             kind: "kind",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             value: "right_value",
+            is_block_end_delimiter: false,
         };
 
         assert_eq!(
@@ -151,12 +158,14 @@ mod tests {
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             value: "value",
+            is_block_end_delimiter: false,
         };
         let changed_parent = Terminal {
             kind: "kind",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             value: "value_right",
+            is_block_end_delimiter: false,
         };
 
         assert_merge_is_correct_and_idempotent_with_respect_to_parent_side(
@@ -174,12 +183,14 @@ mod tests {
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             value: "value",
+            is_block_end_delimiter: false,
         };
         let kind_b = Terminal {
             kind: "kind_b",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             value: "value_right",
+            is_block_end_delimiter: false,
         };
 
         let result = merge_terminals(&kind_a, &kind_a, &kind_b);

@@ -38,4 +38,5 @@ pub struct Terminal<'a> {
     pub value: &'a str,
     pub start_position: Point,
     pub end_position: Point,
+    pub is_block_end_delimiter: bool,
 }
