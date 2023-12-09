@@ -27,16 +27,14 @@ pub fn unordered_merge<'a>(
     let mut processed_nodes: HashSet<&CSTNode> = HashSet::new();
 
     for left_child in left.children.iter() {
-        match left_child {
-            CSTNode::Terminal(Terminal {
-                is_block_end_delimiter,
-                ..
-            }) => {
-                if *is_block_end_delimiter {
-                    break;
-                }
+        if let CSTNode::Terminal(Terminal {
+            is_block_end_delimiter,
+            ..
+        }) = left_child
+        {
+            if *is_block_end_delimiter {
+                break;
             }
-            _ => {}
         }
 
         let matching_base_left = base_left_matchings.find_matching_for(left_child);
