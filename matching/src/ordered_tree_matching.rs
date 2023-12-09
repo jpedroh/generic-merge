@@ -111,6 +111,7 @@ mod tests {
             value: "value_b",
             start_position: Point { row: 1, column: 0 },
             end_position: Point { row: 1, column: 7 },
+            is_block_end_delimiter: false,
         });
         let left = CSTNode::NonTerminal(NonTerminal {
             kind: "kind_a",
@@ -142,12 +143,14 @@ mod tests {
             value: "value_b",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
+            is_block_end_delimiter: false,
         });
         let right_child = CSTNode::Terminal(Terminal {
             kind: "kind_c",
             value: "value_c",
             start_position: Point { row: 1, column: 0 },
             end_position: Point { row: 1, column: 7 },
+            is_block_end_delimiter: false,
         });
 
         let left = CSTNode::NonTerminal(NonTerminal {
@@ -180,12 +183,14 @@ mod tests {
             value: "value_b",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
+            is_block_end_delimiter: false,
         });
         let unique_right_child = CSTNode::Terminal(Terminal {
             kind: "kind_c",
             value: "value_c",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
+            is_block_end_delimiter: false,
         });
 
         let left = CSTNode::NonTerminal(NonTerminal {
@@ -218,6 +223,7 @@ mod tests {
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             value: "value_b",
+            is_block_end_delimiter: false,
         });
 
         let left = CSTNode::NonTerminal(NonTerminal {
@@ -250,6 +256,7 @@ mod tests {
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             value: "value_b",
+            is_block_end_delimiter: false,
         });
 
         let intermediate = CSTNode::NonTerminal(NonTerminal {

@@ -27,13 +27,14 @@ pub fn unordered_merge<'a>(
     let mut processed_nodes: HashSet<&CSTNode> = HashSet::new();
 
     for left_child in left.children.iter() {
-        match left_child {
-            CSTNode::Terminal(Terminal { value, .. }) => {
-                if value == &"}" {
-                    break;
-                }
+        if let CSTNode::Terminal(Terminal {
+            is_block_end_delimiter,
+            ..
+        }) = left_child
+        {
+            if *is_block_end_delimiter {
+                break;
             }
-            CSTNode::NonTerminal { .. } => {}
         }
 
         let matching_base_left = base_left_matchings.find_matching_for(left_child);
@@ -226,12 +227,14 @@ mod tests {
                     value: "{",
                     start_position: model::Point { row: 0, column: 1 },
                     end_position: model::Point { row: 0, column: 1 },
+                    is_block_end_delimiter: false,
                 }),
                 CSTNode::Terminal(Terminal {
                     kind: "}",
                     value: "}",
                     start_position: model::Point { row: 1, column: 1 },
                     end_position: model::Point { row: 1, column: 1 },
+                    is_block_end_delimiter: true,
                 }),
             ],
         });
@@ -247,18 +250,21 @@ mod tests {
                     value: "{",
                     start_position: model::Point { row: 0, column: 1 },
                     end_position: model::Point { row: 0, column: 1 },
+                    is_block_end_delimiter: false,
                 }),
                 CSTNode::Terminal(Terminal {
                     kind: "method_declaration",
                     value: "main",
                     start_position: model::Point { row: 1, column: 0 },
                     end_position: model::Point { row: 1, column: 4 },
+                    is_block_end_delimiter: false,
                 }),
                 CSTNode::Terminal(Terminal {
                     kind: "}",
                     value: "}",
                     start_position: model::Point { row: 2, column: 1 },
                     end_position: model::Point { row: 2, column: 1 },
+                    is_block_end_delimiter: true,
                 }),
             ],
         });
@@ -274,12 +280,14 @@ mod tests {
                     value: "{",
                     start_position: model::Point { row: 0, column: 1 },
                     end_position: model::Point { row: 0, column: 1 },
+                    is_block_end_delimiter: false,
                 }),
                 CSTNode::Terminal(Terminal {
                     kind: "}",
                     value: "}",
                     start_position: model::Point { row: 1, column: 1 },
                     end_position: model::Point { row: 1, column: 1 },
+                    is_block_end_delimiter: true,
                 }),
             ],
         });
@@ -320,12 +328,14 @@ mod tests {
                     value: "{",
                     start_position: model::Point { row: 0, column: 1 },
                     end_position: model::Point { row: 0, column: 1 },
+                    is_block_end_delimiter: false,
                 }),
                 CSTNode::Terminal(Terminal {
                     kind: "}",
                     value: "}",
                     start_position: model::Point { row: 1, column: 1 },
                     end_position: model::Point { row: 1, column: 1 },
+                    is_block_end_delimiter: true,
                 }),
             ],
         });
@@ -341,6 +351,7 @@ mod tests {
                     value: "{",
                     start_position: model::Point { row: 0, column: 1 },
                     end_position: model::Point { row: 0, column: 1 },
+                    is_block_end_delimiter: false,
                 }),
                 CSTNode::NonTerminal(NonTerminal {
                     kind: "method_declaration",
@@ -352,6 +363,7 @@ mod tests {
                         value: "main",
                         start_position: model::Point { row: 0, column: 1 },
                         end_position: model::Point { row: 0, column: 1 },
+                        is_block_end_delimiter: false,
                     })],
                 }),
                 CSTNode::Terminal(Terminal {
@@ -359,6 +371,7 @@ mod tests {
                     value: "}",
                     start_position: model::Point { row: 2, column: 1 },
                     end_position: model::Point { row: 2, column: 1 },
+                    is_block_end_delimiter: true,
                 }),
             ],
         });
@@ -374,6 +387,7 @@ mod tests {
                     value: "{",
                     start_position: model::Point { row: 0, column: 1 },
                     end_position: model::Point { row: 0, column: 1 },
+                    is_block_end_delimiter: false,
                 }),
                 CSTNode::NonTerminal(NonTerminal {
                     kind: "method_declaration",
@@ -385,6 +399,7 @@ mod tests {
                         value: "main",
                         start_position: model::Point { row: 0, column: 1 },
                         end_position: model::Point { row: 0, column: 1 },
+                        is_block_end_delimiter: false,
                     })],
                 }),
                 CSTNode::Terminal(Terminal {
@@ -392,6 +407,7 @@ mod tests {
                     value: "}",
                     start_position: model::Point { row: 2, column: 1 },
                     end_position: model::Point { row: 2, column: 1 },
+                    is_block_end_delimiter: true,
                 }),
             ],
         });
@@ -439,6 +455,7 @@ mod tests {
                     value: "{",
                     start_position: model::Point { row: 0, column: 1 },
                     end_position: model::Point { row: 0, column: 1 },
+                    is_block_end_delimiter: false,
                 }),
                 CSTNode::NonTerminal(NonTerminal {
                     kind: "method_declaration",
@@ -450,6 +467,7 @@ mod tests {
                         value: "main",
                         start_position: model::Point { row: 0, column: 1 },
                         end_position: model::Point { row: 0, column: 1 },
+                        is_block_end_delimiter: false,
                     })],
                 }),
                 CSTNode::Terminal(Terminal {
@@ -457,6 +475,7 @@ mod tests {
                     value: "}",
                     start_position: model::Point { row: 1, column: 1 },
                     end_position: model::Point { row: 1, column: 1 },
+                    is_block_end_delimiter: true,
                 }),
             ],
         });
@@ -472,6 +491,7 @@ mod tests {
                     value: "{",
                     start_position: model::Point { row: 0, column: 1 },
                     end_position: model::Point { row: 0, column: 1 },
+                    is_block_end_delimiter: false,
                 }),
                 CSTNode::NonTerminal(NonTerminal {
                     kind: "method_declaration",
@@ -483,6 +503,7 @@ mod tests {
                         value: "main",
                         start_position: model::Point { row: 0, column: 1 },
                         end_position: model::Point { row: 0, column: 1 },
+                        is_block_end_delimiter: false,
                     })],
                 }),
                 CSTNode::Terminal(Terminal {
@@ -490,6 +511,7 @@ mod tests {
                     value: "}",
                     start_position: model::Point { row: 2, column: 1 },
                     end_position: model::Point { row: 2, column: 1 },
+                    is_block_end_delimiter: true,
                 }),
             ],
         });
@@ -505,12 +527,14 @@ mod tests {
                     value: "{",
                     start_position: model::Point { row: 0, column: 1 },
                     end_position: model::Point { row: 0, column: 1 },
+                    is_block_end_delimiter: false,
                 }),
                 CSTNode::Terminal(Terminal {
                     kind: "}",
                     value: "}",
                     start_position: model::Point { row: 2, column: 1 },
                     end_position: model::Point { row: 2, column: 1 },
+                    is_block_end_delimiter: true,
                 }),
             ],
         });
@@ -550,6 +574,7 @@ mod tests {
                     value: "{",
                     start_position: model::Point { row: 0, column: 1 },
                     end_position: model::Point { row: 0, column: 1 },
+                    is_block_end_delimiter: false,
                 }),
                 CSTNode::NonTerminal(NonTerminal {
                     kind: "method_declaration",
@@ -562,18 +587,21 @@ mod tests {
                             value: "method",
                             start_position: model::Point { row: 0, column: 1 },
                             end_position: model::Point { row: 0, column: 1 },
+                            is_block_end_delimiter: false,
                         }),
                         CSTNode::Terminal(Terminal {
                             kind: "kind_a",
                             value: "value_a",
                             start_position: model::Point { row: 0, column: 1 },
                             end_position: model::Point { row: 0, column: 1 },
+                            is_block_end_delimiter: false,
                         }),
                         CSTNode::Terminal(Terminal {
                             kind: "kind_b",
                             value: "value_b",
                             start_position: model::Point { row: 0, column: 1 },
                             end_position: model::Point { row: 0, column: 1 },
+                            is_block_end_delimiter: false,
                         }),
                     ],
                 }),
@@ -582,6 +610,7 @@ mod tests {
                     value: "}",
                     start_position: model::Point { row: 1, column: 1 },
                     end_position: model::Point { row: 1, column: 1 },
+                    is_block_end_delimiter: true,
                 }),
             ],
         });
@@ -597,6 +626,7 @@ mod tests {
                     value: "{",
                     start_position: model::Point { row: 0, column: 1 },
                     end_position: model::Point { row: 0, column: 1 },
+                    is_block_end_delimiter: false,
                 }),
                 CSTNode::NonTerminal(NonTerminal {
                     kind: "method_declaration",
@@ -609,18 +639,21 @@ mod tests {
                             value: "method",
                             start_position: model::Point { row: 0, column: 1 },
                             end_position: model::Point { row: 0, column: 1 },
+                            is_block_end_delimiter: false,
                         }),
                         CSTNode::Terminal(Terminal {
                             kind: "kind_a",
                             value: "value_a",
                             start_position: model::Point { row: 0, column: 1 },
                             end_position: model::Point { row: 0, column: 1 },
+                            is_block_end_delimiter: false,
                         }),
                         CSTNode::Terminal(Terminal {
                             kind: "kind_b",
                             value: "new_value_b",
                             start_position: model::Point { row: 0, column: 1 },
                             end_position: model::Point { row: 0, column: 1 },
+                            is_block_end_delimiter: false,
                         }),
                     ],
                 }),
@@ -629,6 +662,7 @@ mod tests {
                     value: "}",
                     start_position: model::Point { row: 2, column: 1 },
                     end_position: model::Point { row: 2, column: 1 },
+                    is_block_end_delimiter: true,
                 }),
             ],
         });
@@ -644,12 +678,14 @@ mod tests {
                     value: "{",
                     start_position: model::Point { row: 0, column: 1 },
                     end_position: model::Point { row: 0, column: 1 },
+                    is_block_end_delimiter: false,
                 }),
                 CSTNode::Terminal(Terminal {
                     kind: "}",
                     value: "}",
                     start_position: model::Point { row: 2, column: 1 },
                     end_position: model::Point { row: 2, column: 1 },
+                    is_block_end_delimiter: true,
                 }),
             ],
         });

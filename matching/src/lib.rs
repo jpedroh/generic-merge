@@ -62,12 +62,14 @@ mod tests {
             value: "value",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 5 },
+            is_block_end_delimiter: false,
         });
         let right = CSTNode::Terminal(Terminal {
             kind: "kind",
             value: "value",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 5 },
+            is_block_end_delimiter: false,
         });
 
         let matchings = calculate_matchings(&left, &right);
@@ -85,12 +87,14 @@ mod tests {
             value: "value_a",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
+            is_block_end_delimiter: false,
         });
         let right = CSTNode::Terminal(Terminal {
             kind: "kind",
             value: "value_b",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
+            is_block_end_delimiter: false,
         });
 
         let matchings = calculate_matchings(&left, &right);
@@ -108,12 +112,14 @@ mod tests {
             value: "value",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 5 },
+            is_block_end_delimiter: false,
         });
         let right = CSTNode::Terminal(Terminal {
             kind: "kind_b",
             value: "value",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 5 },
+            is_block_end_delimiter: false,
         });
 
         let matchings = calculate_matchings(&left, &right);
@@ -131,12 +137,14 @@ mod tests {
             value: "value_a",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
+            is_block_end_delimiter: false,
         });
         let right = CSTNode::Terminal(Terminal {
             kind: "kind_b",
             value: "value_a",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
+            is_block_end_delimiter: false,
         });
 
         let matchings = calculate_matchings(&left, &right);

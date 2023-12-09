@@ -61,12 +61,14 @@ mod tests {
                 start_position: Point { row: 0, column: 0 },
                 end_position: Point { row: 0, column: 7 },
                 value: "value",
+                is_block_end_delimiter: false,
             }),
             &CSTNode::Terminal(Terminal {
                 kind: "kind",
                 start_position: Point { row: 0, column: 0 },
                 end_position: Point { row: 0, column: 7 },
                 value: "value",
+                is_block_end_delimiter: false,
             }),
             &CSTNode::NonTerminal(NonTerminal {
                 kind: "kind",

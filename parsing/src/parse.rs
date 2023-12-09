@@ -18,6 +18,7 @@ fn explore_node<'a>(node: Node, src: &'a str, config: &'a ParserConfiguration) -
                 column: node.end_position().column,
             },
             value: &src[node.byte_range()],
+            is_block_end_delimiter: config.block_end_delimiters.contains(node.kind()),
         })
     } else {
         let mut cursor = node.walk();
@@ -75,6 +76,7 @@ mod tests {
             language: tree_sitter_java::language(),
             stop_compilation_at: [].into_iter().collect(),
             kinds_with_unordered_children: [].into(),
+            block_end_delimiters: ["}"].into(),
         };
         let result = parse_string(code, &parser_configuration);
         let expected = CSTNode::NonTerminal(NonTerminal {
@@ -93,12 +95,14 @@ mod tests {
                                 value: "public",
                                 start_position: Point { row: 1, column: 12 },
                                 end_position: Point { row: 1, column: 18 },
+                                is_block_end_delimiter: false,
                             }),
                             CSTNode::Terminal(Terminal {
                                 kind: "static",
                                 value: "static",
                                 start_position: Point { row: 1, column: 19 },
                                 end_position: Point { row: 1, column: 25 },
+                                is_block_end_delimiter: false,
                             }),
                         ],
                         start_position: Point { row: 1, column: 12 },
@@ -109,12 +113,14 @@ mod tests {
                         value: "interface",
                         start_position: Point { row: 1, column: 26 },
                         end_position: Point { row: 1, column: 35 },
+                        is_block_end_delimiter: false,
                     }),
                     CSTNode::Terminal(Terminal {
                         kind: "identifier",
                         value: "HelloWorld",
                         start_position: Point { row: 1, column: 36 },
                         end_position: Point { row: 1, column: 46 },
+                        is_block_end_delimiter: false,
                     }),
                     CSTNode::NonTerminal(NonTerminal {
                         kind: "interface_body",
@@ -125,6 +131,7 @@ mod tests {
                                 value: "{",
                                 start_position: Point { row: 1, column: 47 },
                                 end_position: Point { row: 1, column: 48 },
+                                is_block_end_delimiter: false,
                             }),
                             CSTNode::NonTerminal(NonTerminal {
                                 kind: "method_declaration",
@@ -135,12 +142,14 @@ mod tests {
                                         value: "void",
                                         start_position: Point { row: 2, column: 16 },
                                         end_position: Point { row: 2, column: 20 },
+                                        is_block_end_delimiter: false,
                                     }),
                                     CSTNode::Terminal(Terminal {
                                         kind: "identifier",
                                         value: "sayHello",
                                         start_position: Point { row: 2, column: 21 },
                                         end_position: Point { row: 2, column: 29 },
+                                        is_block_end_delimiter: false,
                                     }),
                                     CSTNode::NonTerminal(NonTerminal {
                                         kind: "formal_parameters",
@@ -151,6 +160,7 @@ mod tests {
                                                 value: "(",
                                                 start_position: Point { row: 2, column: 29 },
                                                 end_position: Point { row: 2, column: 30 },
+                                                is_block_end_delimiter: false,
                                             }),
                                             CSTNode::NonTerminal(NonTerminal {
                                                 kind: "formal_parameter",
@@ -164,6 +174,7 @@ mod tests {
                                                             column: 30,
                                                         },
                                                         end_position: Point { row: 2, column: 36 },
+                                                        is_block_end_delimiter: false,
                                                     }),
                                                     CSTNode::Terminal(Terminal {
                                                         kind: "identifier",
@@ -173,6 +184,7 @@ mod tests {
                                                             column: 37,
                                                         },
                                                         end_position: Point { row: 2, column: 41 },
+                                                        is_block_end_delimiter: false,
                                                     }),
                                                 ],
                                                 start_position: Point { row: 2, column: 30 },
@@ -183,6 +195,7 @@ mod tests {
                                                 value: ")",
                                                 start_position: Point { row: 2, column: 41 },
                                                 end_position: Point { row: 2, column: 42 },
+                                                is_block_end_delimiter: false,
                                             }),
                                         ],
                                         start_position: Point { row: 2, column: 29 },
@@ -193,6 +206,7 @@ mod tests {
                                         value: ";",
                                         start_position: Point { row: 2, column: 42 },
                                         end_position: Point { row: 2, column: 43 },
+                                        is_block_end_delimiter: false,
                                     }),
                                 ],
                                 start_position: Point { row: 2, column: 16 },
@@ -203,6 +217,7 @@ mod tests {
                                 value: "}",
                                 start_position: Point { row: 3, column: 12 },
                                 end_position: Point { row: 3, column: 13 },
+                                is_block_end_delimiter: true,
                             }),
                         ],
                         start_position: Point { row: 1, column: 47 },
@@ -225,6 +240,7 @@ mod tests {
             language: tree_sitter_java::language(),
             stop_compilation_at: ["interface_body"].into_iter().collect(),
             kinds_with_unordered_children: [].into(),
+            block_end_delimiters: ["}"].into(),
         };
         let result = parse_string(code, &parser_configuration);
 
@@ -244,12 +260,14 @@ mod tests {
                                 value: "public",
                                 start_position: Point { row: 0, column: 0 },
                                 end_position: Point { row: 0, column: 6 },
+                                is_block_end_delimiter: false,
                             }),
                             CSTNode::Terminal(Terminal {
                                 kind: "static",
                                 value: "static",
                                 start_position: Point { row: 0, column: 7 },
                                 end_position: Point { row: 0, column: 13 },
+                                is_block_end_delimiter: false,
                             }),
                         ],
                         start_position: Point { row: 0, column: 0 },
@@ -260,18 +278,21 @@ mod tests {
                         value: "interface",
                         start_position: Point { row: 0, column: 14 },
                         end_position: Point { row: 0, column: 23 },
+                        is_block_end_delimiter: false,
                     }),
                     CSTNode::Terminal(Terminal {
                         kind: "identifier",
                         value: "HelloWorld",
                         start_position: Point { row: 0, column: 24 },
                         end_position: Point { row: 0, column: 34 },
+                        is_block_end_delimiter: false,
                     }),
                     CSTNode::Terminal(Terminal {
                         kind: "interface_body",
                         value: "{void sayHello(String name);}",
                         start_position: Point { row: 0, column: 35 },
                         end_position: Point { row: 0, column: 64 },
+                        is_block_end_delimiter: false,
                     }),
                 ],
                 start_position: Point { row: 0, column: 0 },
@@ -290,6 +311,7 @@ mod tests {
             language: tree_sitter_java::language(),
             stop_compilation_at: ["method_declaration"].into_iter().collect(),
             kinds_with_unordered_children: ["interface_body"].into(),
+            block_end_delimiters: ["}"].into(),
         };
         let result = parse_string(code, &parser_configuration);
 
@@ -309,12 +331,14 @@ mod tests {
                                 value: "public",
                                 start_position: Point { row: 0, column: 0 },
                                 end_position: Point { row: 0, column: 6 },
+                                is_block_end_delimiter: false,
                             }),
                             CSTNode::Terminal(Terminal {
                                 kind: "static",
                                 value: "static",
                                 start_position: Point { row: 0, column: 7 },
                                 end_position: Point { row: 0, column: 13 },
+                                is_block_end_delimiter: false,
                             }),
                         ],
                         start_position: Point { row: 0, column: 0 },
@@ -325,12 +349,14 @@ mod tests {
                         value: "interface",
                         start_position: Point { row: 0, column: 14 },
                         end_position: Point { row: 0, column: 23 },
+                        is_block_end_delimiter: false,
                     }),
                     CSTNode::Terminal(Terminal {
                         kind: "identifier",
                         value: "HelloWorld",
                         start_position: Point { row: 0, column: 24 },
                         end_position: Point { row: 0, column: 34 },
+                        is_block_end_delimiter: false,
                     }),
                     CSTNode::NonTerminal(NonTerminal {
                         kind: "interface_body",
@@ -340,18 +366,21 @@ mod tests {
                                 value: "{",
                                 start_position: Point { row: 0, column: 35 },
                                 end_position: Point { row: 0, column: 36 },
+                                is_block_end_delimiter: false,
                             }),
                             CSTNode::Terminal(Terminal {
                                 kind: "method_declaration",
                                 value: "void sayHello(String name);",
                                 start_position: Point { row: 0, column: 36 },
                                 end_position: Point { row: 0, column: 63 },
+                                is_block_end_delimiter: false,
                             }),
                             CSTNode::Terminal(Terminal {
                                 kind: "}",
                                 value: "}",
                                 start_position: Point { row: 0, column: 63 },
                                 end_position: Point { row: 0, column: 64 },
+                                is_block_end_delimiter: true,
                             }),
                         ],
                         start_position: Point { row: 0, column: 35 },
