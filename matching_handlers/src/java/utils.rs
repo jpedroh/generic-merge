@@ -9,3 +9,10 @@ pub fn find_identifier<'a>(node_children: &'a [CSTNode<'a>]) -> Option<&'a Termi
             CSTNode::NonTerminal(_) => None,
         })
 }
+
+pub fn find_child_of_kind<'a>(
+    node_children: &'a [CSTNode<'a>],
+    kind: &'a str,
+) -> Option<&'a CSTNode<'a>> {
+    node_children.iter().find(|node| node.kind() == kind)
+}

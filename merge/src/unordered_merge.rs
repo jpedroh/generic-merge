@@ -467,13 +467,22 @@ mod tests {
                     are_children_unordered: false,
                     start_position: model::Point { row: 1, column: 0 },
                     end_position: model::Point { row: 1, column: 4 },
-                    children: vec![CSTNode::Terminal(Terminal {
-                        kind: "identifier",
-                        value: "main",
-                        start_position: model::Point { row: 0, column: 1 },
-                        end_position: model::Point { row: 0, column: 1 },
-                        is_block_end_delimiter: false,
-                    })],
+                    children: vec![
+                        CSTNode::Terminal(Terminal {
+                            kind: "formal_parameters",
+                            value: "formal_parameters",
+                            start_position: model::Point { row: 0, column: 1 },
+                            end_position: model::Point { row: 0, column: 1 },
+                            is_block_end_delimiter: false,
+                        }),
+                        CSTNode::Terminal(Terminal {
+                            kind: "identifier",
+                            value: "main",
+                            start_position: model::Point { row: 0, column: 1 },
+                            end_position: model::Point { row: 0, column: 1 },
+                            is_block_end_delimiter: false,
+                        }),
+                    ],
                 }),
                 CSTNode::Terminal(Terminal {
                     kind: "}",
@@ -503,13 +512,22 @@ mod tests {
                     are_children_unordered: false,
                     start_position: model::Point { row: 1, column: 0 },
                     end_position: model::Point { row: 1, column: 4 },
-                    children: vec![CSTNode::Terminal(Terminal {
-                        kind: "identifier",
-                        value: "main",
-                        start_position: model::Point { row: 0, column: 1 },
-                        end_position: model::Point { row: 0, column: 1 },
-                        is_block_end_delimiter: false,
-                    })],
+                    children: vec![
+                        CSTNode::Terminal(Terminal {
+                            kind: "formal_parameters",
+                            value: "formal_parameters",
+                            start_position: model::Point { row: 0, column: 1 },
+                            end_position: model::Point { row: 0, column: 1 },
+                            is_block_end_delimiter: false,
+                        }),
+                        CSTNode::Terminal(Terminal {
+                            kind: "identifier",
+                            value: "main",
+                            start_position: model::Point { row: 0, column: 1 },
+                            end_position: model::Point { row: 0, column: 1 },
+                            is_block_end_delimiter: false,
+                        }),
+                    ],
                 }),
                 CSTNode::Terminal(Terminal {
                     kind: "}",
@@ -588,6 +606,13 @@ mod tests {
                     end_position: model::Point { row: 1, column: 4 },
                     children: vec![
                         CSTNode::Terminal(Terminal {
+                            kind: "formal_parameters",
+                            value: "formal_parameters",
+                            start_position: model::Point { row: 0, column: 1 },
+                            end_position: model::Point { row: 0, column: 1 },
+                            is_block_end_delimiter: false,
+                        }),
+                        CSTNode::Terminal(Terminal {
                             kind: "identifier",
                             value: "method",
                             start_position: model::Point { row: 0, column: 1 },
@@ -639,6 +664,13 @@ mod tests {
                     start_position: model::Point { row: 1, column: 0 },
                     end_position: model::Point { row: 1, column: 4 },
                     children: vec![
+                        CSTNode::Terminal(Terminal {
+                            kind: "formal_parameters",
+                            value: "formal_parameters",
+                            start_position: model::Point { row: 0, column: 1 },
+                            end_position: model::Point { row: 0, column: 1 },
+                            is_block_end_delimiter: false,
+                        }),
                         CSTNode::Terminal(Terminal {
                             kind: "identifier",
                             value: "method",
@@ -711,6 +743,10 @@ mod tests {
                             kind: "method_declaration",
                             children: vec![
                                 MergedCSTNode::Terminal {
+                                    kind: "formal_parameters",
+                                    value: String::from("formal_parameters"),
+                                },
+                                MergedCSTNode::Terminal {
                                     kind: "identifier",
                                     value: String::from("method"),
                                 },
@@ -749,6 +785,10 @@ mod tests {
                         right: Some(Box::new(MergedCSTNode::NonTerminal {
                             kind: "method_declaration",
                             children: vec![
+                                MergedCSTNode::Terminal {
+                                    kind: "formal_parameters",
+                                    value: String::from("formal_parameters"),
+                                },
                                 MergedCSTNode::Terminal {
                                     kind: "identifier",
                                     value: String::from("method"),
