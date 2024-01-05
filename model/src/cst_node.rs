@@ -12,11 +12,11 @@ pub enum CSTNode<'a> {
     NonTerminal(NonTerminal<'a>),
 }
 
-impl CSTNode<'_>  {
-    pub fn kind(&self) -> String {
+impl CSTNode<'_> {
+    pub fn kind(&self) -> &str {
         match self {
-            CSTNode::Terminal(terminal) => terminal.kind.to_owned(),
-            CSTNode::NonTerminal(non_terminal) => non_terminal.kind.to_owned(),
+            CSTNode::Terminal(terminal) => terminal.kind,
+            CSTNode::NonTerminal(non_terminal) => non_terminal.kind,
         }
     }
 

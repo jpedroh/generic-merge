@@ -1,5 +1,5 @@
 [package]
-name = "matching"
+name = "matching_handlers"
 version = "0.1.0"
 edition = "2021"
 
@@ -7,5 +7,3 @@ edition = "2021"
 
 [dependencies]
 model = { path = "../model" }
-matching_handlers = { path = "../matching_handlers" }
-unordered-pair = "0.2.4"

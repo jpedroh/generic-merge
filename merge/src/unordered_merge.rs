@@ -151,9 +151,10 @@ pub fn unordered_merge<'a>(
 #[cfg(test)]
 mod tests {
     use matching::{unordered_tree_matching, Matchings};
+    use matching_handlers::MatchingHandlers;
     use model::{
         cst_node::{NonTerminal, Terminal},
-        CSTNode, Point,
+        CSTNode, Language, Point,
     };
 
     use crate::{MergeError, MergedCSTNode};
@@ -166,9 +167,11 @@ mod tests {
         parent_b: &CSTNode,
         expected_merge: &MergedCSTNode,
     ) -> Result<(), MergeError> {
-        let matchings_base_parent_a = unordered_tree_matching(base, parent_a);
-        let matchings_base_parent_b = unordered_tree_matching(base, parent_b);
-        let matchings_parents = unordered_tree_matching(parent_a, parent_b);
+        let matching_handlers = MatchingHandlers::from(Language::Java);
+
+        let matchings_base_parent_a = unordered_tree_matching(base, parent_a, &matching_handlers);
+        let matchings_base_parent_b = unordered_tree_matching(base, parent_b, &matching_handlers);
+        let matchings_parents = unordered_tree_matching(parent_a, parent_b, &matching_handlers);
 
         let merged_tree = unordered_merge(
             parent_a.try_into().unwrap(),
@@ -197,9 +200,11 @@ mod tests {
         parent_b: &CSTNode,
         expected_merge: &MergedCSTNode,
     ) -> Result<(), MergeError> {
-        let matchings_base_parent_a = unordered_tree_matching(base, parent_a);
-        let matchings_base_parent_b = unordered_tree_matching(base, parent_b);
-        let matchings_parents = unordered_tree_matching(parent_a, parent_b);
+        let matching_handlers = MatchingHandlers::from(Language::Java);
+
+        let matchings_base_parent_a = unordered_tree_matching(base, parent_a, &matching_handlers);
+        let matchings_base_parent_b = unordered_tree_matching(base, parent_b, &matching_handlers);
+        let matchings_parents = unordered_tree_matching(parent_a, parent_b, &matching_handlers);
 
         let merged_tree = unordered_merge(
             parent_a.try_into().unwrap(),

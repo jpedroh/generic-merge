@@ -5,6 +5,7 @@ mod ordered_tree_matching;
 mod unordered_tree_matching;
 
 pub use matching_entry::MatchingEntry;
+use matching_handlers::MatchingHandlers;
 pub use matchings::Matchings;
 use model::cst_node::Terminal;
 pub use ordered_tree_matching::ordered_tree_matching;
@@ -14,6 +15,7 @@ pub use unordered_tree_matching::unordered_tree_matching;
 pub fn calculate_matchings<'a>(
     left: &'a model::CSTNode,
     right: &'a model::CSTNode,
+    matching_handlers: &'a MatchingHandlers<'a>,
 ) -> Matchings<'a> {
     match (left, right) {
         (
@@ -22,9 +24,9 @@ pub fn calculate_matchings<'a>(
         ) => {
             if non_terminal_left.are_children_unordered && non_terminal_right.are_children_unordered
             {
-                unordered_tree_matching::unordered_tree_matching(left, right)
+                unordered_tree_matching::unordered_tree_matching(left, right, matching_handlers)
             } else {
-                ordered_tree_matching::ordered_tree_matching(left, right)
+                ordered_tree_matching::ordered_tree_matching(left, right, matching_handlers)
             }
         }
         (
@@ -51,7 +53,8 @@ pub fn calculate_matchings<'a>(
 
 #[cfg(test)]
 mod tests {
-    use model::{cst_node::Terminal, CSTNode, Point};
+    use matching_handlers::MatchingHandlers;
+    use model::{cst_node::Terminal, CSTNode, Language, Point};
 
     use crate::{calculate_matchings, MatchingEntry};
 
@@ -72,7 +75,8 @@ mod tests {
             is_block_end_delimiter: false,
         });
 
-        let matchings = calculate_matchings(&left, &right);
+        let binding = MatchingHandlers::from(Language::Java);
+        let matchings = calculate_matchings(&left, &right, &binding);
 
         assert_eq!(
             Some(&MatchingEntry::new(1, true)),
@@ -97,7 +101,8 @@ mod tests {
             is_block_end_delimiter: false,
         });
 
-        let matchings = calculate_matchings(&left, &right);
+        let binding = MatchingHandlers::from(Language::Java);
+        let matchings = calculate_matchings(&left, &right, &binding);
 
         assert_eq!(
             Some(&MatchingEntry::new(0, false)),
@@ -122,7 +127,8 @@ mod tests {
             is_block_end_delimiter: false,
         });
 
-        let matchings = calculate_matchings(&left, &right);
+        let binding = MatchingHandlers::from(Language::Java);
+        let matchings = calculate_matchings(&left, &right, &binding);
 
         assert_eq!(
             Some(&MatchingEntry::new(0, false)),
@@ -147,7 +153,8 @@ mod tests {
             is_block_end_delimiter: false,
         });
 
-        let matchings = calculate_matchings(&left, &right);
+        let binding = MatchingHandlers::from(Language::Java);
+        let matchings = calculate_matchings(&left, &right, &binding);
 
         assert_eq!(
             Some(&MatchingEntry::new(0, false)),
