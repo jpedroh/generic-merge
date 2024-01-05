@@ -1,7 +1,5 @@
-use model::{
-    cst_node::{NonTerminal, Terminal},
-    CSTNode,
-};
+use super::utils::find_identifier;
+use model::{cst_node::NonTerminal, CSTNode};
 
 pub fn compute_matching_score_for_method_declaration<'a>(
     left: &'a CSTNode,
@@ -19,35 +17,10 @@ pub fn compute_matching_score_for_method_declaration<'a>(
             }),
         ) => {
             // Try to find an identifier on children, and compare them
-            let identifier_left = children_left
-                .iter()
-                .find(|node| node.kind() == "identifier")
-                .and_then(|node| match node {
-                    CSTNode::Terminal(terminal) => Some(terminal),
-                    CSTNode::NonTerminal(_) => None,
-                });
+            let identifier_left = find_identifier(children_left).map(|node| node.value);
+            let identifier_right = find_identifier(children_right).map(|node| node.value);
 
-            let identifier_right = children_right
-                .iter()
-                .find(|node| node.kind() == "identifier")
-                .and_then(|node| match node {
-                    CSTNode::Terminal(terminal) => Some(terminal),
-                    CSTNode::NonTerminal(_) => None,
-                });
-
-            match (identifier_left, identifier_right) {
-                (
-                    Some(Terminal {
-                        value: value_left, ..
-                    }),
-                    Some(Terminal {
-                        value: value_right, ..
-                    }),
-                ) => {
-                    return (value_left == value_right).into();
-                }
-                (_, _) => 0,
-            }
+            (identifier_left.is_some() && identifier_left == identifier_right).into()
         }
         (_, _) => 0,
     }
