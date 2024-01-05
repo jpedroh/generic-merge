@@ -12,6 +12,22 @@ pub enum CSTNode<'a> {
     NonTerminal(NonTerminal<'a>),
 }
 
+impl CSTNode<'_>  {
+    pub fn kind(&self) -> String {
+        match self {
+            CSTNode::Terminal(terminal) => terminal.kind.to_owned(),
+            CSTNode::NonTerminal(non_terminal) => non_terminal.kind.to_owned(),
+        }
+    }
+
+    pub fn contents(&self) -> String {
+        match self {
+            CSTNode::Terminal(node) => node.to_string(),
+            CSTNode::NonTerminal(node) => node.to_string(),
+        }
+    }
+}
+
 #[derive(Debug, PartialEq, Clone, Eq, PartialOrd, Ord, Hash)]
 pub struct NonTerminal<'a> {
     pub kind: &'a str,
@@ -32,6 +48,14 @@ impl<'a> TryFrom<&'a CSTNode<'a>> for &'a NonTerminal<'a> {
     }
 }
 
+impl ToString for NonTerminal<'_> {
+    fn to_string(&self) -> String {
+        self.children.iter().fold(String::from(""), |acc, node| {
+            format!("{} {}", acc, node.contents())
+        })
+    }
+}
+
 #[derive(Debug, PartialEq, Clone, Eq, PartialOrd, Ord, Hash)]
 pub struct Terminal<'a> {
     pub kind: &'a str,
@@ -39,4 +63,10 @@ pub struct Terminal<'a> {
     pub start_position: Point,
     pub end_position: Point,
     pub is_block_end_delimiter: bool,
+}
+
+impl ToString for Terminal<'_> {
+    fn to_string(&self) -> String {
+        String::from(self.value)
+    }
 }
