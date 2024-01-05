@@ -1,6 +1,6 @@
 use model::{cst_node::Terminal, CSTNode};
 
-pub fn find_identifier<'a>(node_children: &'a Vec<CSTNode<'a>>) -> Option<&'a Terminal<'a>> {
+pub fn find_identifier<'a>(node_children: &'a [CSTNode<'a>]) -> Option<&'a Terminal<'a>> {
     node_children
         .iter()
         .find(|node| node.kind() == "identifier")

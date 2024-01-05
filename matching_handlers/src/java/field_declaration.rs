@@ -1,12 +1,7 @@
 use super::utils::find_identifier;
-use model::{
-    cst_node::{NonTerminal, Terminal},
-    CSTNode,
-};
+use model::{cst_node::NonTerminal, CSTNode};
 
-fn find_variable_declarator<'a>(
-    node_children: &'a Vec<CSTNode<'a>>,
-) -> Option<&'a NonTerminal<'a>> {
+fn find_variable_declarator<'a>(node_children: &'a [CSTNode<'a>]) -> Option<&'a NonTerminal<'a>> {
     node_children
         .iter()
         .find(|node| node.kind() == "variable_declarator")
@@ -32,10 +27,10 @@ pub fn compute_matching_score_for_field_declaration<'a>(
             }),
         ) => {
             // Try to find an identifier on children, and compare them
-            let identifier_left = find_variable_declarator(&children_left)
+            let identifier_left = find_variable_declarator(children_left)
                 .and_then(|node| find_identifier(&node.children))
                 .map(|node| node.value);
-            let identifier_right = find_variable_declarator(&children_right)
+            let identifier_right = find_variable_declarator(children_right)
                 .and_then(|node| find_identifier(&node.children))
                 .map(|node| node.value);
 

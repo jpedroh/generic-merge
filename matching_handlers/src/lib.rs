@@ -11,6 +11,12 @@ pub struct MatchingHandlers<'a> {
     matching_handlers: HashMap<&'static str, MatchingHandler<'a>>,
 }
 
+impl<'a> Default for MatchingHandlers<'a> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl<'a> MatchingHandlers<'a> {
     pub fn new() -> Self {
         Self {
