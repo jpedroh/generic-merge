@@ -73,7 +73,7 @@ pub fn ordered_tree_matching<'a>(left: &'a CSTNode, right: &'a CSTNode) -> Match
 
             let mut matchings = Matchings::from_single(
                 UnorderedPair(left, right),
-                MatchingEntry::new(matrix_m[m][n] + root_matching, left == right),
+                MatchingEntry::new(matrix_m[m][n] + root_matching, left.contents() == right.contents()),
             );
 
             while i >= 1 && j >= 1 {
