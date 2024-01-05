@@ -13,8 +13,13 @@ impl From<Language> for ParserConfiguration {
         match language {
             Language::Java => ParserConfiguration {
                 language: tree_sitter_java::language(),
-                stop_compilation_at: ["method_body"].into(),
-                kinds_with_unordered_children: ["interface_body", "class_body", "enum_body_declarations"].into(),
+                stop_compilation_at: [].into(),
+                kinds_with_unordered_children: [
+                    "interface_body",
+                    "class_body",
+                    "enum_body_declarations",
+                ]
+                .into(),
                 block_end_delimiters: ["}"].into(),
             },
         }

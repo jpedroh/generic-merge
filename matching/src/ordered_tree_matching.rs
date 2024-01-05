@@ -1,4 +1,4 @@
-use crate::{calculate_matchings, matching_entry::MatchingEntry, Matchings};
+use crate::{calculate_matchings, matching_entry::MatchingEntry, MatchingHandlers, Matchings};
 use model::{cst_node::NonTerminal, CSTNode};
 use unordered_pair::UnorderedPair;
 
@@ -18,7 +18,11 @@ impl<'a> Default for Entry<'a> {
     }
 }
 
-pub fn ordered_tree_matching<'a>(left: &'a CSTNode, right: &'a CSTNode) -> Matchings<'a> {
+pub fn ordered_tree_matching<'a>(
+    left: &'a CSTNode,
+    right: &'a CSTNode,
+    matching_handlers: &'a MatchingHandlers<'a>,
+) -> Matchings<'a> {
     match (left, right) {
         (
             CSTNode::NonTerminal(NonTerminal {
@@ -45,7 +49,7 @@ pub fn ordered_tree_matching<'a>(left: &'a CSTNode, right: &'a CSTNode) -> Match
                     let left_child = children_left.get(i - 1).unwrap();
                     let right_child = children_right.get(j - 1).unwrap();
 
-                    let w = calculate_matchings(left_child, right_child);
+                    let w = calculate_matchings(left_child, right_child, matching_handlers);
                     let matching = w
                         .get_matching_entry(left_child, right_child)
                         .unwrap_or_default();
@@ -73,7 +77,10 @@ pub fn ordered_tree_matching<'a>(left: &'a CSTNode, right: &'a CSTNode) -> Match
 
             let mut matchings = Matchings::from_single(
                 UnorderedPair(left, right),
-                MatchingEntry::new(matrix_m[m][n] + root_matching, left.contents() == right.contents()),
+                MatchingEntry::new(
+                    matrix_m[m][n] + root_matching,
+                    left.contents() == right.contents(),
+                ),
             );
 
             while i >= 1 && j >= 1 {
@@ -101,7 +108,7 @@ mod tests {
     use crate::{matching_entry::MatchingEntry, *};
     use model::{
         cst_node::{NonTerminal, Terminal},
-        CSTNode, Point,
+        language, CSTNode, Point,
     };
 
     #[test]
@@ -128,7 +135,8 @@ mod tests {
             children: vec![child.clone()],
         });
 
-        let matchings = ordered_tree_matching(&left, &right);
+        let binding = MatchingHandlers::from(language::Language::Java);
+        let matchings = ordered_tree_matching(&left, &right, &binding);
 
         assert_eq!(
             Some(&MatchingEntry::new(1, true)),
@@ -168,7 +176,8 @@ mod tests {
             end_position: Point { row: 0, column: 7 },
         });
 
-        let matchings = ordered_tree_matching(&left, &right);
+        let binding = MatchingHandlers::from(language::Language::Java);
+        let matchings = ordered_tree_matching(&left, &right, &binding);
 
         assert_eq!(
             None,
@@ -208,7 +217,8 @@ mod tests {
             children: vec![common_child.clone(), unique_right_child],
         });
 
-        let matchings = ordered_tree_matching(&left, &right);
+        let binding = MatchingHandlers::from(language::Language::Java);
+        let matchings = ordered_tree_matching(&left, &right, &binding);
 
         assert_eq!(
             Some(&MatchingEntry::new(2, false)),
@@ -241,7 +251,8 @@ mod tests {
             children: vec![common_child.clone()],
         });
 
-        let matchings = ordered_tree_matching(&left, &right);
+        let binding = MatchingHandlers::from(language::Language::Java);
+        let matchings = ordered_tree_matching(&left, &right, &binding);
 
         assert_eq!(
             Some(&MatchingEntry::new(2, true)),
@@ -282,7 +293,8 @@ mod tests {
             children: vec![intermediate.clone()],
         });
 
-        let matchings = ordered_tree_matching(&left, &right);
+        let binding = MatchingHandlers::from(language::Language::Java);
+        let matchings = ordered_tree_matching(&left, &right, &binding);
 
         assert_eq!(
             Some(&MatchingEntry::new(2, true)),

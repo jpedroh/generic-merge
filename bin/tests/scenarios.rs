@@ -8,9 +8,15 @@ fn all_java_samples_work_correctly() -> Result<(), Box<dyn std::error::Error>> {
         let right = std::fs::read_to_string(format!("{}/right.java", sample_path.display()))?;
 
         let expected = std::fs::read_to_string(format!("{}/merge.java", sample_path.display()))?;
-        let result = bin::run_tool_on_merge_scenario(model::Language::Java, &base, &left, &right)?;
+        let result = bin::run_tool_on_merge_scenario(model::Language::Java, &base, &left, &right)
+            .expect(format!("Failed on {}", sample_path.display()).as_str());
 
-        assert_eq!(expected, result.to_string())
+        assert_eq!(
+            expected,
+            result.to_string(),
+            "Failed on {}",
+            sample_path.display()
+        );
     }
 
     Ok(())

@@ -3,6 +3,7 @@
 members = [
     "bin",
     "matching",
+    "matching_handlers",
     "merge",
     "parsing",
     "model"
