@@ -14,7 +14,7 @@ impl From<Language> for ParserConfiguration {
             Language::Java => ParserConfiguration {
                 language: tree_sitter_java::language(),
                 stop_compilation_at: ["method_body"].into(),
-                kinds_with_unordered_children: ["interface_body", "class_body"].into(),
+                kinds_with_unordered_children: ["interface_body", "class_body", "enum_body_declarations"].into(),
                 block_end_delimiters: ["}"].into(),
             },
         }
