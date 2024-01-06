@@ -8,13 +8,6 @@ use clap::Parser;
 fn main() {
     let args = cli_args::CliArgs::parse();
 
-    // let args = cli_args::CliArgs {
-    //     base_path: "/Users/jpedroh/Projetos/jFSTMerge/testfiles/shelltests/big/base/src/main/java/com/pa/util/EnumPublicationLocalType.java".into(),
-    //     left_path: "/Users/jpedroh/Projetos/jFSTMerge/testfiles/shelltests/big/left/src/main/java/com/pa/util/EnumPublicationLocalType.java".into(),
-    //     right_path: "/Users/jpedroh/Projetos/jFSTMerge/testfiles/shelltests/big/right/src/main/java/com/pa/util/EnumPublicationLocalType.java".into(),
-    //     merge_path: "EnumPublicationLocalType.java".into()
-    // };
-
     let base = std::fs::read_to_string(&args.base_path).unwrap_or_else(|error| {
         println!("Error reading file: {}", error);
         std::process::exit(cli_exit_codes::READING_FILE_ERROR)
