@@ -13,6 +13,8 @@ matching = { path = "../matching" }
 matching_handlers = { path = "../matching_handlers" }
 assert_cmd = "2.0.12"
 clap = { version = "4.4.8", features = ["derive"] }
+log = "0.4.20"
+env_logger = "0.10.1"
 
 [[bin]]
 name = "generic-merge"
