@@ -28,7 +28,7 @@ impl CSTNode<'_> {
     }
 }
 
-#[derive(Debug, PartialEq, Clone, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Default, PartialEq, Clone, Eq, PartialOrd, Ord, Hash)]
 pub struct NonTerminal<'a> {
     pub kind: &'a str,
     pub children: Vec<CSTNode<'a>>,
@@ -56,7 +56,7 @@ impl ToString for NonTerminal<'_> {
     }
 }
 
-#[derive(Debug, PartialEq, Clone, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Default, PartialEq, Clone, Eq, PartialOrd, Ord, Hash)]
 pub struct Terminal<'a> {
     pub kind: &'a str,
     pub value: &'a str,
