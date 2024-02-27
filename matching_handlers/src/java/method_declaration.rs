@@ -23,20 +23,39 @@ pub fn compute_matching_score_for_method_declaration<'a>(
                 find_child_of_kind(children_right, "identifier").map(|node| node.contents());
 
             // We also need to take method arguments into account because of overloading
-            let arguments_left =
-                find_child_of_kind(children_left, "formal_parameters").map(|node| node.contents());
-            let arguments_right =
-                find_child_of_kind(children_right, "formal_parameters").map(|node| node.contents());
+            let type_of_left_arguments = find_child_of_kind(children_left, "formal_parameters")
+                .map(|node| extract_argument_types_from_formal_parameters(node));
+            let type_of_right_arguments = find_child_of_kind(children_right, "formal_parameters")
+                .map(|node| extract_argument_types_from_formal_parameters(node));
 
             let identifiers_are_equal =
                 identifier_left.is_some() && identifier_left == identifier_right;
-            let arguments_are_equal = arguments_left.is_some() && arguments_left == arguments_right;
+            let arguments_are_equal = type_of_left_arguments.is_some()
+                && type_of_left_arguments == type_of_right_arguments;
 
             (identifiers_are_equal && arguments_are_equal).into()
         }
         (_, _) => 0,
     }
 }
+
+fn extract_argument_types_from_formal_parameters(node: &CSTNode) -> Vec<String> {
+    match node {
+        CSTNode::Terminal(_) => vec![],
+        CSTNode::NonTerminal(non_terminal) => non_terminal
+            .children
+            .iter()
+            .filter(|inner_node| inner_node.kind() == "formal_parameter")
+            .filter_map(|inner_node| match inner_node {
+                CSTNode::Terminal(_) => None,
+                CSTNode::NonTerminal(non_terminal) => {
+                    non_terminal.children.first().map(|v| v.contents())
+                }
+            })
+            .collect(),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use model::{
@@ -74,8 +93,10 @@ mod tests {
     fn it_returns_one_if_methods_have_equal_identifiers_and_equal_parameters_list() {
         let left =
             make_method_declaration_node("an_identifier", make_method_parameter("String", "name"));
-        let right =
-            make_method_declaration_node("an_identifier", make_method_parameter("String", "name"));
+        let right = make_method_declaration_node(
+            "an_identifier",
+            make_method_parameter("String", "another_name"),
+        );
         let matching_score = compute_matching_score_for_method_declaration(&left, &right);
         assert_eq!(1, matching_score);
     }
