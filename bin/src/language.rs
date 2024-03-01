@@ -1,3 +1,10 @@
+pub fn get_language_from_name(name: &str) -> Result<model::Language, String> {
+    match name {
+        "java" => Ok(model::Language::Java),
+        _ => Err(format!("Invalid language provided: {}", name)),
+    }
+}
+
 pub fn get_language_by_file_path(file_path: &std::path::Path) -> Result<model::Language, String> {
     file_path
         .extension()
