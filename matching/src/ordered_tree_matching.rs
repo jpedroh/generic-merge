@@ -38,6 +38,14 @@ pub fn ordered_tree_matching<'a>(
         ) => {
             let root_matching: usize = (kind_left == kind_right).into();
 
+            // Node kinds do not match, so we return a matching with a score of 0
+            if root_matching == 0 {
+                return Matchings::from_single(
+                    UnorderedPair(left, right),
+                    MatchingEntry::new(0, false),
+                );
+            }
+
             let m = children_left.len();
             let n = children_right.len();
 
