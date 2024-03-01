@@ -18,4 +18,8 @@ pub struct CliArgs {
     /// Path where the merged file should be written
     #[arg(short, long)]
     pub(crate) merge_path: std::path::PathBuf,
+
+    /// The language that the files being merged are written in
+    #[arg(long)]
+    pub(crate) language: String,
 }

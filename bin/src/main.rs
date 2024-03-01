@@ -23,7 +23,7 @@ fn main() {
         std::process::exit(cli_exit_codes::READING_FILE_ERROR)
     });
 
-    let language = language::get_language_by_file_path(&args.base_path).unwrap_or_else(|error| {
+    let language = language::get_language_from_name(&args.language).unwrap_or_else(|error| {
         log::error!("Error while guessing language: {}", error);
         std::process::exit(cli_exit_codes::GUESS_LANGUAGE_ERROR)
     });
