@@ -23,16 +23,16 @@ pub fn ordered_merge<'a>(
     let mut children_left_it = left.children.iter();
     let mut children_right_it = right.children.iter();
 
-    let mut cur_left = children_left_it.next();
-    let mut cur_right = children_right_it.next();
+    let mut cur_left_option = children_left_it.next();
+    let mut cur_right_option = children_right_it.next();
 
-    while cur_left.is_some() && cur_right.is_some() {
-        let matching_base_left = base_left_matchings.find_matching_for(cur_left.unwrap());
-        let matching_base_right = base_right_matchings.find_matching_for(cur_right.unwrap());
-        let left_matching_in_right = left_right_matchings.find_matching_for(cur_left.unwrap());
-        let right_matching_in_left = left_right_matchings.find_matching_for(cur_right.unwrap());
+    while let (Some(cur_left), Some(cur_right)) = (cur_left_option, cur_right_option) {
+        let matching_base_left = base_left_matchings.find_matching_for(cur_left);
+        let matching_base_right = base_right_matchings.find_matching_for(cur_right);
+        let left_matching_in_right = left_right_matchings.find_matching_for(cur_left);
+        let right_matching_in_left = left_right_matchings.find_matching_for(cur_right);
         let has_bidirectional_matching_left_right =
-            left_right_matchings.has_bidirectional_matching(cur_left.unwrap(), cur_right.unwrap());
+            left_right_matchings.has_bidirectional_matching(cur_left, cur_right);
 
         match (
             has_bidirectional_matching_left_right,
@@ -43,76 +43,76 @@ pub fn ordered_merge<'a>(
         ) {
             (true, Some(_), Some(_), Some(_), Some(_)) => {
                 result_children.push(crate::merge(
-                    cur_left.unwrap(),
-                    cur_left.unwrap(),
-                    cur_right.unwrap(),
+                    cur_left,
+                    cur_left,
+                    cur_right,
                     base_left_matchings,
                     base_right_matchings,
                     left_right_matchings,
                 )?);
 
-                cur_left = children_left_it.next();
-                cur_right = children_right_it.next();
+                cur_left_option = children_left_it.next();
+                cur_right_option = children_right_it.next();
             }
             (true, Some(_), None, Some(_), None) => {
                 result_children.push(crate::merge(
-                    cur_left.unwrap(),
-                    cur_left.unwrap(),
-                    cur_right.unwrap(),
+                    cur_left,
+                    cur_left,
+                    cur_right,
                     base_left_matchings,
                     base_right_matchings,
                     left_right_matchings,
                 )?);
 
-                cur_left = children_left_it.next();
-                cur_right = children_right_it.next();
+                cur_left_option = children_left_it.next();
+                cur_right_option = children_right_it.next();
             }
             (false, Some(_), Some(_), None, Some(matching_base_right)) => {
                 if !matching_base_right.is_perfect_match {
                     result_children.push(MergedCSTNode::Conflict {
                         left: None,
-                        right: Some(Box::new(cur_right.unwrap().to_owned().into())),
+                        right: Some(Box::new(cur_right.to_owned().into())),
                     });
                 }
 
-                cur_right = children_right_it.next();
+                cur_right_option = children_right_it.next();
             }
             (false, Some(_), Some(_), None, None) => {
-                result_children.push(cur_right.unwrap().to_owned().into());
+                result_children.push(cur_right.to_owned().into());
 
-                cur_right = children_right_it.next();
+                cur_right_option = children_right_it.next();
             }
             (false, Some(_), None, None, Some(matching_base_right)) => {
                 if !matching_base_right.is_perfect_match {
                     result_children.push(MergedCSTNode::Conflict {
                         left: None,
-                        right: Some(Box::new(cur_right.unwrap().to_owned().into())),
+                        right: Some(Box::new(cur_right.to_owned().into())),
                     })
                 }
-                cur_right = children_right_it.next();
+                cur_right_option = children_right_it.next();
             }
             (false, Some(_), None, None, None) => {
-                result_children.push(cur_right.unwrap().to_owned().into());
-                cur_right = children_right_it.next();
+                result_children.push(cur_right.to_owned().into());
+                cur_right_option = children_right_it.next();
             }
             (false, None, Some(matching_base_left), Some(_), Some(_)) => {
                 if !matching_base_left.is_perfect_match {
                     result_children.push(MergedCSTNode::Conflict {
-                        left: Some(Box::new(cur_left.unwrap().to_owned().into())),
+                        left: Some(Box::new(cur_left.to_owned().into())),
                         right: None,
                     });
                 }
 
-                cur_left = children_left_it.next();
+                cur_left_option = children_left_it.next();
             }
             (false, None, Some(matching_base_left), Some(_), None) => {
                 if !matching_base_left.is_perfect_match {
                     result_children.push(MergedCSTNode::Conflict {
-                        left: Some(Box::new(cur_left.unwrap().to_owned().into())),
+                        left: Some(Box::new(cur_left.to_owned().into())),
                         right: None,
                     })
                 }
-                cur_left = children_left_it.next();
+                cur_left_option = children_left_it.next();
             }
             (false, None, Some(matching_base_left), None, Some(matching_base_right)) => {
                 match (
@@ -121,63 +121,63 @@ pub fn ordered_merge<'a>(
                 ) {
                     (true, true) => {}
                     (true, false) => result_children.push(MergedCSTNode::Conflict {
-                        left: Some(Box::new(cur_left.unwrap().to_owned().into())),
+                        left: Some(Box::new(cur_left.to_owned().into())),
                         right: None,
                     }),
                     (false, true) => result_children.push(MergedCSTNode::Conflict {
                         left: None,
-                        right: Some(Box::new(cur_right.unwrap().to_owned().into())),
+                        right: Some(Box::new(cur_right.to_owned().into())),
                     }),
                     (false, false) => result_children.push(MergedCSTNode::Conflict {
-                        left: Some(Box::new(cur_left.unwrap().to_owned().into())),
-                        right: Some(Box::new(cur_right.unwrap().to_owned().into())),
+                        left: Some(Box::new(cur_left.to_owned().into())),
+                        right: Some(Box::new(cur_right.to_owned().into())),
                     }),
                 };
 
-                cur_left = children_left_it.next();
-                cur_right = children_right_it.next();
+                cur_left_option = children_left_it.next();
+                cur_right_option = children_right_it.next();
             }
             (false, None, Some(matching_base_left), None, None) => {
-                result_children.push(cur_right.unwrap().to_owned().into());
+                result_children.push(cur_right.to_owned().into());
 
                 if !matching_base_left.is_perfect_match {
                     result_children.push(MergedCSTNode::Conflict {
-                        left: Some(Box::new(cur_left.unwrap().to_owned().into())),
+                        left: Some(Box::new(cur_left.to_owned().into())),
                         right: None,
                     })
                 }
 
-                cur_left = children_left_it.next();
-                cur_right = children_right_it.next();
+                cur_left_option = children_left_it.next();
+                cur_right_option = children_right_it.next();
             }
             (false, None, None, Some(_), Some(_)) => {
-                result_children.push(cur_left.unwrap().to_owned().into());
-                cur_left = children_left_it.next();
+                result_children.push(cur_left.to_owned().into());
+                cur_left_option = children_left_it.next();
             }
             (false, None, None, Some(_), None) => {
-                result_children.push(cur_left.unwrap().to_owned().into());
-                cur_left = children_left_it.next();
+                result_children.push(cur_left.to_owned().into());
+                cur_left_option = children_left_it.next();
             }
             (false, None, None, None, Some(matching_base_right)) => {
-                result_children.push(cur_left.unwrap().to_owned().into());
+                result_children.push(cur_left.to_owned().into());
                 if !matching_base_right.is_perfect_match {
                     result_children.push(MergedCSTNode::Conflict {
                         left: None,
-                        right: Some(Box::new(cur_right.unwrap().to_owned().into())),
+                        right: Some(Box::new(cur_right.to_owned().into())),
                     })
                 }
 
-                cur_left = children_left_it.next();
-                cur_right = children_right_it.next();
+                cur_left_option = children_left_it.next();
+                cur_right_option = children_right_it.next();
             }
             (false, None, None, None, None) => {
                 result_children.push(MergedCSTNode::Conflict {
-                    left: Some(Box::new(cur_left.unwrap().to_owned().into())),
-                    right: Some(Box::new(cur_right.unwrap().to_owned().into())),
+                    left: Some(Box::new(cur_left.to_owned().into())),
+                    right: Some(Box::new(cur_right.to_owned().into())),
                 });
 
-                cur_left = children_left_it.next();
-                cur_right = children_right_it.next();
+                cur_left_option = children_left_it.next();
+                cur_right_option = children_right_it.next();
             }
             (a, b, c, d, e) => {
                 return Err(MergeError::InvalidMatchingConfiguration(
@@ -191,14 +191,14 @@ pub fn ordered_merge<'a>(
         }
     }
 
-    while cur_left.is_some() {
-        result_children.push(cur_left.unwrap().to_owned().into());
-        cur_left = children_left_it.next();
+    while let Some(cur_left) = cur_left_option {
+        result_children.push(cur_left.to_owned().into());
+        cur_left_option = children_left_it.next();
     }
 
-    while cur_right.is_some() {
-        result_children.push(cur_right.unwrap().to_owned().into());
-        cur_right = children_right_it.next();
+    while let Some(cur_right) = cur_right_option {
+        result_children.push(cur_right.to_owned().into());
+        cur_right_option = children_right_it.next();
     }
 
     Ok(MergedCSTNode::NonTerminal {
