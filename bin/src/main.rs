@@ -24,8 +24,8 @@ fn main() {
     });
 
     let language = language::get_language_from_name(&args.language).unwrap_or_else(|error| {
-        log::error!("Error while guessing language: {}", error);
-        std::process::exit(cli_exit_codes::GUESS_LANGUAGE_ERROR)
+        log::error!("Error while retrieving language configuration: {}", error);
+        std::process::exit(cli_exit_codes::INVALID_LANGUAGE_ERROR)
     });
 
     let result = control::run_tool_on_merge_scenario(language, &base, &left, &right)
