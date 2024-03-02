@@ -28,15 +28,17 @@ impl<'a> MatchingHandlers<'a> {
         self.matching_handlers.insert(key, value);
     }
 
-    pub fn compute_matching_score(&'a self, left: &'a CSTNode, right: &'a CSTNode) -> usize {
+    pub fn compute_matching_score(
+        &'a self,
+        left: &'a CSTNode,
+        right: &'a CSTNode,
+    ) -> Option<usize> {
         if left.kind() != right.kind() {
-            return 0;
+            None
+        } else {
+            let handler = &self.matching_handlers.get(left.kind())?;
+            Some(handler(left, right))
         }
-
-        return self
-            .matching_handlers
-            .get(left.kind())
-            .map_or(0, |handler| handler(left, right));
     }
 }
 

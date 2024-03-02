@@ -36,14 +36,13 @@ pub fn ordered_tree_matching<'a>(
                 ..
             }),
         ) => {
-            let root_matching: usize = (kind_left == kind_right).into();
+            let root_matching: usize = matching_handlers
+                .compute_matching_score(left, right)
+                .unwrap_or((kind_left == kind_right).into());
 
-            // Node kinds do not match, so we return a matching with a score of 0
+            // Node roots do not match, early return
             if root_matching == 0 {
-                return Matchings::from_single(
-                    UnorderedPair(left, right),
-                    MatchingEntry::new(0, false),
-                );
+                return Matchings::empty();
             }
 
             let m = children_left.len();
