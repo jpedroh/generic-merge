@@ -50,8 +50,9 @@ pub fn unordered_tree_matching<'a>(
 
             for child_left in children_left {
                 for child_right in children_right {
-                    let matching_score =
-                        matching_handlers.compute_matching_score(child_left, child_right);
+                    let matching_score = matching_handlers
+                        .compute_matching_score(child_left, child_right)
+                        .unwrap_or(0);
 
                     if matching_score == 1 {
                         let child_matching =

@@ -37,8 +37,8 @@ pub fn ordered_tree_matching<'a>(
             }),
         ) => {
             let root_matching: usize = matching_handlers
-                .get_matching_handler_for(left, right)
-                .map_or((kind_left == kind_right).into(), |f| f(left, right));
+                .compute_matching_score(left, right)
+                .unwrap_or((kind_left == kind_right).into());
 
             // Node roots do not match, early return
             if root_matching == 0 {
