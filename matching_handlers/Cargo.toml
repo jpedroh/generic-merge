@@ -7,3 +7,4 @@ edition = "2021"
 
 [dependencies]
 model = { path = "../model" }
+log = "0.4.20"

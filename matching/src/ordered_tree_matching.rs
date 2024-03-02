@@ -26,19 +26,17 @@ pub fn ordered_tree_matching<'a>(
     match (left, right) {
         (
             CSTNode::NonTerminal(NonTerminal {
-                kind: kind_left,
                 children: children_left,
                 ..
             }),
             CSTNode::NonTerminal(NonTerminal {
-                kind: kind_right,
                 children: children_right,
                 ..
             }),
         ) => {
             let root_matching: usize = matching_handlers
                 .compute_matching_score(left, right)
-                .unwrap_or((kind_left == kind_right).into());
+                .unwrap_or((left.kind() == right.kind()).into());
 
             // Node roots do not match, early return
             if root_matching == 0 {
@@ -106,7 +104,7 @@ pub fn ordered_tree_matching<'a>(
 
             matchings
         }
-        (_, _) => Matchings::from_single(UnorderedPair(left, right), MatchingEntry::new(0, false)),
+        (_, _) => Matchings::empty(),
     }
 }
 

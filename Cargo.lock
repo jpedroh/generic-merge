@@ -268,6 +268,7 @@ checksum = "b5e6163cb8c49088c2c36f57875e58ccd8c87c7427f7fbd50ea6710b2f3f2e8f"
 name = "matching"
 version = "0.1.0"
 dependencies = [
+ "log",
  "matching_handlers",
  "model",
  "unordered-pair",
@@ -277,6 +278,7 @@ dependencies = [
 name = "matching_handlers"
 version = "0.1.0"
 dependencies = [
+ "log",
  "model",
 ]
 
