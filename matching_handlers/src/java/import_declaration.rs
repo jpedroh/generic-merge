@@ -51,19 +51,20 @@ mod tests {
     fn make_import_of_resource(resource: &str) -> model::CSTNode {
         model::CSTNode::NonTerminal(model::cst_node::NonTerminal {
             kind: "import_declaration",
-            children: vec![
-                model::CSTNode::NonTerminal(model::cst_node::NonTerminal {
-                    kind: "scoped_identifier",
-                    children: resource.split(".").map(|part| {
+            children: vec![model::CSTNode::NonTerminal(model::cst_node::NonTerminal {
+                kind: "scoped_identifier",
+                children: resource
+                    .split(".")
+                    .map(|part| {
                         model::CSTNode::Terminal(model::cst_node::Terminal {
                             kind: "identifier",
                             value: part,
                             ..Default::default()
                         })
-                    }).collect(),
-                    ..Default::default()
-                })
-            ],
+                    })
+                    .collect(),
+                ..Default::default()
+            })],
             ..Default::default()
         })
     }

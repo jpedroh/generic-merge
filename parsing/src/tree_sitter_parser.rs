@@ -18,7 +18,6 @@ impl From<Language> for ParserConfiguration {
                     "interface_body",
                     "class_body",
                     "enum_body_declarations",
-                    // "program"
                 ]
                 .into(),
                 block_end_delimiters: ["}"].into(),

@@ -9,4 +9,3 @@ edition = "2021"
 model = { path = "../model" }
 matching_handlers = { path = "../matching_handlers" }
 unordered-pair = "0.2.4"
-log = "0.4.20"
