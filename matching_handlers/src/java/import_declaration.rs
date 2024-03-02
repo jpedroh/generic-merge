@@ -16,7 +16,6 @@ pub fn compute_matching_score_for_import_declaration<'a>(
                 ..
             }),
         ) => {
-            // Try to find a scoped_identifier on children, and compare them
             let identifier_left =
                 find_child_of_kind(children_left, "scoped_identifier").map(|node| node.contents());
             let identifier_right =
