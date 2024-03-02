@@ -6,9 +6,7 @@ mod language;
 use clap::Parser;
 
 fn main() {
-    env_logger::builder()
-        .filter_level(log::LevelFilter::Debug)
-        .init();
+    env_logger::init();
 
     let args = cli_args::CliArgs::parse();
 
