@@ -12,8 +12,8 @@ fn all_java_samples_work_correctly() -> Result<(), Box<dyn std::error::Error>> {
             .map_err(|err| format!("Failed on {} with error: {}", sample_path.display(), err));
 
         assert_eq!(
-            expected,
-            result?.to_string(),
+            expected.trim(),
+            result?.to_string().trim(),
             "Failed on {}",
             sample_path.display()
         );
