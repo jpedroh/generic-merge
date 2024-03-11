@@ -9,3 +9,4 @@ edition = "2021"
 tree-sitter = "0.20.9"
 tree-sitter-java = "0.20.0"
 model = { path = "../model" }
+log = { workspace = true }
