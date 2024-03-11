@@ -268,6 +268,7 @@ checksum = "b5e6163cb8c49088c2c36f57875e58ccd8c87c7427f7fbd50ea6710b2f3f2e8f"
 name = "matching"
 version = "0.1.0"
 dependencies = [
+ "log",
  "matching_handlers",
  "model",
  "unordered-pair",
@@ -277,6 +278,7 @@ dependencies = [
 name = "matching_handlers"
 version = "0.1.0"
 dependencies = [
+ "log",
  "model",
 ]
 
@@ -291,6 +293,7 @@ name = "merge"
 version = "0.1.0"
 dependencies = [
  "diffy",
+ "log",
  "matching",
  "matching_handlers",
  "model",
@@ -299,6 +302,9 @@ dependencies = [
 [[package]]
 name = "model"
 version = "0.1.0"
+dependencies = [
+ "log",
+]
 
 [[package]]
 name = "nu-ansi-term"
@@ -320,6 +326,7 @@ checksum = "b15813163c1d831bf4a13c3610c05c0d03b39feb07f7e09fa234dac9b15aaf39"
 name = "parsing"
 version = "0.1.0"
 dependencies = [
+ "log",
  "model",
  "tree-sitter",
  "tree-sitter-java",

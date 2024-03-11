@@ -8,3 +8,6 @@ members = [
     "parsing",
     "model"
 ]
+
+[workspace.dependencies]
+log = "0.4.20"
