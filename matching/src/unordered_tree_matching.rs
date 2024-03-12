@@ -50,19 +50,15 @@ pub fn unordered_tree_matching<'a>(
 
             for child_left in children_left {
                 for child_right in children_right {
-                    let matching_score =
+                    let child_matchings =
                         calculate_matchings(child_left, child_right, matching_handlers);
-                    log::debug!(
-                        "{:?}",
-                        matching_score.get_matching_entry(child_left, child_right)
-                    );
 
                     if let Some(matching_entry) =
-                        matching_score.get_matching_entry(child_left, child_right)
+                        child_matchings.get_matching_entry(child_left, child_right)
                     {
                         if matching_entry.score >= 1 {
                             sum += matching_entry.score;
-                            result.extend(matching_score);
+                            result.extend(child_matchings);
                         }
                     }
                 }
