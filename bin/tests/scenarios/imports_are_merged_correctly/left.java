@@ -3,6 +3,7 @@ package de.fosd.jdime.merge;
 import java.util.List;
 import java.util.Objects;
 
+import AST.*;
 import de.fosd.jdime.operations.AddOperation;
 import de.fosd.jdime.operations.ConflictOperation;
 import de.fosd.jdime.operations.MergeOperation;

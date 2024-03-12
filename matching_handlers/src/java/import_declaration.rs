@@ -1,30 +1,10 @@
-use super::utils::find_child_of_kind;
-use model::{cst_node::NonTerminal, CSTNode};
+use model::CSTNode;
 
 pub fn compute_matching_score_for_import_declaration<'a>(
-    left: &'a CSTNode,
-    right: &'a CSTNode,
+    left: &'a CSTNode<'a>,
+    right: &'a CSTNode<'a>,
 ) -> usize {
-    match (left, right) {
-        (
-            CSTNode::NonTerminal(NonTerminal {
-                children: children_left,
-                ..
-            }),
-            CSTNode::NonTerminal(NonTerminal {
-                children: children_right,
-                ..
-            }),
-        ) => {
-            let identifier_left =
-                find_child_of_kind(children_left, "scoped_identifier").map(|node| node.contents());
-            let identifier_right =
-                find_child_of_kind(children_right, "scoped_identifier").map(|node| node.contents());
-
-            (identifier_left.is_some() && identifier_left == identifier_right).into()
-        }
-        (_, _) => 0,
-    }
+    (left.contents() == right.contents()).into()
 }
 
 #[cfg(test)]
@@ -45,6 +25,35 @@ mod tests {
             &make_import_of_resource("java.util.list"),
         );
         assert_eq!(0, result);
+    }
+
+    #[test]
+    fn imports_with_asterisks_do_match_if_they_are_equal() {
+        let node = model::CSTNode::NonTerminal(model::cst_node::NonTerminal {
+            kind: "import_declaration",
+            children: vec![
+                model::CSTNode::Terminal(model::cst_node::Terminal {
+                    kind: "identifier",
+                    value: "AST",
+                    ..Default::default()
+                }),
+                model::CSTNode::Terminal(model::cst_node::Terminal {
+                    kind: ".",
+                    value: ".",
+                    ..Default::default()
+                }),
+                model::CSTNode::Terminal(model::cst_node::Terminal {
+                    kind: "asterisk",
+                    value: "*",
+                    ..Default::default()
+                }),
+            ],
+            ..Default::default()
+        });
+
+        let result = super::compute_matching_score_for_import_declaration(&node, &node);
+
+        assert_eq!(1, result);
     }
 
     fn make_import_of_resource(resource: &str) -> model::CSTNode {
