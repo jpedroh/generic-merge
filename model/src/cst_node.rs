@@ -29,8 +29,8 @@ impl CSTNode<'_> {
 
     pub fn contents(&self) -> String {
         match self {
-            CSTNode::Terminal(node) => node.to_string(),
-            CSTNode::NonTerminal(node) => node.to_string(),
+            CSTNode::Terminal(node) => node.contents(),
+            CSTNode::NonTerminal(node) => node.contents(),
         }
     }
 }
@@ -45,6 +45,14 @@ pub struct NonTerminal<'a> {
     pub are_children_unordered: bool,
 }
 
+impl NonTerminal<'_> {
+    pub fn contents(&self) -> String {
+        self.children.iter().fold(String::from(""), |acc, node| {
+            format!("{} {}", acc, node.contents())
+        })
+    }
+}
+
 impl<'a> TryFrom<&'a CSTNode<'a>> for &'a NonTerminal<'a> {
     type Error = &'static str;
 
@@ -53,14 +61,6 @@ impl<'a> TryFrom<&'a CSTNode<'a>> for &'a NonTerminal<'a> {
             CSTNode::NonTerminal(non_terminal) => Ok(non_terminal),
             CSTNode::Terminal(_) => Err("Cannot convert terminal to non-terminal"),
         }
-    }
-}
-
-impl ToString for NonTerminal<'_> {
-    fn to_string(&self) -> String {
-        self.children.iter().fold(String::from(""), |acc, node| {
-            format!("{} {}", acc, node.contents())
-        })
     }
 }
 
@@ -74,8 +74,8 @@ pub struct Terminal<'a> {
     pub is_block_end_delimiter: bool,
 }
 
-impl ToString for Terminal<'_> {
-    fn to_string(&self) -> String {
+impl Terminal<'_> {
+    pub fn contents(&self) -> String {
         String::from(self.value)
     }
 }
