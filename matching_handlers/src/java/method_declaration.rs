@@ -125,175 +125,90 @@ mod tests {
     }
 
     #[test]
-    fn it_matches_some_other_clever_stuff() {
-        let node_a = CSTNode::NonTerminal(NonTerminal {
-            kind: "constructor_declaration",
+    fn for_matching_formal_parameters_it_takes_into_consideration_all_children_except_identifier() {
+        let node_a =make_method_declaration_node("ASTNodeArtifact", CSTNode::NonTerminal(NonTerminal {
+            kind: "formal_parameter",
             children: vec![
-                CSTNode::Terminal(Terminal {
-                    kind: "identifier",
-                    value: "ASTNodeArtifact",
+                CSTNode::NonTerminal(NonTerminal {
+                    kind: "modifiers",
+                    children: vec![CSTNode::Terminal(Terminal {
+                        kind: "final",
+                        value: "final",
+                        ..Default::default()
+                    })],
                     ..Default::default()
                 }),
                 CSTNode::NonTerminal(NonTerminal {
-                    kind: "formal_parameters",
+                    kind: "generic_type",
                     children: vec![
                         CSTNode::Terminal(Terminal {
-                            kind: "(",
-                            value: "(",
+                            kind: "type_identifier",
+                            value: "ASTNode",
                             ..Default::default()
                         }),
                         CSTNode::NonTerminal(NonTerminal {
-                            kind: "formal_parameter",
+                            kind: "type_arguments",
                             children: vec![
+                                CSTNode::Terminal(Terminal {
+                                    kind: "<",
+                                    value: "<",
+                                    ..Default::default()
+                                }),
                                 CSTNode::NonTerminal(NonTerminal {
-                                    kind: "modifiers",
+                                    kind: "wildcard",
                                     children: vec![CSTNode::Terminal(Terminal {
-                                        kind: "final",
-                                        value: "final",
+                                        kind: "?",
+                                        value: "?",
                                         ..Default::default()
                                     })],
                                     ..Default::default()
                                 }),
-                                CSTNode::NonTerminal(NonTerminal {
-                                    kind: "generic_type",
-                                    children: vec![
-                                        CSTNode::Terminal(Terminal {
-                                            kind: "type_identifier",
-                                            value: "ASTNode",
-                                            ..Default::default()
-                                        }),
-                                        CSTNode::NonTerminal(NonTerminal {
-                                            kind: "type_arguments",
-                                            children: vec![
-                                                CSTNode::Terminal(Terminal {
-                                                    kind: "<",
-                                                    value: "<",
-                                                    ..Default::default()
-                                                }),
-                                                CSTNode::NonTerminal(NonTerminal {
-                                                    kind: "wildcard",
-                                                    children: vec![CSTNode::Terminal(Terminal {
-                                                        kind: "?",
-                                                        value: "?",
-                                                        ..Default::default()
-                                                    })],
-                                                    ..Default::default()
-                                                }),
-                                                CSTNode::Terminal(Terminal {
-                                                    kind: ">",
-                                                    value: ">",
-                                                    ..Default::default()
-                                                }),
-                                            ],
-                                            ..Default::default()
-                                        }),
-                                    ],
-                                    ..Default::default()
-                                }),
                                 CSTNode::Terminal(Terminal {
-                                    kind: "identifier",
-                                    value: "astnode",
+                                    kind: ">",
+                                    value: ">",
                                     ..Default::default()
                                 }),
                             ],
                             ..Default::default()
                         }),
-                        CSTNode::Terminal(Terminal {
-                            kind: ")",
-                            value: ")",
-                            ..Default::default()
-                        }),
                     ],
                     ..Default::default()
                 }),
-                CSTNode::NonTerminal(NonTerminal {
-                    kind: "constructor_body",
-                    children: vec![
-                        CSTNode::Terminal(Terminal {
-                            kind: "{",
-                            value: "{",
-                            ..Default::default()
-                        }),
-                        CSTNode::Terminal(Terminal {
-                            kind: "}",
-                            value: "}",
-                            ..Default::default()
-                        }),
-                    ],
+                CSTNode::Terminal(Terminal {
+                    kind: "identifier",
+                    value: "astnode",
                     ..Default::default()
                 }),
             ],
             ..Default::default()
-        });
+        }));
 
-        let node_b = CSTNode::NonTerminal(NonTerminal {
-            kind: "constructor_declaration",
+        let node_b =make_method_declaration_node("ASTNodeArtifact", CSTNode::NonTerminal(NonTerminal {
+            kind: "formal_parameter",
             children: vec![
+                CSTNode::NonTerminal(NonTerminal {
+                    kind: "modifiers",
+                    children: vec![CSTNode::Terminal(Terminal {
+                        kind: "final",
+                        value: "final",
+                        ..Default::default()
+                    })],
+                    ..Default::default()
+                }),
+                CSTNode::Terminal(Terminal {
+                    kind: "type_identifier",
+                    value: "FileArtifact",
+                    ..Default::default()
+                }),
                 CSTNode::Terminal(Terminal {
                     kind: "identifier",
-                    value: "ASTNodeArtifact",
-                    ..Default::default()
-                }),
-                CSTNode::NonTerminal(NonTerminal {
-                    kind: "formal_parameters",
-                    children: vec![
-                        CSTNode::Terminal(Terminal {
-                            kind: "(",
-                            value: "(",
-                            ..Default::default()
-                        }),
-                        CSTNode::NonTerminal(NonTerminal {
-                            kind: "formal_parameter",
-                            children: vec![
-                                CSTNode::NonTerminal(NonTerminal {
-                                    kind: "modifiers",
-                                    children: vec![CSTNode::Terminal(Terminal {
-                                        kind: "final",
-                                        value: "final",
-                                        ..Default::default()
-                                    })],
-                                    ..Default::default()
-                                }),
-                                CSTNode::Terminal(Terminal {
-                                    kind: "type_identifier",
-                                    value: "FileArtifact",
-                                    ..Default::default()
-                                }),
-                                CSTNode::Terminal(Terminal {
-                                    kind: "identifier",
-                                    value: "astnode",
-                                    ..Default::default()
-                                }),
-                            ],
-                            ..Default::default()
-                        }),
-                        CSTNode::Terminal(Terminal {
-                            kind: ")",
-                            value: ")",
-                            ..Default::default()
-                        }),
-                    ],
-                    ..Default::default()
-                }),
-                CSTNode::NonTerminal(NonTerminal {
-                    kind: "constructor_body",
-                    children: vec![
-                        CSTNode::Terminal(Terminal {
-                            kind: "{",
-                            value: "{",
-                            ..Default::default()
-                        }),
-                        CSTNode::Terminal(Terminal {
-                            kind: "}",
-                            value: "}",
-                            ..Default::default()
-                        }),
-                    ],
+                    value: "astnode",
                     ..Default::default()
                 }),
             ],
             ..Default::default()
-        });
+        }));
+
 
         let result = compute_matching_score_for_method_declaration(&node_a, &node_b);
         assert_eq!(0, result);
