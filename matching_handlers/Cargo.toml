@@ -8,3 +8,6 @@ edition = "2021"
 [dependencies]
 model = { path = "../model" }
 log = { workspace = true }
+
+[dev-dependencies]
+parsing = { path = "../parsing" }
