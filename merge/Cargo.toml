@@ -11,3 +11,4 @@ matching = { path = "../matching" }
 matching_handlers = { path = "../matching_handlers" }
 diffy = "0.3.0"
 log = { workspace = true }
+uuid = { version = "1.7.0", features = ["v4"] }

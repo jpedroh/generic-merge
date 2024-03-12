@@ -119,6 +119,7 @@ mod tests {
     #[test]
     fn it_matches_deep_nodes_as_well() {
         let child = CSTNode::Terminal(Terminal {
+            id: uuid::Uuid::new_v4(),
             kind: "kind_b",
             value: "value_b",
             start_position: Point { row: 1, column: 0 },
@@ -126,6 +127,7 @@ mod tests {
             is_block_end_delimiter: false,
         });
         let left = CSTNode::NonTerminal(NonTerminal {
+            id: uuid::Uuid::new_v4(),
             kind: "kind_a",
             are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
@@ -133,6 +135,7 @@ mod tests {
             children: vec![child.clone()],
         });
         let right = CSTNode::NonTerminal(NonTerminal {
+            id: uuid::Uuid::new_v4(),
             kind: "kind_a",
             are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
@@ -152,6 +155,7 @@ mod tests {
     #[test]
     fn if_no_match_is_found_it_returns_none() {
         let left_child = CSTNode::Terminal(Terminal {
+            id: uuid::Uuid::new_v4(),
             kind: "kind_b",
             value: "value_b",
             start_position: Point { row: 0, column: 0 },
@@ -159,6 +163,7 @@ mod tests {
             is_block_end_delimiter: false,
         });
         let right_child = CSTNode::Terminal(Terminal {
+            id: uuid::Uuid::new_v4(),
             kind: "kind_c",
             value: "value_c",
             start_position: Point { row: 1, column: 0 },
@@ -167,6 +172,7 @@ mod tests {
         });
 
         let left = CSTNode::NonTerminal(NonTerminal {
+            id: uuid::Uuid::new_v4(),
             kind: "kind_a",
             are_children_unordered: false,
             children: vec![left_child.clone()],
@@ -174,6 +180,7 @@ mod tests {
             end_position: Point { row: 0, column: 7 },
         });
         let right = CSTNode::NonTerminal(NonTerminal {
+            id: uuid::Uuid::new_v4(),
             kind: "kind_a",
             are_children_unordered: false,
             children: vec![right_child.clone()],
@@ -193,6 +200,7 @@ mod tests {
     #[test]
     fn the_matching_between_two_subtrees_is_the_sum_of_the_matchings_plus_the_root() {
         let common_child = CSTNode::Terminal(Terminal {
+            id: uuid::Uuid::new_v4(),
             kind: "kind_b",
             value: "value_b",
             start_position: Point { row: 0, column: 0 },
@@ -200,6 +208,7 @@ mod tests {
             is_block_end_delimiter: false,
         });
         let unique_right_child = CSTNode::Terminal(Terminal {
+            id: uuid::Uuid::new_v4(),
             kind: "kind_c",
             value: "value_c",
             start_position: Point { row: 0, column: 0 },
@@ -208,6 +217,7 @@ mod tests {
         });
 
         let left = CSTNode::NonTerminal(NonTerminal {
+            id: uuid::Uuid::new_v4(),
             kind: "kind_a",
             are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
@@ -215,6 +225,7 @@ mod tests {
             children: vec![common_child.clone()],
         });
         let right = CSTNode::NonTerminal(NonTerminal {
+            id: uuid::Uuid::new_v4(),
             kind: "kind_a",
             are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
@@ -234,6 +245,7 @@ mod tests {
     #[test]
     fn perfect_matching_deep_nodes() {
         let common_child = CSTNode::Terminal(Terminal {
+            id: uuid::Uuid::new_v4(),
             kind: "kind_b",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
@@ -242,6 +254,7 @@ mod tests {
         });
 
         let left = CSTNode::NonTerminal(NonTerminal {
+            id: uuid::Uuid::new_v4(),
             kind: "kind_a",
             are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
@@ -249,6 +262,7 @@ mod tests {
             children: vec![common_child.clone()],
         });
         let right = CSTNode::NonTerminal(NonTerminal {
+            id: uuid::Uuid::new_v4(),
             kind: "kind_a",
             are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
@@ -268,6 +282,7 @@ mod tests {
     #[test]
     fn perfect_matching_deeper_nodes() {
         let leaf = CSTNode::Terminal(Terminal {
+            id: uuid::Uuid::new_v4(),
             kind: "kind_b",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
@@ -276,6 +291,7 @@ mod tests {
         });
 
         let intermediate = CSTNode::NonTerminal(NonTerminal {
+            id: uuid::Uuid::new_v4(),
             kind: "intermediate",
             are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
@@ -284,6 +300,7 @@ mod tests {
         });
 
         let left = CSTNode::NonTerminal(NonTerminal {
+            id: uuid::Uuid::new_v4(),
             kind: "kind_a",
             are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },
@@ -291,6 +308,7 @@ mod tests {
             children: vec![intermediate.clone()],
         });
         let right = CSTNode::NonTerminal(NonTerminal {
+            id: uuid::Uuid::new_v4(),
             kind: "kind_a",
             are_children_unordered: false,
             start_position: Point { row: 0, column: 0 },

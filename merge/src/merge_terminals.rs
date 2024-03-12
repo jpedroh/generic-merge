@@ -63,6 +63,7 @@ mod tests {
     fn if_i_am_merging_three_unchanged_nodes_it_is_a_success(
     ) -> Result<(), Box<dyn std::error::Error>> {
         let node = Terminal {
+            id: uuid::Uuid::new_v4(),
             kind: "kind",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
@@ -82,6 +83,7 @@ mod tests {
     fn returns_success_if_there_are_changes_in_both_parents_and_they_are_not_conflicting(
     ) -> Result<(), Box<dyn std::error::Error>> {
         let base = Terminal {
+            id: uuid::Uuid::new_v4(),
             kind: "kind",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
@@ -89,6 +91,7 @@ mod tests {
             is_block_end_delimiter: false,
         };
         let left = Terminal {
+            id: uuid::Uuid::new_v4(),
             kind: "kind",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
@@ -96,6 +99,7 @@ mod tests {
             is_block_end_delimiter: false,
         };
         let right = Terminal {
+            id: uuid::Uuid::new_v4(),
             kind: "kind",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
@@ -118,6 +122,7 @@ mod tests {
     fn returns_conflict_if_there_are_changes_in_both_parents_and_they_are_conflicting(
     ) -> Result<(), Box<dyn std::error::Error>> {
         let base = Terminal {
+            id: uuid::Uuid::new_v4(),
             kind: "kind",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
@@ -125,6 +130,7 @@ mod tests {
             is_block_end_delimiter: false,
         };
         let left = Terminal {
+            id: uuid::Uuid::new_v4(),
             kind: "kind",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
@@ -132,6 +138,7 @@ mod tests {
             is_block_end_delimiter: false,
         };
         let right = Terminal {
+            id: uuid::Uuid::new_v4(),
             kind: "kind",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
@@ -154,6 +161,7 @@ mod tests {
     fn if_there_is_a_change_only_in_one_parent_it_returns_the_changes_from_this_parent(
     ) -> Result<(), Box<dyn std::error::Error>> {
         let base_and_left = Terminal {
+            id: uuid::Uuid::new_v4(),
             kind: "kind",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
@@ -161,6 +169,7 @@ mod tests {
             is_block_end_delimiter: false,
         };
         let changed_parent = Terminal {
+            id: uuid::Uuid::new_v4(),
             kind: "kind",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
@@ -179,6 +188,7 @@ mod tests {
     #[test]
     fn i_get_an_error_if_i_try_to_merge_nodes_of_different_kinds() {
         let kind_a = Terminal {
+            id: uuid::Uuid::new_v4(),
             kind: "kind_a",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
@@ -186,6 +196,7 @@ mod tests {
             is_block_end_delimiter: false,
         };
         let kind_b = Terminal {
+            id: uuid::Uuid::new_v4(),
             kind: "kind_b",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },

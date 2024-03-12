@@ -85,7 +85,10 @@ pub fn unordered_merge<'a>(
     }
 
     for right_child in right.children.iter() {
-        if processed_nodes.contains(right_child) {
+        if processed_nodes
+            .iter()
+            .any(|node| node.id() == right_child.id())
+        {
             continue;
         }
 
@@ -210,12 +213,14 @@ mod tests {
     #[test]
     fn test_merge_node_added_only_by_one_parent() -> Result<(), MergeError> {
         let base = CSTNode::NonTerminal(NonTerminal {
+            id: uuid::Uuid::new_v4(),
             kind: "interface_body",
             are_children_unordered: true,
             start_position: model::Point { row: 0, column: 0 },
             end_position: model::Point { row: 0, column: 0 },
             children: vec![
                 CSTNode::Terminal(Terminal {
+                    id: uuid::Uuid::new_v4(),
                     kind: "{",
                     value: "{",
                     start_position: model::Point { row: 0, column: 1 },
@@ -223,6 +228,7 @@ mod tests {
                     is_block_end_delimiter: false,
                 }),
                 CSTNode::Terminal(Terminal {
+                    id: uuid::Uuid::new_v4(),
                     kind: "}",
                     value: "}",
                     start_position: model::Point { row: 1, column: 1 },
@@ -233,12 +239,14 @@ mod tests {
         });
 
         let parent_a = CSTNode::NonTerminal(NonTerminal {
+            id: uuid::Uuid::new_v4(),
             kind: "interface_body",
             are_children_unordered: true,
             start_position: model::Point { row: 0, column: 0 },
             end_position: model::Point { row: 0, column: 0 },
             children: vec![
                 CSTNode::Terminal(Terminal {
+                    id: uuid::Uuid::new_v4(),
                     kind: "{",
                     value: "{",
                     start_position: model::Point { row: 0, column: 1 },
@@ -246,6 +254,7 @@ mod tests {
                     is_block_end_delimiter: false,
                 }),
                 CSTNode::Terminal(Terminal {
+                    id: uuid::Uuid::new_v4(),
                     kind: "method_declaration",
                     value: "main",
                     start_position: model::Point { row: 1, column: 0 },
@@ -253,6 +262,7 @@ mod tests {
                     is_block_end_delimiter: false,
                 }),
                 CSTNode::Terminal(Terminal {
+                    id: uuid::Uuid::new_v4(),
                     kind: "}",
                     value: "}",
                     start_position: model::Point { row: 2, column: 1 },
@@ -263,12 +273,14 @@ mod tests {
         });
 
         let parent_b = CSTNode::NonTerminal(NonTerminal {
+            id: uuid::Uuid::new_v4(),
             kind: "interface_body",
             are_children_unordered: true,
             start_position: model::Point { row: 0, column: 0 },
             end_position: model::Point { row: 0, column: 0 },
             children: vec![
                 CSTNode::Terminal(Terminal {
+                    id: uuid::Uuid::new_v4(),
                     kind: "{",
                     value: "{",
                     start_position: model::Point { row: 0, column: 1 },
@@ -276,6 +288,7 @@ mod tests {
                     is_block_end_delimiter: false,
                 }),
                 CSTNode::Terminal(Terminal {
+                    id: uuid::Uuid::new_v4(),
                     kind: "}",
                     value: "}",
                     start_position: model::Point { row: 1, column: 1 },
@@ -311,12 +324,14 @@ mod tests {
     #[test]
     fn test_both_parents_add_the_same_node_and_both_subtrees_are_equal() -> Result<(), MergeError> {
         let base = CSTNode::NonTerminal(NonTerminal {
+            id: uuid::Uuid::new_v4(),
             kind: "interface_body",
             are_children_unordered: true,
             start_position: model::Point { row: 0, column: 0 },
             end_position: model::Point { row: 0, column: 0 },
             children: vec![
                 CSTNode::Terminal(Terminal {
+                    id: uuid::Uuid::new_v4(),
                     kind: "{",
                     value: "{",
                     start_position: model::Point { row: 0, column: 1 },
@@ -324,6 +339,7 @@ mod tests {
                     is_block_end_delimiter: false,
                 }),
                 CSTNode::Terminal(Terminal {
+                    id: uuid::Uuid::new_v4(),
                     kind: "}",
                     value: "}",
                     start_position: model::Point { row: 1, column: 1 },
@@ -334,12 +350,14 @@ mod tests {
         });
 
         let parent_a = CSTNode::NonTerminal(NonTerminal {
+            id: uuid::Uuid::new_v4(),
             kind: "interface_body",
             are_children_unordered: true,
             start_position: model::Point { row: 0, column: 0 },
             end_position: model::Point { row: 0, column: 0 },
             children: vec![
                 CSTNode::Terminal(Terminal {
+                    id: uuid::Uuid::new_v4(),
                     kind: "{",
                     value: "{",
                     start_position: model::Point { row: 0, column: 1 },
@@ -347,11 +365,13 @@ mod tests {
                     is_block_end_delimiter: false,
                 }),
                 CSTNode::NonTerminal(NonTerminal {
-                    kind: "method_declaration",
+                    id: uuid::Uuid::new_v4(),
+                    kind: "a_method_declaration",
                     are_children_unordered: false,
                     start_position: model::Point { row: 1, column: 0 },
                     end_position: model::Point { row: 1, column: 4 },
                     children: vec![CSTNode::Terminal(Terminal {
+                        id: uuid::Uuid::new_v4(),
                         kind: "identifier",
                         value: "main",
                         start_position: model::Point { row: 0, column: 1 },
@@ -360,6 +380,7 @@ mod tests {
                     })],
                 }),
                 CSTNode::Terminal(Terminal {
+                    id: uuid::Uuid::new_v4(),
                     kind: "}",
                     value: "}",
                     start_position: model::Point { row: 2, column: 1 },
@@ -370,12 +391,14 @@ mod tests {
         });
 
         let parent_b = CSTNode::NonTerminal(NonTerminal {
+            id: uuid::Uuid::new_v4(),
             kind: "interface_body",
             are_children_unordered: true,
             start_position: model::Point { row: 0, column: 0 },
             end_position: model::Point { row: 0, column: 0 },
             children: vec![
                 CSTNode::Terminal(Terminal {
+                    id: uuid::Uuid::new_v4(),
                     kind: "{",
                     value: "{",
                     start_position: model::Point { row: 0, column: 1 },
@@ -383,11 +406,13 @@ mod tests {
                     is_block_end_delimiter: false,
                 }),
                 CSTNode::NonTerminal(NonTerminal {
-                    kind: "method_declaration",
+                    id: uuid::Uuid::new_v4(),
+                    kind: "a_method_declaration",
                     are_children_unordered: false,
                     start_position: model::Point { row: 1, column: 0 },
                     end_position: model::Point { row: 1, column: 4 },
                     children: vec![CSTNode::Terminal(Terminal {
+                        id: uuid::Uuid::new_v4(),
                         kind: "identifier",
                         value: "main",
                         start_position: model::Point { row: 0, column: 1 },
@@ -396,6 +421,7 @@ mod tests {
                     })],
                 }),
                 CSTNode::Terminal(Terminal {
+                    id: uuid::Uuid::new_v4(),
                     kind: "}",
                     value: "}",
                     start_position: model::Point { row: 2, column: 1 },
@@ -413,7 +439,7 @@ mod tests {
                     value: String::from("{"),
                 },
                 MergedCSTNode::NonTerminal {
-                    kind: "method_declaration",
+                    kind: "a_method_declaration",
                     children: vec![MergedCSTNode::Terminal {
                         kind: "identifier",
                         value: String::from("main"),
@@ -438,12 +464,14 @@ mod tests {
     fn test_merge_one_parent_removes_a_node_while_the_other_keeps_it_unchanged(
     ) -> Result<(), MergeError> {
         let base = CSTNode::NonTerminal(NonTerminal {
+            id: uuid::Uuid::new_v4(),
             kind: "interface_body",
             are_children_unordered: true,
             start_position: model::Point { row: 0, column: 0 },
             end_position: model::Point { row: 0, column: 0 },
             children: vec![
                 CSTNode::Terminal(Terminal {
+                    id: uuid::Uuid::new_v4(),
                     kind: "{",
                     value: "{",
                     start_position: model::Point { row: 0, column: 1 },
@@ -451,12 +479,14 @@ mod tests {
                     is_block_end_delimiter: false,
                 }),
                 CSTNode::NonTerminal(NonTerminal {
+                    id: uuid::Uuid::new_v4(),
                     kind: "method_declaration",
                     are_children_unordered: false,
                     start_position: model::Point { row: 1, column: 0 },
                     end_position: model::Point { row: 1, column: 4 },
                     children: vec![
                         CSTNode::Terminal(Terminal {
+                            id: uuid::Uuid::new_v4(),
                             kind: "formal_parameters",
                             value: "formal_parameters",
                             start_position: model::Point { row: 0, column: 1 },
@@ -464,6 +494,7 @@ mod tests {
                             is_block_end_delimiter: false,
                         }),
                         CSTNode::Terminal(Terminal {
+                            id: uuid::Uuid::new_v4(),
                             kind: "identifier",
                             value: "main",
                             start_position: model::Point { row: 0, column: 1 },
@@ -473,6 +504,7 @@ mod tests {
                     ],
                 }),
                 CSTNode::Terminal(Terminal {
+                    id: uuid::Uuid::new_v4(),
                     kind: "}",
                     value: "}",
                     start_position: model::Point { row: 1, column: 1 },
@@ -483,12 +515,14 @@ mod tests {
         });
 
         let parent_a = CSTNode::NonTerminal(NonTerminal {
+            id: uuid::Uuid::new_v4(),
             kind: "interface_body",
             are_children_unordered: true,
             start_position: model::Point { row: 0, column: 0 },
             end_position: model::Point { row: 0, column: 0 },
             children: vec![
                 CSTNode::Terminal(Terminal {
+                    id: uuid::Uuid::new_v4(),
                     kind: "{",
                     value: "{",
                     start_position: model::Point { row: 0, column: 1 },
@@ -496,12 +530,14 @@ mod tests {
                     is_block_end_delimiter: false,
                 }),
                 CSTNode::NonTerminal(NonTerminal {
+                    id: uuid::Uuid::new_v4(),
                     kind: "method_declaration",
                     are_children_unordered: false,
                     start_position: model::Point { row: 1, column: 0 },
                     end_position: model::Point { row: 1, column: 4 },
                     children: vec![
                         CSTNode::Terminal(Terminal {
+                            id: uuid::Uuid::new_v4(),
                             kind: "formal_parameters",
                             value: "formal_parameters",
                             start_position: model::Point { row: 0, column: 1 },
@@ -509,6 +545,7 @@ mod tests {
                             is_block_end_delimiter: false,
                         }),
                         CSTNode::Terminal(Terminal {
+                            id: uuid::Uuid::new_v4(),
                             kind: "identifier",
                             value: "main",
                             start_position: model::Point { row: 0, column: 1 },
@@ -518,6 +555,7 @@ mod tests {
                     ],
                 }),
                 CSTNode::Terminal(Terminal {
+                    id: uuid::Uuid::new_v4(),
                     kind: "}",
                     value: "}",
                     start_position: model::Point { row: 2, column: 1 },
@@ -528,12 +566,14 @@ mod tests {
         });
 
         let parent_b = CSTNode::NonTerminal(NonTerminal {
+            id: uuid::Uuid::new_v4(),
             kind: "interface_body",
             are_children_unordered: true,
             start_position: model::Point { row: 0, column: 0 },
             end_position: model::Point { row: 0, column: 0 },
             children: vec![
                 CSTNode::Terminal(Terminal {
+                    id: uuid::Uuid::new_v4(),
                     kind: "{",
                     value: "{",
                     start_position: model::Point { row: 0, column: 1 },
@@ -541,6 +581,7 @@ mod tests {
                     is_block_end_delimiter: false,
                 }),
                 CSTNode::Terminal(Terminal {
+                    id: uuid::Uuid::new_v4(),
                     kind: "}",
                     value: "}",
                     start_position: model::Point { row: 2, column: 1 },
@@ -575,12 +616,14 @@ mod tests {
     #[test]
     fn test_merge_one_parent_removes_a_node_while_the_other_changed_it() -> Result<(), MergeError> {
         let base = CSTNode::NonTerminal(NonTerminal {
+            id: uuid::Uuid::new_v4(),
             kind: "interface_body",
             are_children_unordered: true,
             start_position: model::Point { row: 0, column: 0 },
             end_position: model::Point { row: 0, column: 0 },
             children: vec![
                 CSTNode::Terminal(Terminal {
+                    id: uuid::Uuid::new_v4(),
                     kind: "{",
                     value: "{",
                     start_position: model::Point { row: 0, column: 1 },
@@ -588,12 +631,14 @@ mod tests {
                     is_block_end_delimiter: false,
                 }),
                 CSTNode::NonTerminal(NonTerminal {
+                    id: uuid::Uuid::new_v4(),
                     kind: "method_declaration",
                     are_children_unordered: false,
                     start_position: model::Point { row: 1, column: 0 },
                     end_position: model::Point { row: 1, column: 4 },
                     children: vec![
                         CSTNode::Terminal(Terminal {
+                            id: uuid::Uuid::new_v4(),
                             kind: "formal_parameters",
                             value: "formal_parameters",
                             start_position: model::Point { row: 0, column: 1 },
@@ -601,6 +646,7 @@ mod tests {
                             is_block_end_delimiter: false,
                         }),
                         CSTNode::Terminal(Terminal {
+                            id: uuid::Uuid::new_v4(),
                             kind: "identifier",
                             value: "method",
                             start_position: model::Point { row: 0, column: 1 },
@@ -608,6 +654,7 @@ mod tests {
                             is_block_end_delimiter: false,
                         }),
                         CSTNode::Terminal(Terminal {
+                            id: uuid::Uuid::new_v4(),
                             kind: "kind_a",
                             value: "value_a",
                             start_position: model::Point { row: 0, column: 1 },
@@ -615,6 +662,7 @@ mod tests {
                             is_block_end_delimiter: false,
                         }),
                         CSTNode::Terminal(Terminal {
+                            id: uuid::Uuid::new_v4(),
                             kind: "kind_b",
                             value: "value_b",
                             start_position: model::Point { row: 0, column: 1 },
@@ -624,6 +672,7 @@ mod tests {
                     ],
                 }),
                 CSTNode::Terminal(Terminal {
+                    id: uuid::Uuid::new_v4(),
                     kind: "}",
                     value: "}",
                     start_position: model::Point { row: 1, column: 1 },
@@ -634,12 +683,14 @@ mod tests {
         });
 
         let parent_a = CSTNode::NonTerminal(NonTerminal {
+            id: uuid::Uuid::new_v4(),
             kind: "interface_body",
             are_children_unordered: true,
             start_position: model::Point { row: 0, column: 0 },
             end_position: model::Point { row: 0, column: 0 },
             children: vec![
                 CSTNode::Terminal(Terminal {
+                    id: uuid::Uuid::new_v4(),
                     kind: "{",
                     value: "{",
                     start_position: model::Point { row: 0, column: 1 },
@@ -647,12 +698,14 @@ mod tests {
                     is_block_end_delimiter: false,
                 }),
                 CSTNode::NonTerminal(NonTerminal {
+                    id: uuid::Uuid::new_v4(),
                     kind: "method_declaration",
                     are_children_unordered: false,
                     start_position: model::Point { row: 1, column: 0 },
                     end_position: model::Point { row: 1, column: 4 },
                     children: vec![
                         CSTNode::Terminal(Terminal {
+                            id: uuid::Uuid::new_v4(),
                             kind: "formal_parameters",
                             value: "formal_parameters",
                             start_position: model::Point { row: 0, column: 1 },
@@ -660,6 +713,7 @@ mod tests {
                             is_block_end_delimiter: false,
                         }),
                         CSTNode::Terminal(Terminal {
+                            id: uuid::Uuid::new_v4(),
                             kind: "identifier",
                             value: "method",
                             start_position: model::Point { row: 0, column: 1 },
@@ -667,6 +721,7 @@ mod tests {
                             is_block_end_delimiter: false,
                         }),
                         CSTNode::Terminal(Terminal {
+                            id: uuid::Uuid::new_v4(),
                             kind: "kind_a",
                             value: "value_a",
                             start_position: model::Point { row: 0, column: 1 },
@@ -674,6 +729,7 @@ mod tests {
                             is_block_end_delimiter: false,
                         }),
                         CSTNode::Terminal(Terminal {
+                            id: uuid::Uuid::new_v4(),
                             kind: "kind_b",
                             value: "new_value_b",
                             start_position: model::Point { row: 0, column: 1 },
@@ -683,6 +739,7 @@ mod tests {
                     ],
                 }),
                 CSTNode::Terminal(Terminal {
+                    id: uuid::Uuid::new_v4(),
                     kind: "}",
                     value: "}",
                     start_position: model::Point { row: 2, column: 1 },
@@ -693,12 +750,14 @@ mod tests {
         });
 
         let parent_b = CSTNode::NonTerminal(NonTerminal {
+            id: uuid::Uuid::new_v4(),
             kind: "interface_body",
             are_children_unordered: true,
             start_position: model::Point { row: 0, column: 0 },
             end_position: model::Point { row: 0, column: 0 },
             children: vec![
                 CSTNode::Terminal(Terminal {
+                    id: uuid::Uuid::new_v4(),
                     kind: "{",
                     value: "{",
                     start_position: model::Point { row: 0, column: 1 },
@@ -706,6 +765,7 @@ mod tests {
                     is_block_end_delimiter: false,
                 }),
                 CSTNode::Terminal(Terminal {
+                    id: uuid::Uuid::new_v4(),
                     kind: "}",
                     value: "}",
                     start_position: model::Point { row: 2, column: 1 },
@@ -804,6 +864,7 @@ mod tests {
     #[test]
     fn i_get_an_error_if_i_try_to_merge_nodes_of_different_kinds() {
         let kind_a = NonTerminal {
+            id: uuid::Uuid::new_v4(),
             kind: "kind_a",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
@@ -811,6 +872,7 @@ mod tests {
             are_children_unordered: true,
         };
         let kind_b = NonTerminal {
+            id: uuid::Uuid::new_v4(),
             kind: "kind_b",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },

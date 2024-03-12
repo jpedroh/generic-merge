@@ -10,3 +10,6 @@ model = { path = "../model" }
 matching_handlers = { path = "../matching_handlers" }
 unordered-pair = "0.2.4"
 log = { workspace = true }
+
+[dev-dependencies]
+uuid = { version = "1.7.0", features = ["v4"] }

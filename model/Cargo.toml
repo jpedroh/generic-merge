@@ -7,3 +7,4 @@ edition = "2021"
 
 [dependencies]
 log = { workspace = true }
+uuid = { version = "1.7.0", features = ["v4"] }
