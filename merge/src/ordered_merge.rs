@@ -180,12 +180,6 @@ pub fn ordered_merge<'a>(
                 cur_right_option = children_right_it.next();
             }
             (a, b, c, d, e) => {
-                log::debug!(
-                    "Invalid matching while merging {:#?} AND {:#?}",
-                    left.to_string(),
-                    right.to_string()
-                );
-
                 return Err(MergeError::InvalidMatchingConfiguration(
                     a,
                     b.is_some(),
