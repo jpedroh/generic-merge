@@ -24,7 +24,7 @@ pub fn unordered_merge<'a>(
     }
 
     let mut result_children = vec![];
-    let mut processed_nodes: HashSet<&CSTNode> = HashSet::new();
+    let mut processed_nodes: HashSet<uuid::Uuid> = HashSet::new();
 
     for left_child in left.children.iter() {
         if let CSTNode::Terminal(Terminal {
@@ -44,7 +44,7 @@ pub fn unordered_merge<'a>(
             // Added only by left
             (None, None) => {
                 result_children.push(left_child.to_owned().into());
-                processed_nodes.insert(left_child);
+                processed_nodes.insert(left_child.id());
             }
             (None, Some(right_matching)) => {
                 result_children.push(merge(
@@ -55,8 +55,8 @@ pub fn unordered_merge<'a>(
                     base_right_matchings,
                     left_right_matchings,
                 )?);
-                processed_nodes.insert(left_child);
-                processed_nodes.insert(right_matching.matching_node);
+                processed_nodes.insert(left_child.id());
+                processed_nodes.insert(right_matching.matching_node.id());
             }
             // Removed in right
             (Some(matching_base_left), None) => {
@@ -67,7 +67,7 @@ pub fn unordered_merge<'a>(
                         right: None,
                     })
                 }
-                processed_nodes.insert(left_child);
+                processed_nodes.insert(left_child.id());
             }
             (Some(_), Some(right_matching)) => {
                 result_children.push(merge(
@@ -78,20 +78,17 @@ pub fn unordered_merge<'a>(
                     base_right_matchings,
                     left_right_matchings,
                 )?);
-                processed_nodes.insert(left_child);
-                processed_nodes.insert(right_matching.matching_node);
+                processed_nodes.insert(left_child.id());
+                processed_nodes.insert(right_matching.matching_node.id());
             }
         }
     }
 
-    for right_child in right.children.iter() {
-        if processed_nodes
-            .iter()
-            .any(|node| node.id() == right_child.id())
-        {
-            continue;
-        }
-
+    for right_child in right
+        .children
+        .iter()
+        .filter(|node| !processed_nodes.contains(&node.id()))
+    {
         let matching_base_right = base_right_matchings.find_matching_for(right_child);
         let matching_left_right = left_right_matchings.find_matching_for(right_child);
 
