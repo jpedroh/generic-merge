@@ -56,7 +56,7 @@ impl<'a> Eq for NonTerminal<'a> {}
 
 impl<'a> PartialOrd for NonTerminal<'a> {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        self.id.partial_cmp(&other.id)
+        Some(self.cmp(other))
     }
 }
 
@@ -66,7 +66,7 @@ impl<'a> Ord for NonTerminal<'a> {
     }
 }
 
-impl <'a> Hash for NonTerminal<'a> {
+impl<'a> Hash for NonTerminal<'a> {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.id.hash(state)
     }
@@ -111,7 +111,7 @@ impl<'a> Eq for Terminal<'a> {}
 
 impl<'a> PartialOrd for Terminal<'a> {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-        self.id.partial_cmp(&other.id)
+        Some(self.cmp(other))
     }
 }
 
@@ -121,7 +121,7 @@ impl<'a> Ord for Terminal<'a> {
     }
 }
 
-impl <'a> Hash for Terminal<'a> {
+impl<'a> Hash for Terminal<'a> {
     fn hash<H: Hasher>(&self, state: &mut H) {
         self.id.hash(state)
     }
