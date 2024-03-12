@@ -1,3 +1,4 @@
+mod class_like_declaration;
 mod field_declaration;
 mod import_declaration;
 mod method_declaration;
@@ -6,6 +7,7 @@ mod utils;
 use crate::MatchingHandlers;
 
 use self::{
+    class_like_declaration::compute_matching_score_for_class_like_declaration,
     field_declaration::compute_matching_score_for_field_declaration,
     import_declaration::compute_matching_score_for_import_declaration,
     method_declaration::compute_matching_score_for_method_declaration,
@@ -28,6 +30,14 @@ pub fn get_default_java_matching_handlers<'a>() -> MatchingHandlers<'a> {
     matching_handlers.register(
         "import_declaration",
         compute_matching_score_for_import_declaration,
+    );
+    matching_handlers.register(
+        "class_declaration",
+        compute_matching_score_for_class_like_declaration,
+    );
+    matching_handlers.register(
+        "interface_declaration",
+        compute_matching_score_for_class_like_declaration,
     );
     matching_handlers
 }
