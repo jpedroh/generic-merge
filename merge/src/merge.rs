@@ -57,6 +57,7 @@ mod tests {
     fn test_can_not_merge_terminal_with_non_terminal() -> Result<(), Box<dyn std::error::Error>> {
         let error = merge(
             &CSTNode::Terminal(Terminal {
+                id: uuid::Uuid::new_v4(),
                 kind: "kind",
                 start_position: Point { row: 0, column: 0 },
                 end_position: Point { row: 0, column: 7 },
@@ -64,6 +65,7 @@ mod tests {
                 is_block_end_delimiter: false,
             }),
             &CSTNode::Terminal(Terminal {
+                id: uuid::Uuid::new_v4(),
                 kind: "kind",
                 start_position: Point { row: 0, column: 0 },
                 end_position: Point { row: 0, column: 7 },
@@ -71,6 +73,7 @@ mod tests {
                 is_block_end_delimiter: false,
             }),
             &CSTNode::NonTerminal(NonTerminal {
+                id: uuid::Uuid::new_v4(),
                 kind: "kind",
                 are_children_unordered: false,
                 start_position: Point { row: 0, column: 0 },

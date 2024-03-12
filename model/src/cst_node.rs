@@ -13,6 +13,13 @@ pub enum CSTNode<'a> {
 }
 
 impl CSTNode<'_> {
+    pub fn id(&self) -> uuid::Uuid {
+        match self {
+            CSTNode::Terminal(terminal) => terminal.id,
+            CSTNode::NonTerminal(non_terminal) => non_terminal.id,
+        }
+    }
+
     pub fn kind(&self) -> &str {
         match self {
             CSTNode::Terminal(terminal) => terminal.kind,
@@ -30,6 +37,7 @@ impl CSTNode<'_> {
 
 #[derive(Debug, Default, PartialEq, Clone, Eq, PartialOrd, Ord, Hash)]
 pub struct NonTerminal<'a> {
+    pub id: uuid::Uuid,
     pub kind: &'a str,
     pub children: Vec<CSTNode<'a>>,
     pub start_position: Point,
@@ -58,6 +66,7 @@ impl ToString for NonTerminal<'_> {
 
 #[derive(Debug, Default, PartialEq, Clone, Eq, PartialOrd, Ord, Hash)]
 pub struct Terminal<'a> {
+    pub id: uuid::Uuid,
     pub kind: &'a str,
     pub value: &'a str,
     pub start_position: Point,

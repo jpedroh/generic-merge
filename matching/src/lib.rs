@@ -41,10 +41,10 @@ pub fn calculate_matchings<'a>(
                 ..
             }),
         ) => {
-            let is_perfetch_match = kind_left == kind_right && value_left == value_right;
+            let is_perfect_match = kind_left == kind_right && value_left == value_right;
             Matchings::from_single(
                 UnorderedPair(left, right),
-                MatchingEntry::new(is_perfetch_match.into(), is_perfetch_match),
+                MatchingEntry::new(is_perfect_match.into(), is_perfect_match),
             )
         }
         (_, _) => Matchings::from_single(UnorderedPair(left, right), MatchingEntry::new(0, false)),
@@ -61,6 +61,7 @@ mod tests {
     #[test]
     fn two_terminal_nodes_matches_with_a_score_of_one_if_they_have_the_same_kind_and_value() {
         let left = CSTNode::Terminal(Terminal {
+            id: uuid::Uuid::new_v4(),
             kind: "kind",
             value: "value",
             start_position: Point { row: 0, column: 0 },
@@ -68,6 +69,7 @@ mod tests {
             is_block_end_delimiter: false,
         });
         let right = CSTNode::Terminal(Terminal {
+            id: uuid::Uuid::new_v4(),
             kind: "kind",
             value: "value",
             start_position: Point { row: 0, column: 0 },
@@ -87,6 +89,7 @@ mod tests {
     #[test]
     fn two_terminal_nodes_have_a_match_with_score_zero_if_they_have_different_value() {
         let left = CSTNode::Terminal(Terminal {
+            id: uuid::Uuid::new_v4(),
             kind: "kind",
             value: "value_a",
             start_position: Point { row: 0, column: 0 },
@@ -94,6 +97,7 @@ mod tests {
             is_block_end_delimiter: false,
         });
         let right = CSTNode::Terminal(Terminal {
+            id: uuid::Uuid::new_v4(),
             kind: "kind",
             value: "value_b",
             start_position: Point { row: 0, column: 0 },
@@ -113,6 +117,7 @@ mod tests {
     #[test]
     fn two_terminal_nodes_have_a_match_with_score_zero_if_they_have_different_kind() {
         let left = CSTNode::Terminal(Terminal {
+            id: uuid::Uuid::new_v4(),
             kind: "kind_a",
             value: "value",
             start_position: Point { row: 0, column: 0 },
@@ -120,6 +125,7 @@ mod tests {
             is_block_end_delimiter: false,
         });
         let right = CSTNode::Terminal(Terminal {
+            id: uuid::Uuid::new_v4(),
             kind: "kind_b",
             value: "value",
             start_position: Point { row: 0, column: 0 },
@@ -139,6 +145,7 @@ mod tests {
     #[test]
     fn two_terminal_nodes_have_a_match_with_score_zero_if_they_have_different_kind_and_value() {
         let left = CSTNode::Terminal(Terminal {
+            id: uuid::Uuid::new_v4(),
             kind: "kind_a",
             value: "value_a",
             start_position: Point { row: 0, column: 0 },
@@ -146,6 +153,7 @@ mod tests {
             is_block_end_delimiter: false,
         });
         let right = CSTNode::Terminal(Terminal {
+            id: uuid::Uuid::new_v4(),
             kind: "kind_b",
             value: "value_a",
             start_position: Point { row: 0, column: 0 },

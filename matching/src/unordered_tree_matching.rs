@@ -50,17 +50,16 @@ pub fn unordered_tree_matching<'a>(
 
             for child_left in children_left {
                 for child_right in children_right {
-                    let matching_score = matching_handlers
-                        .compute_matching_score(child_left, child_right)
-                        .unwrap_or(0);
+                    let child_matchings =
+                        calculate_matchings(child_left, child_right, matching_handlers);
 
-                    if matching_score == 1 {
-                        let child_matching =
-                            calculate_matchings(child_left, child_right, matching_handlers);
-                        sum += child_matching
-                            .get_matching_entry(child_left, child_right)
-                            .map_or(0, |matching| matching.score);
-                        result.extend(child_matching);
+                    if let Some(matching_entry) =
+                        child_matchings.get_matching_entry(child_left, child_right)
+                    {
+                        if matching_entry.score >= 1 {
+                            sum += matching_entry.score;
+                            result.extend(child_matchings);
+                        }
                     }
                 }
             }

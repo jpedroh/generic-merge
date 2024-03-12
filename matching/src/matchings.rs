@@ -31,9 +31,15 @@ impl<'a> Matchings<'a> {
     pub fn find_matching_for(&self, a_node: &'a CSTNode) -> Option<Matching> {
         self.matching_entries
             .iter()
-            .find(|(UnorderedPair(left, right), ..)| left == &a_node || right == &a_node)
+            .find(|(UnorderedPair(left, right), ..)| {
+                left.id() == a_node.id() || right.id() == a_node.id()
+            })
             .map(|(UnorderedPair(left, right), matching)| {
-                let matching_node = if left == &a_node { right } else { left };
+                let matching_node = if left.id() == a_node.id() {
+                    right
+                } else {
+                    left
+                };
                 Matching {
                     matching_node,
                     score: matching.score,
@@ -89,6 +95,7 @@ mod tests {
     #[test]
     fn returns_none_if_a_matching_for_the_node_is_not_found() {
         let a_node = CSTNode::Terminal(Terminal {
+            id: uuid::Uuid::new_v4(),
             kind: "kind",
             value: "value",
             start_position: Point { row: 0, column: 0 },
@@ -102,6 +109,7 @@ mod tests {
     #[test]
     fn returns_some_match_if_a_matching_for_the_node_is_found() {
         let a_node = CSTNode::Terminal(Terminal {
+            id: uuid::Uuid::new_v4(),
             kind: "kind",
             value: "value",
             start_position: Point { row: 0, column: 0 },
