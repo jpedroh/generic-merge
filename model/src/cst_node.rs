@@ -1,4 +1,5 @@
-use std::hash::Hash;
+use std::cmp::Ordering;
+use std::hash::{Hash, Hasher};
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Point {
@@ -35,7 +36,7 @@ impl CSTNode<'_> {
     }
 }
 
-#[derive(Debug, Default, PartialEq, Clone, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Default, Clone)]
 pub struct NonTerminal<'a> {
     pub id: uuid::Uuid,
     pub kind: &'a str,
@@ -43,6 +44,32 @@ pub struct NonTerminal<'a> {
     pub start_position: Point,
     pub end_position: Point,
     pub are_children_unordered: bool,
+}
+
+impl<'a> PartialEq for NonTerminal<'a> {
+    fn eq(&self, other: &Self) -> bool {
+        self.id == other.id
+    }
+}
+
+impl<'a> Eq for NonTerminal<'a> {}
+
+impl<'a> PartialOrd for NonTerminal<'a> {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        self.id.partial_cmp(&other.id)
+    }
+}
+
+impl<'a> Ord for NonTerminal<'a> {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.id.cmp(&other.id)
+    }
+}
+
+impl <'a> Hash for NonTerminal<'a> {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.id.hash(state)
+    }
 }
 
 impl NonTerminal<'_> {
@@ -64,7 +91,7 @@ impl<'a> TryFrom<&'a CSTNode<'a>> for &'a NonTerminal<'a> {
     }
 }
 
-#[derive(Debug, Default, PartialEq, Clone, Eq, PartialOrd, Ord, Hash)]
+#[derive(Debug, Default, Clone)]
 pub struct Terminal<'a> {
     pub id: uuid::Uuid,
     pub kind: &'a str,
@@ -72,6 +99,32 @@ pub struct Terminal<'a> {
     pub start_position: Point,
     pub end_position: Point,
     pub is_block_end_delimiter: bool,
+}
+
+impl<'a> PartialEq for Terminal<'a> {
+    fn eq(&self, other: &Self) -> bool {
+        self.id == other.id
+    }
+}
+
+impl<'a> Eq for Terminal<'a> {}
+
+impl<'a> PartialOrd for Terminal<'a> {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        self.id.partial_cmp(&other.id)
+    }
+}
+
+impl<'a> Ord for Terminal<'a> {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.id.cmp(&other.id)
+    }
+}
+
+impl <'a> Hash for Terminal<'a> {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.id.hash(state)
+    }
 }
 
 impl Terminal<'_> {
