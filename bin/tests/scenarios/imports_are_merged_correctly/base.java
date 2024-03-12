@@ -5,6 +5,7 @@ import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import AST.*;
 import de.fosd.jdime.operations.ConflictOperation;
 import de.fosd.jdime.operations.DeleteOperation;
 import de.fosd.jdime.operations.MergeOperation;
