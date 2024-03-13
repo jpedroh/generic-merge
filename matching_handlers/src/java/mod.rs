@@ -36,7 +36,7 @@ pub fn get_default_java_matching_handlers<'a>() -> MatchingHandlers<'a> {
         compute_matching_score_for_class_like_declaration,
     );
     matching_handlers.register(
-        "interface_declaration",
+        "enum_declaration",
         compute_matching_score_for_class_like_declaration,
     );
     matching_handlers
