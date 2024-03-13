@@ -45,7 +45,9 @@ fn extract_argument_types_from_formal_parameters(node: &CSTNode) -> Vec<String> 
         CSTNode::NonTerminal(non_terminal) => non_terminal
             .children
             .iter()
-            .filter(|inner_node| inner_node.kind() == "formal_parameter")
+            .filter(|inner_node| {
+                inner_node.kind() == "formal_parameter" || inner_node.kind() == "spread_parameter"
+            })
             .filter_map(|inner_node| match inner_node {
                 CSTNode::Terminal(_) => None,
                 CSTNode::NonTerminal(non_terminal) => Some(
