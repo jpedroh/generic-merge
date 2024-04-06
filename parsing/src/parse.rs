@@ -43,6 +43,73 @@ fn explore_node<'a>(node: Node, src: &'a str, config: &'a ParserConfiguration) -
     }
 }
 
+fn tweak_import_declarations(root: CSTNode<'_>) -> CSTNode<'_> {
+    match root.kind() {
+        "program" => match root {
+            CSTNode::Terminal(_) => root.to_owned(),
+            CSTNode::NonTerminal(program) => {
+                let import_declaration_children: Vec<CSTNode> = program
+                    .children
+                    .iter()
+                    .filter(|node| node.kind() == "import_declaration")
+                    .cloned()
+                    .collect();
+
+                if import_declaration_children.is_empty() {
+                    return CSTNode::NonTerminal(program);
+                }
+
+                let import_declarations_start = import_declaration_children
+                    .first()
+                    .unwrap()
+                    .start_position();
+
+                let import_declarations_end =
+                    import_declaration_children.last().unwrap().end_position();
+
+                let import_declarations = CSTNode::NonTerminal(NonTerminal {
+                    id: uuid::Uuid::new_v4(),
+                    kind: "import_declarations",
+                    children: import_declaration_children,
+                    start_position: import_declarations_start,
+                    end_position: import_declarations_end,
+                    are_children_unordered: true,
+                });
+
+                let first_import_declaration_index = program
+                    .children
+                    .iter()
+                    .position(|node| node.kind() == "import_declaration")
+                    .unwrap();
+                let last_import_declaration_index = program
+                    .children
+                    .iter()
+                    .rposition(|node| node.kind() == "import_declaration")
+                    .unwrap();
+
+                let mut new_program_children: Vec<CSTNode<'_>> = vec![];
+                new_program_children.extend_from_slice(
+                    &program.children.iter().as_slice()[..first_import_declaration_index],
+                );
+                new_program_children.push(import_declarations);
+                new_program_children.extend_from_slice(
+                    &program.children.iter().as_slice()[last_import_declaration_index + 1..],
+                );
+
+                CSTNode::NonTerminal(NonTerminal {
+                    id: program.id,
+                    kind: program.kind,
+                    start_position: program.start_position,
+                    end_position: program.end_position,
+                    children: new_program_children,
+                    are_children_unordered: false,
+                })
+            }
+        },
+        _ => root.to_owned(),
+    }
+}
+
 pub fn parse_string<'a>(
     src: &'a str,
     config: &'a ParserConfiguration,
@@ -52,9 +119,9 @@ pub fn parse_string<'a>(
         .set_language(config.language)
         .map_err(|_| "There was an error while setting the parser language")?;
 
-    let parsed = parser.parse(src, None);
-    match parsed {
-        Some(parsed) => Result::Ok(explore_node(parsed.root_node(), src, config)),
-        None => Result::Err("It was not possible to parse the tree."),
-    }
+    let parsed = parser
+        .parse(src, None)
+        .ok_or("It was not possible to parse the tree.")?;
+    let root = explore_node(parsed.root_node(), src, config);
+    Ok(tweak_import_declarations(root))
 }
