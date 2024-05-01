@@ -25,7 +25,9 @@ pub fn unordered_tree_matching<'a>(
                 ..
             }),
         ) => {
-            let root_matching: usize = (kind_left == kind_right).into();
+            if kind_left != kind_right {
+                return Matchings::empty();
+            }
 
             let children_matchings = children_left
                 .iter()
@@ -43,7 +45,7 @@ pub fn unordered_tree_matching<'a>(
                 })
                 .collect();
 
-            return solve_assignment_problem(left, right, children_matchings, root_matching);
+            solve_assignment_problem(left, right, children_matchings)
         }
         (_, _) => unreachable!(
             "Unordered matching must never be called if the nodes are not NonTerminals."
@@ -54,8 +56,7 @@ pub fn unordered_tree_matching<'a>(
 fn solve_assignment_problem<'a>(
     left: &'a CSTNode,
     right: &'a CSTNode,
-    children_matchings: Vec<Vec<(usize, Matchings<'a>)>>,
-    root_matching: usize,
+    children_matchings: Vec<Vec<(usize, Matchings<'a>)>>
 ) -> Matchings<'a> {
     let m = children_matchings.len();
     let n = children_matchings[0].len();
@@ -85,7 +86,7 @@ fn solve_assignment_problem<'a>(
     result.extend(Matchings::from_single(
         UnorderedPair(left, right),
         MatchingEntry {
-            score: max_matching as usize + root_matching,
+            score: max_matching as usize + 1,
             is_perfect_match: left.contents() == right.contents(),
         },
     ));
