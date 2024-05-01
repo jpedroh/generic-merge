@@ -35,7 +35,11 @@ pub fn calculate_matchings<'a>(
                     children_right
                         .iter()
                         .map(|right_child| {
-                            let w = crate::calculate_matchings(left_child, right_child, matching_handlers);
+                            let w = crate::calculate_matchings(
+                                left_child,
+                                right_child,
+                                matching_handlers,
+                            );
                             let matching = w
                                 .get_matching_entry(left_child, right_child)
                                 .unwrap_or_default();
@@ -56,7 +60,7 @@ pub fn calculate_matchings<'a>(
 fn solve_assignment_problem<'a>(
     left: &'a CSTNode,
     right: &'a CSTNode,
-    children_matchings: Vec<Vec<(usize, Matchings<'a>)>>
+    children_matchings: Vec<Vec<(usize, Matchings<'a>)>>,
 ) -> Matchings<'a> {
     let m = children_matchings.len();
     let n = children_matchings[0].len();

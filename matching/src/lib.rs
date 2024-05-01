@@ -1,9 +1,8 @@
-mod unordered;
 mod matching;
 mod matching_entry;
 mod matchings;
 mod ordered_tree_matching;
-mod unordered_tree_matching;
+pub mod unordered;
 
 pub use matching_entry::MatchingEntry;
 use matching_handlers::MatchingHandlers;
@@ -11,7 +10,6 @@ pub use matchings::Matchings;
 use model::cst_node::Terminal;
 pub use ordered_tree_matching::ordered_tree_matching;
 use unordered_pair::UnorderedPair;
-pub use unordered_tree_matching::unordered_tree_matching;
 
 pub fn calculate_matchings<'a>(
     left: &'a model::CSTNode,
@@ -25,7 +23,7 @@ pub fn calculate_matchings<'a>(
         ) => {
             if non_terminal_left.are_children_unordered && non_terminal_right.are_children_unordered
             {
-                unordered::assignment_problem::calculate_matchings(left, right, matching_handlers)
+                unordered::calculate_matchings(left, right, matching_handlers)
             } else {
                 ordered_tree_matching::ordered_tree_matching(left, right, matching_handlers)
             }
