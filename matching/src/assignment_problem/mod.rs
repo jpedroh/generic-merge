@@ -1,10 +1,7 @@
 use std::cmp::max;
 
 use matching_handlers::MatchingHandlers;
-use model::{
-    cst_node::{NonTerminal, Terminal},
-    CSTNode,
-};
+use model::{cst_node::NonTerminal, CSTNode};
 use pathfinding::{kuhn_munkres::Weights, matrix};
 use unordered_pair::UnorderedPair;
 
@@ -16,24 +13,6 @@ pub fn unordered_tree_matching<'a>(
     matching_handlers: &'a MatchingHandlers<'a>,
 ) -> crate::Matchings<'a> {
     match (left, right) {
-        (
-            CSTNode::Terminal(Terminal {
-                kind: kind_left,
-                value: value_left,
-                ..
-            }),
-            CSTNode::Terminal(Terminal {
-                kind: kind_right,
-                value: value_right,
-                ..
-            }),
-        ) => {
-            let is_perfetch_match = kind_left == kind_right && value_left == value_right;
-            Matchings::from_single(
-                UnorderedPair(left, right),
-                MatchingEntry::new(is_perfetch_match.into(), is_perfetch_match),
-            )
-        }
         (
             CSTNode::NonTerminal(NonTerminal {
                 kind: kind_left,
@@ -66,7 +45,7 @@ pub fn unordered_tree_matching<'a>(
 
             return solve_assignment_problem(left, right, matchings, root_matching);
         }
-        (_, _) => unreachable!("Invalid configuration reached"),
+        (_, _) => unreachable!("Unordered matching must never be called if the nodes are not NonTerminals."),
     }
 }
 
@@ -90,9 +69,9 @@ fn solve_assignment_problem<'a>(
     let weights_matrix = matrix::Matrix::from_rows(matrix)
         .expect("Could not build weights matrix for assignment problem.");
     let (max_matching, best_matches) = pathfinding::kuhn_munkres::kuhn_munkres(&weights_matrix);
-    
+
     let mut result = Matchings::empty();
-    
+
     for i in 0..best_matches.len() {
         let j = best_matches[i];
         let cur_matching = weights_matrix.at(i, j);
