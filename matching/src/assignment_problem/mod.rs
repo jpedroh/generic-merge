@@ -27,7 +27,7 @@ pub fn unordered_tree_matching<'a>(
         ) => {
             let root_matching: usize = (kind_left == kind_right).into();
 
-            let matchings: Vec<Vec<(usize, Matchings<'a>)>> = children_left
+            let children_matchings = children_left
                 .iter()
                 .map(|left_child| {
                     children_right
@@ -43,9 +43,11 @@ pub fn unordered_tree_matching<'a>(
                 })
                 .collect();
 
-            return solve_assignment_problem(left, right, matchings, root_matching);
+            return solve_assignment_problem(left, right, children_matchings, root_matching);
         }
-        (_, _) => unreachable!("Unordered matching must never be called if the nodes are not NonTerminals."),
+        (_, _) => unreachable!(
+            "Unordered matching must never be called if the nodes are not NonTerminals."
+        ),
     }
 }
 
