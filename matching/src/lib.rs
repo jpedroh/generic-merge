@@ -1,4 +1,4 @@
-mod assignment_problem;
+mod unordered;
 mod matching;
 mod matching_entry;
 mod matchings;
@@ -25,7 +25,7 @@ pub fn calculate_matchings<'a>(
         ) => {
             if non_terminal_left.are_children_unordered && non_terminal_right.are_children_unordered
             {
-                assignment_problem::unordered_tree_matching(left, right, matching_handlers)
+                unordered::assignment_problem::calculate_matchings(left, right, matching_handlers)
             } else {
                 ordered_tree_matching::ordered_tree_matching(left, right, matching_handlers)
             }

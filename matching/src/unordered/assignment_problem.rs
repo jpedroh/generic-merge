@@ -5,9 +5,9 @@ use model::{cst_node::NonTerminal, CSTNode};
 use pathfinding::{kuhn_munkres::Weights, matrix};
 use unordered_pair::UnorderedPair;
 
-use crate::{calculate_matchings, MatchingEntry, Matchings};
+use crate::{MatchingEntry, Matchings};
 
-pub fn unordered_tree_matching<'a>(
+pub fn calculate_matchings<'a>(
     left: &'a CSTNode,
     right: &'a CSTNode,
     matching_handlers: &'a MatchingHandlers<'a>,
@@ -35,7 +35,7 @@ pub fn unordered_tree_matching<'a>(
                     children_right
                         .iter()
                         .map(|right_child| {
-                            let w = calculate_matchings(left_child, right_child, matching_handlers);
+                            let w = crate::calculate_matchings(left_child, right_child, matching_handlers);
                             let matching = w
                                 .get_matching_entry(left_child, right_child)
                                 .unwrap_or_default();
