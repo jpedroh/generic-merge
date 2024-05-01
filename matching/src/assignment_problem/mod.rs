@@ -89,25 +89,22 @@ fn solve_assignment_problem<'a>(
 
     let weights_matrix = matrix::Matrix::from_rows(matrix)
         .expect("Could not build weights matrix for assignment problem.");
-    let (_, best_matches) = pathfinding::kuhn_munkres::kuhn_munkres(&weights_matrix);
-
-    let mut score = 0;
-
+    let (max_matching, best_matches) = pathfinding::kuhn_munkres::kuhn_munkres(&weights_matrix);
+    
     let mut result = Matchings::empty();
-
+    
     for i in 0..best_matches.len() {
         let j = best_matches[i];
         let cur_matching = weights_matrix.at(i, j);
         if cur_matching > 0 {
             result.extend(children_matchings[i][j].1.clone());
-            score += children_matchings[i][j].0;
         }
     }
 
     result.extend(Matchings::from_single(
         UnorderedPair(left, right),
         MatchingEntry {
-            score: score + root_matching,
+            score: max_matching as usize + root_matching,
             is_perfect_match: left.contents() == right.contents(),
         },
     ));
