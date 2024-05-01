@@ -10,7 +10,7 @@ use unordered_pair::UnorderedPair;
 
 use crate::{calculate_matchings, MatchingEntry, Matchings};
 
-pub fn assignment_problem_unordered_tree_matching<'a>(
+pub fn unordered_tree_matching<'a>(
     left: &'a CSTNode,
     right: &'a CSTNode,
     matching_handlers: &'a MatchingHandlers<'a>,
