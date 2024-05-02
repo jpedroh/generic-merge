@@ -1,4 +1,6 @@
-use crate::{calculate_matchings, matching_entry::MatchingEntry, MatchingHandlers, Matchings};
+use crate::{
+    matching_configuration::MatchingConfiguration, matching_entry::MatchingEntry, Matchings,
+};
 use model::{cst_node::NonTerminal, CSTNode};
 use unordered_pair::UnorderedPair;
 
@@ -18,10 +20,10 @@ impl<'a> Default for Entry<'a> {
     }
 }
 
-pub fn ordered_tree_matching<'a>(
+pub fn calculate_matchings<'a>(
     left: &'a CSTNode,
     right: &'a CSTNode,
-    matching_handlers: &'a MatchingHandlers<'a>,
+    config: &'a MatchingConfiguration<'a>,
 ) -> Matchings<'a> {
     match (left, right) {
         (
@@ -34,7 +36,8 @@ pub fn ordered_tree_matching<'a>(
                 ..
             }),
         ) => {
-            let root_matching: usize = matching_handlers
+            let root_matching: usize = config
+                .handlers
                 .compute_matching_score(left, right)
                 .unwrap_or((left.kind() == right.kind()).into());
 
@@ -54,7 +57,7 @@ pub fn ordered_tree_matching<'a>(
                     let left_child = children_left.get(i - 1).unwrap();
                     let right_child = children_right.get(j - 1).unwrap();
 
-                    let w = calculate_matchings(left_child, right_child, matching_handlers);
+                    let w = crate::calculate_matchings(left_child, right_child, config);
                     let matching = w
                         .get_matching_entry(left_child, right_child)
                         .unwrap_or_default();
@@ -113,7 +116,7 @@ mod tests {
     use crate::{matching_entry::MatchingEntry, *};
     use model::{
         cst_node::{NonTerminal, Terminal},
-        language, CSTNode, Point,
+        language, CSTNode, Language, Point,
     };
 
     #[test]
@@ -143,8 +146,8 @@ mod tests {
             children: vec![child.clone()],
         });
 
-        let binding = MatchingHandlers::from(language::Language::Java);
-        let matchings = ordered_tree_matching(&left, &right, &binding);
+        let matching_configuration = MatchingConfiguration::default();
+        let matchings = super::calculate_matchings(&left, &right, &matching_configuration);
 
         assert_eq!(
             Some(&MatchingEntry::new(1, true)),
@@ -188,8 +191,8 @@ mod tests {
             end_position: Point { row: 0, column: 7 },
         });
 
-        let binding = MatchingHandlers::from(language::Language::Java);
-        let matchings = ordered_tree_matching(&left, &right, &binding);
+        let matching_configuration = MatchingConfiguration::from(Language::Java);
+        let matchings = super::calculate_matchings(&left, &right, &matching_configuration);
 
         assert_eq!(
             None,
@@ -233,8 +236,8 @@ mod tests {
             children: vec![common_child.clone(), unique_right_child],
         });
 
-        let binding = MatchingHandlers::from(language::Language::Java);
-        let matchings = ordered_tree_matching(&left, &right, &binding);
+        let matching_configuration = MatchingConfiguration::from(language::Language::Java);
+        let matchings = super::calculate_matchings(&left, &right, &matching_configuration);
 
         assert_eq!(
             Some(&MatchingEntry::new(2, false)),
@@ -270,8 +273,8 @@ mod tests {
             children: vec![common_child.clone()],
         });
 
-        let binding = MatchingHandlers::from(language::Language::Java);
-        let matchings = ordered_tree_matching(&left, &right, &binding);
+        let matching_configuration = MatchingConfiguration::from(language::Language::Java);
+        let matchings = super::calculate_matchings(&left, &right, &matching_configuration);
 
         assert_eq!(
             Some(&MatchingEntry::new(2, true)),
@@ -316,8 +319,8 @@ mod tests {
             children: vec![intermediate.clone()],
         });
 
-        let binding = MatchingHandlers::from(language::Language::Java);
-        let matchings = ordered_tree_matching(&left, &right, &binding);
+        let matching_configuration = MatchingConfiguration::default();
+        let matchings = super::calculate_matchings(&left, &right, &matching_configuration);
 
         assert_eq!(
             Some(&MatchingEntry::new(2, true)),

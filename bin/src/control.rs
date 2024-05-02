@@ -1,5 +1,6 @@
 use std::{error::Error, fmt};
 
+use matching::matching_configuration;
 use parsing::ParserConfiguration;
 
 #[derive(Debug)]
@@ -61,13 +62,13 @@ pub fn run_tool_on_merge_scenario(
     let right_tree = parsing::parse_string(right, &parser_configuration)
         .map_err(ExecutionError::ParsingError)?;
 
-    let matching_handlers = matching_handlers::MatchingHandlers::from(language);
+    let matching_configuration = matching_configuration::MatchingConfiguration::from(language);
     let matchings_left_base =
-        matching::calculate_matchings(&left_tree, &base_tree, &matching_handlers);
+        matching::calculate_matchings(&left_tree, &base_tree, &matching_configuration);
     let matchings_right_base =
-        matching::calculate_matchings(&right_tree, &base_tree, &matching_handlers);
+        matching::calculate_matchings(&right_tree, &base_tree, &matching_configuration);
     let matchings_left_right =
-        matching::calculate_matchings(&left_tree, &right_tree, &matching_handlers);
+        matching::calculate_matchings(&left_tree, &right_tree, &matching_configuration);
 
     let result = merge::merge(
         &base_tree,
