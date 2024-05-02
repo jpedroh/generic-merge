@@ -34,6 +34,20 @@ impl CSTNode<'_> {
             CSTNode::NonTerminal(node) => node.contents(),
         }
     }
+
+    pub fn start_position(&self) -> Point {
+        match self {
+            CSTNode::Terminal(node) => node.start_position,
+            CSTNode::NonTerminal(node) => node.start_position,
+        }
+    }
+
+    pub fn end_position(&self) -> Point {
+        match self {
+            CSTNode::Terminal(node) => node.end_position,
+            CSTNode::NonTerminal(node) => node.end_position,
+        }
+    }
 }
 
 #[derive(Debug, Default, Clone)]
