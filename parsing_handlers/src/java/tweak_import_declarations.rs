@@ -67,3 +67,29 @@ pub fn tweak_import_declarations(root: CSTNode<'_>) -> CSTNode<'_> {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use model::{cst_node::Terminal, CSTNode};
+
+    #[test]
+    fn if_the_root_is_not_a_program_we_just_return_it() {
+        let root = CSTNode::Terminal(Terminal {
+            kind: "terminal",
+            value: "not_a_program",
+            ..Default::default()
+        });
+
+        assert_eq!(super::tweak_import_declarations(root.clone()), root);
+    }
+
+    #[test]
+    fn if_somehow_the_root_is_a_terminal_node_we_just_return_it() {
+        let root = CSTNode::Terminal(Terminal {
+            kind: "program",
+            ..Default::default()
+        });
+
+        assert_eq!(super::tweak_import_declarations(root.clone()), root);
+    }
+}
