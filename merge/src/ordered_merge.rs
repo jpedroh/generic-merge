@@ -228,27 +228,14 @@ mod tests {
         parent_b: &'a CSTNode<'a>,
         expected_merge: &'a MergedCSTNode<'a>,
     ) -> Result<(), MergeError> {
-        let matching_handlers = MatchingHandlers::from(Language::Java);
         let matching_configuration = MatchingConfiguration::from(Language::Java);
 
-        let matchings_base_parent_a = ordered::calculate_matchings(
-            base,
-            parent_a,
-            &matching_handlers,
-            &matching_configuration,
-        );
-        let matchings_base_parent_b = ordered::calculate_matchings(
-            base,
-            parent_b,
-            &matching_handlers,
-            &matching_configuration,
-        );
-        let matchings_parents = ordered::calculate_matchings(
-            parent_a,
-            parent_b,
-            &matching_handlers,
-            &matching_configuration,
-        );
+        let matchings_base_parent_a =
+            ordered::calculate_matchings(base, parent_a, &matching_configuration);
+        let matchings_base_parent_b =
+            ordered::calculate_matchings(base, parent_b, &matching_configuration);
+        let matchings_parents =
+            ordered::calculate_matchings(parent_a, parent_b, &matching_configuration);
 
         let merged_tree = ordered_merge(
             parent_a.try_into().unwrap(),
@@ -277,27 +264,14 @@ mod tests {
         parent_b: &CSTNode,
         expected_merge: &MergedCSTNode,
     ) -> Result<(), MergeError> {
-        let matching_handlers = MatchingHandlers::from(Language::Java);
         let matching_configuration = MatchingConfiguration::from(Language::Java);
 
-        let matchings_base_parent_a = ordered::calculate_matchings(
-            base,
-            parent_a,
-            &matching_handlers,
-            &matching_configuration,
-        );
-        let matchings_base_parent_b = ordered::calculate_matchings(
-            base,
-            parent_b,
-            &matching_handlers,
-            &matching_configuration,
-        );
-        let matchings_parents = ordered::calculate_matchings(
-            parent_a,
-            parent_b,
-            &matching_handlers,
-            &matching_configuration,
-        );
+        let matchings_base_parent_a =
+            ordered::calculate_matchings(base, parent_a, &matching_configuration);
+        let matchings_base_parent_b =
+            ordered::calculate_matchings(base, parent_b, &matching_configuration);
+        let matchings_parents =
+            ordered::calculate_matchings(parent_a, parent_b, &matching_configuration);
 
         let merged_tree = ordered_merge(
             parent_a.try_into().unwrap(),
@@ -670,26 +644,13 @@ mod tests {
             })],
         });
 
-        let matching_handlers = MatchingHandlers::from(Language::Java);
         let matching_configuration = MatchingConfiguration::from(Language::Java);
-        let matchings_base_parent_a = ordered::calculate_matchings(
-            &base,
-            &parent_a,
-            &matching_handlers,
-            &matching_configuration,
-        );
-        let matchings_base_parent_b = ordered::calculate_matchings(
-            &base,
-            &parent_b,
-            &matching_handlers,
-            &matching_configuration,
-        );
-        let matchings_parents = ordered::calculate_matchings(
-            &parent_a,
-            &parent_b,
-            &matching_handlers,
-            &matching_configuration,
-        );
+        let matchings_base_parent_a =
+            ordered::calculate_matchings(&base, &parent_a, &matching_configuration);
+        let matchings_base_parent_b =
+            ordered::calculate_matchings(&base, &parent_b, &matching_configuration);
+        let matchings_parents =
+            ordered::calculate_matchings(&parent_a, &parent_b, &matching_configuration);
 
         let merged_tree = ordered_merge(
             (&parent_a).try_into().unwrap(),

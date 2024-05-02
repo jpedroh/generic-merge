@@ -1,18 +1,20 @@
+use matching_handlers::MatchingHandlers;
 use model::Language;
 use std::collections::HashSet;
 
-pub struct MatchingConfiguration {
+pub struct MatchingConfiguration<'a> {
     pub(crate) delimiters: HashSet<&'static str>,
     pub(crate) kinds_with_label: HashSet<&'static str>,
+    pub(crate) handlers: MatchingHandlers<'a>,
 }
 
-impl Default for MatchingConfiguration {
+impl Default for MatchingConfiguration<'_> {
     fn default() -> Self {
         MatchingConfiguration::from(Language::Java)
     }
 }
 
-impl From<Language> for MatchingConfiguration {
+impl From<Language> for MatchingConfiguration<'_> {
     fn from(language: Language) -> Self {
         match language {
             Language::Java => MatchingConfiguration {
@@ -24,6 +26,7 @@ impl From<Language> for MatchingConfiguration {
                     "method_declaration",
                 ]
                 .into(),
+                handlers: MatchingHandlers::from(Language::Java),
             },
         }
     }

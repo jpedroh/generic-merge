@@ -1,6 +1,5 @@
 use std::cmp::max;
 
-use matching_handlers::MatchingHandlers;
 use model::{cst_node::NonTerminal, CSTNode};
 use pathfinding::{kuhn_munkres::Weights, matrix};
 use unordered_pair::UnorderedPair;
@@ -8,10 +7,9 @@ use unordered_pair::UnorderedPair;
 use crate::{matching_configuration::MatchingConfiguration, MatchingEntry, Matchings};
 
 pub fn calculate_matchings<'a>(
-    left: &'a CSTNode,
-    right: &'a CSTNode,
-    matching_handlers: &'a MatchingHandlers<'a>,
-    matching_configuration: &'a MatchingConfiguration,
+    left: &'a CSTNode<'a>,
+    right: &'a CSTNode<'a>,
+    config: &'a MatchingConfiguration<'a>,
 ) -> crate::Matchings<'a> {
     match (left, right) {
         (
@@ -36,12 +34,7 @@ pub fn calculate_matchings<'a>(
                     children_right
                         .iter()
                         .map(|right_child| {
-                            let w = crate::calculate_matchings(
-                                left_child,
-                                right_child,
-                                matching_handlers,
-                                matching_configuration,
-                            );
+                            let w = crate::calculate_matchings(left_child, right_child, config);
                             let matching = w
                                 .get_matching_entry(left_child, right_child)
                                 .unwrap_or_default();
