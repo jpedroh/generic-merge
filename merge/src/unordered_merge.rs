@@ -138,7 +138,11 @@ pub fn unordered_merge<'a>(
 
 #[cfg(test)]
 mod tests {
-    use matching::{unordered::calculate_matchings, Matchings};
+    use matching::{
+        matching_configuration::{self, MatchingConfiguration},
+        unordered::calculate_matchings,
+        Matchings,
+    };
     use matching_handlers::MatchingHandlers;
     use model::{
         cst_node::{NonTerminal, Terminal},
@@ -156,10 +160,18 @@ mod tests {
         expected_merge: &MergedCSTNode,
     ) -> Result<(), MergeError> {
         let matching_handlers = MatchingHandlers::from(Language::Java);
+        let matching_configuration = MatchingConfiguration::from(Language::Java);
 
-        let matchings_base_parent_a = calculate_matchings(base, parent_a, &matching_handlers);
-        let matchings_base_parent_b = calculate_matchings(base, parent_b, &matching_handlers);
-        let matchings_parents = calculate_matchings(parent_a, parent_b, &matching_handlers);
+        let matchings_base_parent_a =
+            calculate_matchings(base, parent_a, &matching_handlers, &matching_configuration);
+        let matchings_base_parent_b =
+            calculate_matchings(base, parent_b, &matching_handlers, &matching_configuration);
+        let matchings_parents = calculate_matchings(
+            parent_a,
+            parent_b,
+            &matching_handlers,
+            &matching_configuration,
+        );
 
         let merged_tree = unordered_merge(
             parent_a.try_into().unwrap(),
@@ -189,10 +201,18 @@ mod tests {
         expected_merge: &MergedCSTNode,
     ) -> Result<(), MergeError> {
         let matching_handlers = MatchingHandlers::from(Language::Java);
+        let matching_configuration = MatchingConfiguration::from(Language::Java);
 
-        let matchings_base_parent_a = calculate_matchings(base, parent_a, &matching_handlers);
-        let matchings_base_parent_b = calculate_matchings(base, parent_b, &matching_handlers);
-        let matchings_parents = calculate_matchings(parent_a, parent_b, &matching_handlers);
+        let matchings_base_parent_a =
+            calculate_matchings(base, parent_a, &matching_handlers, &matching_configuration);
+        let matchings_base_parent_b =
+            calculate_matchings(base, parent_b, &matching_handlers, &matching_configuration);
+        let matchings_parents = calculate_matchings(
+            parent_a,
+            parent_b,
+            &matching_handlers,
+            &matching_configuration,
+        );
 
         let merged_tree = unordered_merge(
             parent_a.try_into().unwrap(),

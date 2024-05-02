@@ -5,12 +5,13 @@ use model::{cst_node::NonTerminal, CSTNode};
 use pathfinding::{kuhn_munkres::Weights, matrix};
 use unordered_pair::UnorderedPair;
 
-use crate::{MatchingEntry, Matchings};
+use crate::{matching_configuration::MatchingConfiguration, MatchingEntry, Matchings};
 
 pub fn calculate_matchings<'a>(
     left: &'a CSTNode,
     right: &'a CSTNode,
     matching_handlers: &'a MatchingHandlers<'a>,
+    matching_configuration: &'a MatchingConfiguration,
 ) -> crate::Matchings<'a> {
     match (left, right) {
         (
@@ -39,6 +40,7 @@ pub fn calculate_matchings<'a>(
                                 left_child,
                                 right_child,
                                 matching_handlers,
+                                matching_configuration,
                             );
                             let matching = w
                                 .get_matching_entry(left_child, right_child)

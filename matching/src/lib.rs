@@ -1,9 +1,11 @@
 mod matching;
+pub mod matching_configuration;
 mod matching_entry;
 mod matchings;
 pub mod ordered;
 pub mod unordered;
 
+use matching_configuration::MatchingConfiguration;
 pub use matching_entry::MatchingEntry;
 use matching_handlers::MatchingHandlers;
 pub use matchings::Matchings;
@@ -14,6 +16,7 @@ pub fn calculate_matchings<'a>(
     left: &'a model::CSTNode,
     right: &'a model::CSTNode,
     matching_handlers: &'a MatchingHandlers<'a>,
+    matching_configuration: &'a MatchingConfiguration,
 ) -> Matchings<'a> {
     match (left, right) {
         (
@@ -22,9 +25,14 @@ pub fn calculate_matchings<'a>(
         ) => {
             if non_terminal_left.are_children_unordered && non_terminal_right.are_children_unordered
             {
-                unordered::calculate_matchings(left, right, matching_handlers)
+                unordered::calculate_matchings(
+                    left,
+                    right,
+                    matching_handlers,
+                    matching_configuration,
+                )
             } else {
-                ordered::calculate_matchings(left, right, matching_handlers)
+                ordered::calculate_matchings(left, right, matching_handlers, matching_configuration)
             }
         }
         (
@@ -54,7 +62,9 @@ mod tests {
     use matching_handlers::MatchingHandlers;
     use model::{cst_node::Terminal, CSTNode, Language, Point};
 
-    use crate::{calculate_matchings, MatchingEntry};
+    use crate::{
+        calculate_matchings, matching_configuration::MatchingConfiguration, MatchingEntry,
+    };
 
     #[test]
     fn two_terminal_nodes_matches_with_a_score_of_one_if_they_have_the_same_kind_and_value() {
@@ -76,7 +86,8 @@ mod tests {
         });
 
         let binding = MatchingHandlers::from(Language::Java);
-        let matchings = calculate_matchings(&left, &right, &binding);
+        let matching_configuration = MatchingConfiguration::default();
+        let matchings = calculate_matchings(&left, &right, &binding, &matching_configuration);
 
         assert_eq!(
             Some(&MatchingEntry::new(1, true)),
@@ -104,7 +115,8 @@ mod tests {
         });
 
         let binding = MatchingHandlers::from(Language::Java);
-        let matchings = calculate_matchings(&left, &right, &binding);
+        let matching_configuration = MatchingConfiguration::default();
+        let matchings = calculate_matchings(&left, &right, &binding, &matching_configuration);
 
         assert_eq!(
             Some(&MatchingEntry::new(0, false)),
@@ -132,7 +144,8 @@ mod tests {
         });
 
         let binding = MatchingHandlers::from(Language::Java);
-        let matchings = calculate_matchings(&left, &right, &binding);
+        let matching_configuration = MatchingConfiguration::default();
+        let matchings = calculate_matchings(&left, &right, &binding, &matching_configuration);
 
         assert_eq!(
             Some(&MatchingEntry::new(0, false)),
@@ -160,7 +173,8 @@ mod tests {
         });
 
         let binding = MatchingHandlers::from(Language::Java);
-        let matchings = calculate_matchings(&left, &right, &binding);
+        let matching_configuration = MatchingConfiguration::default();
+        let matchings = calculate_matchings(&left, &right, &binding, &matching_configuration);
 
         assert_eq!(
             Some(&MatchingEntry::new(0, false)),
