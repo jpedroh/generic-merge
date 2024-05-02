@@ -1,4 +1,5 @@
 use model::Language;
+use parsing_handlers::ParsingHandlers;
 use std::collections::HashSet;
 
 pub struct ParserConfiguration {
@@ -6,6 +7,7 @@ pub struct ParserConfiguration {
     pub(crate) stop_compilation_at: HashSet<&'static str>,
     pub(crate) kinds_with_unordered_children: HashSet<&'static str>,
     pub(crate) block_end_delimiters: HashSet<&'static str>,
+    pub(crate) handlers: ParsingHandlers,
 }
 
 impl From<Language> for ParserConfiguration {
@@ -21,6 +23,7 @@ impl From<Language> for ParserConfiguration {
                 ]
                 .into(),
                 block_end_delimiters: ["}"].into(),
+                handlers: ParsingHandlers::from(Language::Java),
             },
         }
     }

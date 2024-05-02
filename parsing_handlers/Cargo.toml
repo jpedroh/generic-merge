@@ -1,14 +1,11 @@
 [package]
-name = "parsing"
+name = "parsing_handlers"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-tree-sitter = "0.20.9"
-tree-sitter-java = "0.20.0"
 model = { path = "../model" }
-parsing_handlers = { path = "../parsing_handlers" }
 log = { workspace = true }
 uuid = { workspace = true }
