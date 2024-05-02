@@ -211,7 +211,7 @@ pub fn ordered_merge<'a>(
 mod tests {
     use std::vec;
 
-    use matching::{ordered_tree_matching, Matchings};
+    use matching::{ordered, Matchings};
     use matching_handlers::MatchingHandlers;
     use model::{cst_node::NonTerminal, cst_node::Terminal, CSTNode, Language, Point};
 
@@ -227,9 +227,12 @@ mod tests {
     ) -> Result<(), MergeError> {
         let matching_handlers = MatchingHandlers::from(Language::Java);
 
-        let matchings_base_parent_a = ordered_tree_matching(base, parent_a, &matching_handlers);
-        let matchings_base_parent_b = ordered_tree_matching(base, parent_b, &matching_handlers);
-        let matchings_parents = ordered_tree_matching(parent_a, parent_b, &matching_handlers);
+        let matchings_base_parent_a =
+            ordered::calculate_matchings(base, parent_a, &matching_handlers);
+        let matchings_base_parent_b =
+            ordered::calculate_matchings(base, parent_b, &matching_handlers);
+        let matchings_parents =
+            ordered::calculate_matchings(parent_a, parent_b, &matching_handlers);
 
         let merged_tree = ordered_merge(
             parent_a.try_into().unwrap(),
@@ -260,9 +263,12 @@ mod tests {
     ) -> Result<(), MergeError> {
         let matching_handlers = MatchingHandlers::from(Language::Java);
 
-        let matchings_base_parent_a = ordered_tree_matching(base, parent_a, &matching_handlers);
-        let matchings_base_parent_b = ordered_tree_matching(base, parent_b, &matching_handlers);
-        let matchings_parents = ordered_tree_matching(parent_a, parent_b, &matching_handlers);
+        let matchings_base_parent_a =
+            ordered::calculate_matchings(base, parent_a, &matching_handlers);
+        let matchings_base_parent_b =
+            ordered::calculate_matchings(base, parent_b, &matching_handlers);
+        let matchings_parents =
+            ordered::calculate_matchings(parent_a, parent_b, &matching_handlers);
 
         let merged_tree = ordered_merge(
             parent_a.try_into().unwrap(),
@@ -636,9 +642,12 @@ mod tests {
         });
 
         let matching_handlers = MatchingHandlers::from(Language::Java);
-        let matchings_base_parent_a = ordered_tree_matching(&base, &parent_a, &matching_handlers);
-        let matchings_base_parent_b = ordered_tree_matching(&base, &parent_b, &matching_handlers);
-        let matchings_parents = ordered_tree_matching(&parent_a, &parent_b, &matching_handlers);
+        let matchings_base_parent_a =
+            ordered::calculate_matchings(&base, &parent_a, &matching_handlers);
+        let matchings_base_parent_b =
+            ordered::calculate_matchings(&base, &parent_b, &matching_handlers);
+        let matchings_parents =
+            ordered::calculate_matchings(&parent_a, &parent_b, &matching_handlers);
 
         let merged_tree = ordered_merge(
             (&parent_a).try_into().unwrap(),

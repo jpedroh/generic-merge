@@ -1,14 +1,13 @@
 mod matching;
 mod matching_entry;
 mod matchings;
-mod ordered_tree_matching;
+pub mod ordered;
 pub mod unordered;
 
 pub use matching_entry::MatchingEntry;
 use matching_handlers::MatchingHandlers;
 pub use matchings::Matchings;
 use model::cst_node::Terminal;
-pub use ordered_tree_matching::ordered_tree_matching;
 use unordered_pair::UnorderedPair;
 
 pub fn calculate_matchings<'a>(
@@ -25,7 +24,7 @@ pub fn calculate_matchings<'a>(
             {
                 unordered::calculate_matchings(left, right, matching_handlers)
             } else {
-                ordered_tree_matching::ordered_tree_matching(left, right, matching_handlers)
+                ordered::calculate_matchings(left, right, matching_handlers)
             }
         }
         (

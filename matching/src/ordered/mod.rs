@@ -1,4 +1,4 @@
-use crate::{calculate_matchings, matching_entry::MatchingEntry, MatchingHandlers, Matchings};
+use crate::{matching_entry::MatchingEntry, MatchingHandlers, Matchings};
 use model::{cst_node::NonTerminal, CSTNode};
 use unordered_pair::UnorderedPair;
 
@@ -18,7 +18,7 @@ impl<'a> Default for Entry<'a> {
     }
 }
 
-pub fn ordered_tree_matching<'a>(
+pub fn calculate_matchings<'a>(
     left: &'a CSTNode,
     right: &'a CSTNode,
     matching_handlers: &'a MatchingHandlers<'a>,
@@ -54,7 +54,7 @@ pub fn ordered_tree_matching<'a>(
                     let left_child = children_left.get(i - 1).unwrap();
                     let right_child = children_right.get(j - 1).unwrap();
 
-                    let w = calculate_matchings(left_child, right_child, matching_handlers);
+                    let w = crate::calculate_matchings(left_child, right_child, matching_handlers);
                     let matching = w
                         .get_matching_entry(left_child, right_child)
                         .unwrap_or_default();
@@ -144,7 +144,7 @@ mod tests {
         });
 
         let binding = MatchingHandlers::from(language::Language::Java);
-        let matchings = ordered_tree_matching(&left, &right, &binding);
+        let matchings = super::calculate_matchings(&left, &right, &binding);
 
         assert_eq!(
             Some(&MatchingEntry::new(1, true)),
@@ -189,7 +189,7 @@ mod tests {
         });
 
         let binding = MatchingHandlers::from(language::Language::Java);
-        let matchings = ordered_tree_matching(&left, &right, &binding);
+        let matchings = super::calculate_matchings(&left, &right, &binding);
 
         assert_eq!(
             None,
@@ -234,7 +234,7 @@ mod tests {
         });
 
         let binding = MatchingHandlers::from(language::Language::Java);
-        let matchings = ordered_tree_matching(&left, &right, &binding);
+        let matchings = super::calculate_matchings(&left, &right, &binding);
 
         assert_eq!(
             Some(&MatchingEntry::new(2, false)),
@@ -271,7 +271,7 @@ mod tests {
         });
 
         let binding = MatchingHandlers::from(language::Language::Java);
-        let matchings = ordered_tree_matching(&left, &right, &binding);
+        let matchings = super::calculate_matchings(&left, &right, &binding);
 
         assert_eq!(
             Some(&MatchingEntry::new(2, true)),
@@ -317,7 +317,7 @@ mod tests {
         });
 
         let binding = MatchingHandlers::from(language::Language::Java);
-        let matchings = ordered_tree_matching(&left, &right, &binding);
+        let matchings = super::calculate_matchings(&left, &right, &binding);
 
         assert_eq!(
             Some(&MatchingEntry::new(2, true)),
