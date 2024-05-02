@@ -413,8 +413,18 @@ version = "0.1.0"
 dependencies = [
  "log",
  "model",
+ "parsing_handlers",
  "tree-sitter",
  "tree-sitter-java",
+ "uuid",
+]
+
+[[package]]
+name = "parsing_handlers"
+version = "0.1.0"
+dependencies = [
+ "log",
+ "model",
  "uuid",
 ]
 

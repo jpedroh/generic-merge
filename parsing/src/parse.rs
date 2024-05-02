@@ -52,9 +52,9 @@ pub fn parse_string<'a>(
         .set_language(config.language)
         .map_err(|_| "There was an error while setting the parser language")?;
 
-    let parsed = parser.parse(src, None);
-    match parsed {
-        Some(parsed) => Result::Ok(explore_node(parsed.root_node(), src, config)),
-        None => Result::Err("It was not possible to parse the tree."),
-    }
+    let parsed = parser
+        .parse(src, None)
+        .ok_or("It was not possible to parse the tree.")?;
+    let root = explore_node(parsed.root_node(), src, config);
+    Ok(config.handlers.run(root))
 }
