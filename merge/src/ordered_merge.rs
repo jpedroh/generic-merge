@@ -211,11 +211,7 @@ pub fn ordered_merge<'a>(
 mod tests {
     use std::vec;
 
-    use matching::{
-        matching_configuration::{self, MatchingConfiguration},
-        ordered, Matchings,
-    };
-    use matching_handlers::MatchingHandlers;
+    use matching::{matching_configuration::MatchingConfiguration, ordered, Matchings};
     use model::{cst_node::NonTerminal, cst_node::Terminal, CSTNode, Language, Point};
 
     use crate::{MergeError, MergedCSTNode};

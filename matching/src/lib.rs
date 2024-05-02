@@ -52,8 +52,7 @@ pub fn calculate_matchings<'a>(
 
 #[cfg(test)]
 mod tests {
-    use matching_handlers::MatchingHandlers;
-    use model::{cst_node::Terminal, CSTNode, Language, Point};
+    use model::{cst_node::Terminal, CSTNode, Point};
 
     use crate::{
         calculate_matchings, matching_configuration::MatchingConfiguration, MatchingEntry,
@@ -78,7 +77,6 @@ mod tests {
             is_block_end_delimiter: false,
         });
 
-        let binding = MatchingHandlers::from(Language::Java);
         let matching_configuration = MatchingConfiguration::default();
         let matchings = calculate_matchings(&left, &right, &matching_configuration);
 
@@ -107,7 +105,6 @@ mod tests {
             is_block_end_delimiter: false,
         });
 
-        let binding = MatchingHandlers::from(Language::Java);
         let matching_configuration = MatchingConfiguration::default();
         let matchings = calculate_matchings(&left, &right, &matching_configuration);
 
@@ -136,7 +133,6 @@ mod tests {
             is_block_end_delimiter: false,
         });
 
-        let binding = MatchingHandlers::from(Language::Java);
         let matching_configuration = MatchingConfiguration::default();
         let matchings = calculate_matchings(&left, &right, &matching_configuration);
 
@@ -165,7 +161,6 @@ mod tests {
             is_block_end_delimiter: false,
         });
 
-        let binding = MatchingHandlers::from(Language::Java);
         let matching_configuration = MatchingConfiguration::default();
         let matchings = calculate_matchings(&left, &right, &matching_configuration);
 

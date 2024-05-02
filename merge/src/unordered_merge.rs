@@ -139,11 +139,8 @@ pub fn unordered_merge<'a>(
 #[cfg(test)]
 mod tests {
     use matching::{
-        matching_configuration::{self, MatchingConfiguration},
-        unordered::calculate_matchings,
-        Matchings,
+        matching_configuration::MatchingConfiguration, unordered::calculate_matchings, Matchings,
     };
-    use matching_handlers::MatchingHandlers;
     use model::{
         cst_node::{NonTerminal, Terminal},
         CSTNode, Language, Point,
@@ -159,7 +156,6 @@ mod tests {
         parent_b: &CSTNode,
         expected_merge: &MergedCSTNode,
     ) -> Result<(), MergeError> {
-        let matching_handlers = MatchingHandlers::from(Language::Java);
         let matching_configuration = MatchingConfiguration::from(Language::Java);
 
         let matchings_base_parent_a = calculate_matchings(base, parent_a, &matching_configuration);
