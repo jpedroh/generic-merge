@@ -12,10 +12,18 @@ pub fn calculate_matchings<'a>(
     match (left, right) {
         (model::CSTNode::NonTerminal(left_nt), model::CSTNode::NonTerminal(right_nt)) => {
             if all_children_labeled(left_nt, config) && all_children_labeled(right_nt, config) {
-                log::debug!("Using unique label matching.");
+                log::debug!(
+                    "Matching children of \"{}\" with \"{}\" using unique label matching.",
+                    left.kind(),
+                    right.kind()
+                );
                 unique_label::calculate_matchings(left, right, config)
             } else {
-                log::debug!("Using assignment problem matching.");
+                log::debug!(
+                    "Matching children of \"{}\" with \"{}\" using assignment problem matching.",
+                    left.kind(),
+                    right.kind()
+                );
                 assignment_problem::calculate_matchings(left, right, config)
             }
         }

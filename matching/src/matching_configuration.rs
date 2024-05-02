@@ -24,6 +24,7 @@ impl From<Language> for MatchingConfiguration<'_> {
                     "constructor_declaration",
                     "field_declaration",
                     "method_declaration",
+                    "import_declaration",
                 ]
                 .into(),
                 handlers: MatchingHandlers::from(Language::Java),
