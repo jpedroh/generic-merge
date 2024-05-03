@@ -6,7 +6,7 @@ use crate::{matching_configuration::MatchingConfiguration, MatchingEntry, Matchi
 pub fn calculate_matchings<'a>(
     left: &'a CSTNode,
     right: &'a CSTNode,
-    matching_configuration: &'a MatchingConfiguration<'a>,
+    config: &'a MatchingConfiguration<'a>,
 ) -> crate::Matchings<'a> {
     match (left, right) {
         (
@@ -28,15 +28,30 @@ pub fn calculate_matchings<'a>(
 
             for child_left in children_left {
                 for child_right in children_right {
-                    let child_matchings =
-                        crate::calculate_matchings(child_left, child_right, matching_configuration);
+                    let is_same_identifier = config
+                        .handlers
+                        .compute_matching_score(child_left, child_right)
+                        .unwrap_or_else(|| {
+                            log::warn!(
+                                "Could not find an identifier while matching {} {}",
+                                child_left.contents(),
+                                child_right.contents()
+                            );
 
-                    if let Some(matching_entry) =
-                        child_matchings.get_matching_entry(child_left, child_right)
-                    {
-                        if matching_entry.score >= 1 {
-                            sum += matching_entry.score;
-                            result.extend(child_matchings);
+                            (child_left.kind() == child_right.kind()).into()
+                        });
+
+                    if is_same_identifier == 1 {
+                        let child_matchings =
+                            crate::calculate_matchings(child_left, child_right, config);
+
+                        if let Some(matching_entry) =
+                            child_matchings.get_matching_entry(child_left, child_right)
+                        {
+                            if matching_entry.score >= 1 {
+                                sum += matching_entry.score;
+                                result.extend(child_matchings);
+                            }
                         }
                     }
                 }

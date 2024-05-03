@@ -16,6 +16,10 @@ pub fn calculate_matchings<'a>(
     right: &'a model::CSTNode,
     config: &'a MatchingConfiguration<'a>,
 ) -> Matchings<'a> {
+    if left.kind() != right.kind() {
+        return Matchings::empty();
+    }
+
     match (left, right) {
         (
             model::CSTNode::NonTerminal(non_terminal_left),
@@ -100,62 +104,6 @@ mod tests {
             id: uuid::Uuid::new_v4(),
             kind: "kind",
             value: "value_b",
-            start_position: Point { row: 0, column: 0 },
-            end_position: Point { row: 0, column: 7 },
-            is_block_end_delimiter: false,
-        });
-
-        let matching_configuration = MatchingConfiguration::default();
-        let matchings = calculate_matchings(&left, &right, &matching_configuration);
-
-        assert_eq!(
-            Some(&MatchingEntry::new(0, false)),
-            matchings.get_matching_entry(&left, &right)
-        )
-    }
-
-    #[test]
-    fn two_terminal_nodes_have_a_match_with_score_zero_if_they_have_different_kind() {
-        let left = CSTNode::Terminal(Terminal {
-            id: uuid::Uuid::new_v4(),
-            kind: "kind_a",
-            value: "value",
-            start_position: Point { row: 0, column: 0 },
-            end_position: Point { row: 0, column: 5 },
-            is_block_end_delimiter: false,
-        });
-        let right = CSTNode::Terminal(Terminal {
-            id: uuid::Uuid::new_v4(),
-            kind: "kind_b",
-            value: "value",
-            start_position: Point { row: 0, column: 0 },
-            end_position: Point { row: 0, column: 5 },
-            is_block_end_delimiter: false,
-        });
-
-        let matching_configuration = MatchingConfiguration::default();
-        let matchings = calculate_matchings(&left, &right, &matching_configuration);
-
-        assert_eq!(
-            Some(&MatchingEntry::new(0, false)),
-            matchings.get_matching_entry(&left, &right)
-        )
-    }
-
-    #[test]
-    fn two_terminal_nodes_have_a_match_with_score_zero_if_they_have_different_kind_and_value() {
-        let left = CSTNode::Terminal(Terminal {
-            id: uuid::Uuid::new_v4(),
-            kind: "kind_a",
-            value: "value_a",
-            start_position: Point { row: 0, column: 0 },
-            end_position: Point { row: 0, column: 7 },
-            is_block_end_delimiter: false,
-        });
-        let right = CSTNode::Terminal(Terminal {
-            id: uuid::Uuid::new_v4(),
-            kind: "kind_b",
-            value: "value_a",
             start_position: Point { row: 0, column: 0 },
             end_position: Point { row: 0, column: 7 },
             is_block_end_delimiter: false,

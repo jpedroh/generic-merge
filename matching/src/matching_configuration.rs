@@ -18,13 +18,15 @@ impl From<Language> for MatchingConfiguration<'_> {
     fn from(language: Language) -> Self {
         match language {
             Language::Java => MatchingConfiguration {
-                delimiters: ["{", "}"].into(),
+                delimiters: ["{", "}", ";"].into(),
                 kinds_with_label: [
                     "compact_constructor_declaration",
                     "constructor_declaration",
                     "field_declaration",
                     "method_declaration",
                     "import_declaration",
+                    "class_declaration",
+                    "interface_declaration",
                 ]
                 .into(),
                 handlers: MatchingHandlers::from(Language::Java),

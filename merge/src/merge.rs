@@ -15,6 +15,18 @@ pub fn merge<'a>(
     base_right_matchings: &'a Matchings<'a>,
     left_right_matchings: &'a Matchings<'a>,
 ) -> Result<MergedCSTNode<'a>, MergeError> {
+    if left.kind() != right.kind() {
+        log::debug!(
+            "Error while merging\n left: {}\n right:{}",
+            left.contents(),
+            right.contents()
+        );
+        return Err(MergeError::NodesWithDifferentKinds(
+            left.kind().to_string(),
+            right.kind().to_string(),
+        ));
+    }
+
     match (base, left, right) {
         (CSTNode::Terminal(a_base), CSTNode::Terminal(a_left), CSTNode::Terminal(a_right)) => {
             merge_terminals(a_base, a_left, a_right)
@@ -38,7 +50,14 @@ pub fn merge<'a>(
                 )?)
             }
         }
-        (_, _, _) => Err(MergeError::MergingTerminalWithNonTerminal),
+        (_, _, _) => {
+            log::debug!(
+                "Error while merging NonTerminal with Terminal {} and {}",
+                left.contents(),
+                right.contents()
+            );
+            Err(MergeError::MergingTerminalWithNonTerminal)
+        }
     }
 }
 

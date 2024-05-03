@@ -41,11 +41,6 @@ pub fn calculate_matchings<'a>(
                 .compute_matching_score(left, right)
                 .unwrap_or((left.kind() == right.kind()).into());
 
-            // Node roots do not match, early return
-            if root_matching == 0 {
-                return Matchings::empty();
-            }
-
             let m = children_left.len();
             let n = children_right.len();
 
