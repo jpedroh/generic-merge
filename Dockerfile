@@ -6,5 +6,5 @@ COPY . .
 RUN cargo build --locked --release
 
 FROM alpine:3.14
-
-COPY --from=build /usr/src/generic-merge/target /usr/local/bin
+COPY --from=build /usr/src/generic-merge/target/release/* /usr/local/bin
+ENTRYPOINT [ "/usr/local/bin/generic-merge" ]
