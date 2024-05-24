@@ -5,4 +5,6 @@ WORKDIR /usr/src/generic-merge
 COPY . . 
 RUN cargo build --locked --release
 
-CMD ["./target/release/generic-merge"]
+FROM alpine:3.14
+
+COPY --from=build /usr/src/generic-merge/target /usr/local/bin
