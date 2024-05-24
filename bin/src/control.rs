@@ -1,4 +1,7 @@
-use std::{error::Error, fmt};
+use std::{
+    error::Error,
+    fmt::{self, Display},
+};
 
 use matching::matching_configuration;
 use parsing::ParserConfiguration;
@@ -30,11 +33,11 @@ pub enum ExecutionResult {
     WithoutConflicts(String),
 }
 
-impl ToString for ExecutionResult {
-    fn to_string(&self) -> String {
+impl Display for ExecutionResult {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            ExecutionResult::WithConflicts(value) => value.to_owned(),
-            ExecutionResult::WithoutConflicts(value) => value.to_owned(),
+            ExecutionResult::WithConflicts(value) => write!(f, "{}", value),
+            ExecutionResult::WithoutConflicts(value) => write!(f, "{}", value),
         }
     }
 }
