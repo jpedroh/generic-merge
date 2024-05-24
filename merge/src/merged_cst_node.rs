@@ -62,12 +62,9 @@ impl Display for MergedCSTNode<'_> {
                 write!(f, "{}", result)
             }
             MergedCSTNode::Conflict { left, right } => match (left, right) {
-                (Some(left), Some(right)) => write!(
-                    f,
-                    "<<<<<<<<< {} ========= {} >>>>>>>>>",
-                    left,
-                    right
-                ),
+                (Some(left), Some(right)) => {
+                    write!(f, "<<<<<<<<< {} ========= {} >>>>>>>>>", left, right)
+                }
                 (Some(left), None) => {
                     write!(f, "<<<<<<<<< {} ========= >>>>>>>>>", left)
                 }
