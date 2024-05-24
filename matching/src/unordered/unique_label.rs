@@ -31,15 +31,7 @@ pub fn calculate_matchings<'a>(
                     let is_same_identifier = config
                         .handlers
                         .compute_matching_score(child_left, child_right)
-                        .unwrap_or_else(|| {
-                            log::warn!(
-                                "Could not find an identifier while matching {} {}",
-                                child_left.contents(),
-                                child_right.contents()
-                            );
-
-                            (child_left.kind() == child_right.kind()).into()
-                        });
+                        .unwrap_or_else(|| (child_left.kind() == child_right.kind()).into());
 
                     if is_same_identifier == 1 {
                         let child_matchings =
