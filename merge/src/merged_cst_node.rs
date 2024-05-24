@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use model::{
     cst_node::{NonTerminal, Terminal},
     CSTNode,
@@ -45,30 +47,32 @@ impl<'a> From<Terminal<'a>> for MergedCSTNode<'a> {
     }
 }
 
-impl ToString for MergedCSTNode<'_> {
-    fn to_string(&self) -> String {
+impl Display for MergedCSTNode<'_> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            MergedCSTNode::Terminal { value, .. } => value.to_string(),
+            MergedCSTNode::Terminal { value, .. } => write!(f, "{}", value),
             MergedCSTNode::NonTerminal { children, .. } => {
-                children.iter().fold(String::new(), |acc, current| {
+                let result = children.iter().fold(String::new(), |acc, current| {
                     let mut result = acc.to_owned();
                     result.push(' ');
                     result.push_str(&current.clone().to_string());
                     result
-                })
+                });
+
+                write!(f, "{}", result)
             }
             MergedCSTNode::Conflict { left, right } => match (left, right) {
-                (Some(left), Some(right)) => format!(
+                (Some(left), Some(right)) => write!(
+                    f,
                     "<<<<<<<<< {} ========= {} >>>>>>>>>",
-                    left.to_string(),
-                    right.to_string()
-                )
-                .to_string(),
+                    left,
+                    right
+                ),
                 (Some(left), None) => {
-                    format!("<<<<<<<<< {} ========= >>>>>>>>>", left.to_string()).to_string()
+                    write!(f, "<<<<<<<<< {} ========= >>>>>>>>>", left)
                 }
                 (None, Some(right)) => {
-                    format!("<<<<<<<<< ========= {} >>>>>>>>>", right.to_string()).to_string()
+                    write!(f, "<<<<<<<<< ========= {} >>>>>>>>>", right)
                 }
                 (None, None) => panic!("Invalid conflict provided"),
             },
