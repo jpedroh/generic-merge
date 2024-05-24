@@ -62,7 +62,7 @@ mod tests {
             children: vec![model::CSTNode::NonTerminal(model::cst_node::NonTerminal {
                 kind: "scoped_identifier",
                 children: resource
-                    .split(".")
+                    .split('.')
                     .map(|part| {
                         model::CSTNode::Terminal(model::cst_node::Terminal {
                             kind: "identifier",
