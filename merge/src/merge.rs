@@ -8,7 +8,6 @@ use model::CSTNode;
 use crate::merged_cst_node::MergedCSTNode;
 
 pub fn merge<'a>(
-    base: &'a CSTNode<'a>,
     left: &'a CSTNode<'a>,
     right: &'a CSTNode<'a>,
     base_left_matchings: &'a Matchings<'a>,
@@ -27,11 +26,22 @@ pub fn merge<'a>(
         ));
     }
 
-    match (base, left, right) {
-        (CSTNode::Terminal(a_base), CSTNode::Terminal(a_left), CSTNode::Terminal(a_right)) => {
-            merge_terminals(a_base, a_left, a_right)
+    match (left, right) {
+        (CSTNode::Terminal(a_left), CSTNode::Terminal(a_right)) => {
+            let matching_base_left = base_left_matchings.find_matching_for(left);
+            let matching_base_right = base_right_matchings.find_matching_for(right);
+            assert_eq!(matching_base_left, matching_base_right);
+
+            let base = matching_base_left
+                .map(|matching| matching.matching_node)
+                .and_then(|node| match node {
+                    CSTNode::Terminal(terminal) => Some(terminal),
+                    _ => None,
+                });
+
+            merge_terminals(base, a_left, a_right)
         }
-        (CSTNode::NonTerminal(_), CSTNode::NonTerminal(a_left), CSTNode::NonTerminal(a_right)) => {
+        (CSTNode::NonTerminal(a_left), CSTNode::NonTerminal(a_right)) => {
             if a_left.are_children_unordered && a_right.are_children_unordered {
                 Ok(unordered_merge(
                     a_left,
@@ -50,7 +60,7 @@ pub fn merge<'a>(
                 )?)
             }
         }
-        (_, _, _) => {
+        (_, _) => {
             log::debug!(
                 "Error while merging NonTerminal with Terminal {} and {}",
                 left.contents(),
@@ -75,14 +85,6 @@ mod tests {
     #[test]
     fn test_can_not_merge_terminal_with_non_terminal() -> Result<(), Box<dyn std::error::Error>> {
         let error = merge(
-            &CSTNode::Terminal(Terminal {
-                id: uuid::Uuid::new_v4(),
-                kind: "kind",
-                start_position: Point { row: 0, column: 0 },
-                end_position: Point { row: 0, column: 7 },
-                value: "value",
-                is_block_end_delimiter: false,
-            }),
             &CSTNode::Terminal(Terminal {
                 id: uuid::Uuid::new_v4(),
                 kind: "kind",

@@ -49,7 +49,6 @@ pub fn unordered_merge<'a>(
             (None, Some(right_matching)) => {
                 result_children.push(merge(
                     left_child,
-                    left_child,
                     right_matching.matching_node,
                     base_left_matchings,
                     base_right_matchings,
@@ -71,7 +70,6 @@ pub fn unordered_merge<'a>(
             }
             (Some(_), Some(right_matching)) => {
                 result_children.push(merge(
-                    left_child,
                     left_child,
                     right_matching.matching_node,
                     base_left_matchings,
@@ -99,7 +97,6 @@ pub fn unordered_merge<'a>(
             }
             (None, Some(matching_left_right)) => {
                 result_children.push(merge(
-                    right_child,
                     matching_left_right.matching_node,
                     right_child,
                     base_left_matchings,
@@ -119,7 +116,6 @@ pub fn unordered_merge<'a>(
             }
             (Some(_), Some(matching_left_right)) => {
                 result_children.push(merge(
-                    right_child,
                     matching_left_right.matching_node,
                     right_child,
                     base_left_matchings,
