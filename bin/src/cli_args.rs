@@ -23,4 +23,9 @@ pub struct CliArgs {
     /// If not provided the language will try to be inferred by the extension of the base file.
     #[arg(long)]
     pub(crate) language: Option<String>,
+
+    /// The log level provided for the execution.
+    /// If not provided defaults to INFO.
+    #[arg(long)]
+    pub(crate) log_level: Option<log::LevelFilter>,
 }

@@ -6,9 +6,11 @@ mod language;
 use clap::Parser;
 
 fn main() {
-    env_logger::init();
-
     let args = cli_args::CliArgs::parse();
+    env_logger::builder().filter_level(args.log_level.unwrap_or(log::LevelFilter::Info)).init();
+
+    log::info!("Starting Generic Merge tool execution");
+    log::debug!("Parsed arguments: {:?}", args);
 
     let base = std::fs::read_to_string(&args.base_path).unwrap_or_else(|error| {
         log::error!("Error while reading base file: {}", error);
