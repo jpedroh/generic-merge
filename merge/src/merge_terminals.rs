@@ -3,23 +3,39 @@ use model::cst_node::Terminal;
 use crate::{MergeError, MergedCSTNode};
 
 pub fn merge_terminals<'a>(
-    base: Option<&'a Terminal<'a>>,
+    base: &'a Terminal<'a>,
     left: &'a Terminal<'a>,
     right: &'a Terminal<'a>,
 ) -> Result<MergedCSTNode<'a>, MergeError> {
-    if left.value == right.value {
-        return Ok(left.to_owned().into());
+    // Nodes of different kind, early return
+    if left.kind != right.kind {
+        return Err(MergeError::NodesWithDifferentKinds(
+            left.kind.to_string(),
+            right.kind.to_string(),
+        ));
     }
 
-    match diffy::merge(base.map_or("", |node| node.value), left.value, right.value) {
-        Ok(value) => Ok(MergedCSTNode::Terminal {
-            kind: left.kind,
-            value,
-        }),
-        Err(value) => Ok(MergedCSTNode::Terminal {
-            kind: left.kind,
-            value,
-        }),
+    // Unchanged
+    if left.value == base.value && right.value == base.value {
+        Ok(base.to_owned().into())
+    // Changed in both
+    } else if left.value != base.value && right.value != base.value {
+        match diffy::merge(base.value, left.value, right.value) {
+            Ok(value) => Ok(MergedCSTNode::Terminal {
+                kind: base.kind,
+                value,
+            }),
+            Err(value) => Ok(MergedCSTNode::Terminal {
+                kind: base.kind,
+                value,
+            }),
+        }
+    // Only left changed
+    } else if left.value != base.value {
+        Ok(left.to_owned().into())
+    // Only right changed
+    } else {
+        Ok(right.to_owned().into())
     }
 }
 
@@ -30,7 +46,7 @@ mod tests {
     use model::{cst_node::Terminal, Point};
 
     fn assert_merge_is_correct_and_idempotent_with_respect_to_parent_side(
-        base: Option<&Terminal>,
+        base: &Terminal,
         parent_a: &Terminal,
         parent_b: &Terminal,
         expected_merge: &MergedCSTNode,
@@ -56,7 +72,7 @@ mod tests {
         };
 
         assert_merge_is_correct_and_idempotent_with_respect_to_parent_side(
-            Some(&node),
+            &node,
             &node,
             &node,
             &node.clone().into(),
@@ -92,7 +108,7 @@ mod tests {
         };
 
         assert_merge_is_correct_and_idempotent_with_respect_to_parent_side(
-            Some(&base),
+            &base,
             &left,
             &right,
             &MergedCSTNode::Terminal {
@@ -131,7 +147,7 @@ mod tests {
         };
 
         assert_eq!(
-            merge_terminals(Some(&base), &left, &right)?,
+            merge_terminals(&base, &left, &right)?,
            MergedCSTNode::Terminal {
                 kind: "kind",
                 value: "<<<<<<< ours\nleft_value||||||| original\nvalue=======\nright_value>>>>>>> theirs\n".to_string()
@@ -162,10 +178,38 @@ mod tests {
         };
 
         assert_merge_is_correct_and_idempotent_with_respect_to_parent_side(
-            Some(&base_and_left),
+            &base_and_left,
             &base_and_left,
             &changed_parent,
             &changed_parent.clone().into(),
         )
+    }
+
+    #[test]
+    fn i_get_an_error_if_i_try_to_merge_nodes_of_different_kinds() {
+        let kind_a = Terminal {
+            id: uuid::Uuid::new_v4(),
+            kind: "kind_a",
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
+            value: "value",
+            is_block_end_delimiter: false,
+        };
+        let kind_b = Terminal {
+            id: uuid::Uuid::new_v4(),
+            kind: "kind_b",
+            start_position: Point { row: 0, column: 0 },
+            end_position: Point { row: 0, column: 7 },
+            value: "value_right",
+            is_block_end_delimiter: false,
+        };
+
+        let result = merge_terminals(&kind_a, &kind_a, &kind_b);
+
+        assert!(result.is_err());
+        assert_eq!(
+            result.unwrap_err(),
+            MergeError::NodesWithDifferentKinds("kind_a".to_string(), "kind_b".to_string())
+        );
     }
 }

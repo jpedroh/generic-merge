@@ -87,6 +87,7 @@ pub fn run_tool_on_merge_scenario(
 
     log::info!("Starting merge of the trees");
     let result = merge::merge(
+        &base_tree,
         &left_tree,
         &right_tree,
         &matchings_left_base,
