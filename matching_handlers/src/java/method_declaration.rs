@@ -54,7 +54,7 @@ fn extract_argument_types_from_formal_parameters(node: &CSTNode) -> Vec<String> 
                     non_terminal
                         .children
                         .iter()
-                        .filter(|node| node.kind() != "identifier")
+                        .filter(|node| node.kind() != "modifiers" && node.kind() != "identifier")
                         .fold(String::new(), |acc, cur| {
                             format!("{} {}", acc, cur.contents())
                         }),
