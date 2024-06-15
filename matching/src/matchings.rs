@@ -118,7 +118,10 @@ mod tests {
         });
 
         let mut matchings = HashMap::new();
-        matchings.insert(UnorderedPair(&a_node, &a_node), MatchingEntry::new(1, true));
+        matchings.insert(
+            UnorderedPair(&a_node, &a_node),
+            MatchingEntry::new(&a_node, &a_node, 1),
+        );
 
         assert_eq!(
             Some(Matching {

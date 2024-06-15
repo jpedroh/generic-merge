@@ -51,10 +51,7 @@ pub fn calculate_matchings<'a>(
 
             result.extend(Matchings::from_single(
                 UnorderedPair(left, right),
-                MatchingEntry {
-                    score: sum + root_matching,
-                    is_perfect_match: left.contents() == right.contents(),
-                },
+                MatchingEntry::new(left, right, sum + root_matching),
             ));
 
             result

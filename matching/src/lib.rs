@@ -47,10 +47,10 @@ pub fn calculate_matchings<'a>(
             let is_perfect_match = kind_left == kind_right && value_left == value_right;
             Matchings::from_single(
                 UnorderedPair(left, right),
-                MatchingEntry::new(is_perfect_match.into(), is_perfect_match),
+                MatchingEntry::new(left, right, is_perfect_match.into()),
             )
         }
-        (_, _) => Matchings::from_single(UnorderedPair(left, right), MatchingEntry::new(0, false)),
+        (_, _) => Matchings::empty(),
     }
 }
 
@@ -85,7 +85,7 @@ mod tests {
         let matchings = calculate_matchings(&left, &right, &matching_configuration);
 
         assert_eq!(
-            Some(&MatchingEntry::new(1, true)),
+            Some(&MatchingEntry::new(&left, &right, 1)),
             matchings.get_matching_entry(&left, &right)
         )
     }
@@ -112,9 +112,8 @@ mod tests {
         let matching_configuration = MatchingConfiguration::default();
         let matchings = calculate_matchings(&left, &right, &matching_configuration);
 
-        assert_eq!(
-            Some(&MatchingEntry::new(0, false)),
-            matchings.get_matching_entry(&left, &right)
-        )
+        let left_right_matching = matchings.get_matching_entry(&left, &right).unwrap();
+        assert_eq!(0, left_right_matching.score);
+        assert!(!left_right_matching.is_perfect_match);
     }
 }
