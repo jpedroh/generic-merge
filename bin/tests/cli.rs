@@ -25,3 +25,25 @@ fn if_there_is_no_conflict_it_returns_valid_exit_code() {
         .assert()
         .code(bin::SUCCESS_WITHOUT_CONFLICTS);
 }
+
+#[test]
+fn if_i_am_running_on_diff_mode_and_files_fully_match_it_returns_zero() {
+    let mut cmd = Command::cargo_bin("generic-merge").unwrap();
+    cmd.arg("--diff-only")
+        .arg("--left-path=tests/diff_scenarios/java_files_full_match/left.java")
+        .arg("--right-path=tests/diff_scenarios/java_files_full_match/right.java")
+        .arg("--language=java")
+        .assert()
+        .code(bin::SUCCESS_FILES_FULLY_MATCH);
+}
+
+#[test]
+fn if_i_am_running_on_diff_mode_and_files_do_not_fully_match_it_returns_one() {
+    let mut cmd = Command::cargo_bin("generic-merge").unwrap();
+    cmd.arg("--diff-only")
+        .arg("--left-path=tests/diff_scenarios/java_files_not_fully_matching/left.java")
+        .arg("--right-path=tests/diff_scenarios/java_files_not_fully_matching/right.java")
+        .arg("--language=java")
+        .assert()
+        .code(bin::SUCCESS_FILES_DO_NOT_FULLY_MATCH);
+}
