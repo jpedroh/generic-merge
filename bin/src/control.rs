@@ -3,7 +3,7 @@ use std::{
     fmt::{self, Display},
 };
 
-use matching::matching_configuration;
+use matching::{matching_configuration, MatchingEntry};
 use parsing::ParserConfiguration;
 
 #[derive(Debug)]
@@ -101,4 +101,32 @@ pub fn run_tool_on_merge_scenario(
         true => Ok(ExecutionResult::WithConflicts(result.to_string())),
         false => Ok(ExecutionResult::WithoutConflicts(result.to_string())),
     }
+}
+
+pub fn run_diff_on_files(
+    language: model::Language,
+    left: &str,
+    right: &str,
+) -> Result<MatchingEntry, ExecutionError> {
+    let parser_configuration = ParserConfiguration::from(language);
+
+    log::info!("Started parsing left file");
+    let left_tree_root =
+        parsing::parse_string(left, &parser_configuration).map_err(ExecutionError::ParsingError)?;
+    log::info!("Finished parsing left file");
+    log::info!("Started parsing right file");
+    let right_tree_root = parsing::parse_string(right, &parser_configuration)
+        .map_err(ExecutionError::ParsingError)?;
+    log::info!("Finished parsing right file");
+
+    let matching_configuration = matching_configuration::MatchingConfiguration::from(language);
+    log::info!("Started calculation of matchings between left and right");
+    let matchings_left_right =
+        matching::calculate_matchings(&left_tree_root, &right_tree_root, &matching_configuration);
+    log::info!("Finished calculation of matchings between left and right");
+
+    Ok(matchings_left_right
+        .get_matching_entry(&left_tree_root, &right_tree_root)
+        .unwrap_or_default()
+        .to_owned())
 }
