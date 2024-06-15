@@ -48,6 +48,22 @@ impl CSTNode<'_> {
             CSTNode::NonTerminal(node) => node.end_position,
         }
     }
+
+    fn get_subtree_size(&self) -> usize {
+        match self {
+            CSTNode::Terminal(_) => 0,
+            CSTNode::NonTerminal(node) => node
+                .children
+                .iter()
+                .fold(node.children.len(), |acc, child| {
+                    acc + child.get_subtree_size()
+                }),
+        }
+    }
+
+    pub fn get_tree_size(&self) -> usize {
+        self.get_subtree_size() + 1
+    }
 }
 
 #[derive(Debug, Default, Clone)]

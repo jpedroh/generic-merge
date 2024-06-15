@@ -84,10 +84,7 @@ fn solve_assignment_problem<'a>(
 
     result.extend(Matchings::from_single(
         UnorderedPair(left, right),
-        MatchingEntry {
-            score: max_matching as usize + 1,
-            is_perfect_match: left.contents() == right.contents(),
-        },
+        MatchingEntry::new(left, right, max_matching as usize + 1),
     ));
 
     result

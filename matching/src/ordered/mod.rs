@@ -80,10 +80,7 @@ pub fn calculate_matchings<'a>(
 
             let mut matchings = Matchings::from_single(
                 UnorderedPair(left, right),
-                MatchingEntry::new(
-                    matrix_m[m][n] + root_matching,
-                    left.contents() == right.contents(),
-                ),
+                MatchingEntry::new(left, right, matrix_m[m][n] + root_matching),
             );
 
             while i >= 1 && j >= 1 {
@@ -108,7 +105,7 @@ pub fn calculate_matchings<'a>(
 
 #[cfg(test)]
 mod tests {
-    use crate::{matching_entry::MatchingEntry, *};
+    use crate::MatchingConfiguration;
     use model::{
         cst_node::{NonTerminal, Terminal},
         language, CSTNode, Language, Point,
@@ -144,10 +141,10 @@ mod tests {
         let matching_configuration = MatchingConfiguration::default();
         let matchings = super::calculate_matchings(&left, &right, &matching_configuration);
 
-        assert_eq!(
-            Some(&MatchingEntry::new(1, true)),
-            matchings.get_matching_entry(&child, &child)
-        )
+        let child_matching = matchings.get_matching_entry(&child, &child);
+        assert!(child_matching.is_some());
+        assert_eq!(1, child_matching.unwrap().score);
+        assert!(child_matching.unwrap().is_perfect_match)
     }
 
     #[test]
@@ -188,11 +185,9 @@ mod tests {
 
         let matching_configuration = MatchingConfiguration::from(Language::Java);
         let matchings = super::calculate_matchings(&left, &right, &matching_configuration);
-
-        assert_eq!(
-            None,
-            matchings.get_matching_entry(&left_child, &right_child)
-        )
+        assert!(matchings
+            .get_matching_entry(&left_child, &right_child)
+            .is_none())
     }
 
     #[test]
@@ -234,10 +229,9 @@ mod tests {
         let matching_configuration = MatchingConfiguration::from(language::Language::Java);
         let matchings = super::calculate_matchings(&left, &right, &matching_configuration);
 
-        assert_eq!(
-            Some(&MatchingEntry::new(2, false)),
-            matchings.get_matching_entry(&left, &right)
-        )
+        let left_right_matchings = matchings.get_matching_entry(&left, &right).unwrap();
+        assert_eq!(2, left_right_matchings.score);
+        assert!(!left_right_matchings.is_perfect_match);
     }
 
     #[test]
@@ -271,10 +265,9 @@ mod tests {
         let matching_configuration = MatchingConfiguration::from(language::Language::Java);
         let matchings = super::calculate_matchings(&left, &right, &matching_configuration);
 
-        assert_eq!(
-            Some(&MatchingEntry::new(2, true)),
-            matchings.get_matching_entry(&left, &right)
-        )
+        let left_right_matchings = matchings.get_matching_entry(&left, &right).unwrap();
+        assert_eq!(2, left_right_matchings.score);
+        assert!(left_right_matchings.is_perfect_match);
     }
 
     #[test]
@@ -317,14 +310,14 @@ mod tests {
         let matching_configuration = MatchingConfiguration::default();
         let matchings = super::calculate_matchings(&left, &right, &matching_configuration);
 
-        assert_eq!(
-            Some(&MatchingEntry::new(2, true)),
-            matchings.get_matching_entry(&intermediate, &intermediate)
-        );
+        let intermediate_matching = matchings
+            .get_matching_entry(&intermediate, &intermediate)
+            .unwrap();
+        assert_eq!(2, intermediate_matching.score);
+        assert!(intermediate_matching.is_perfect_match);
 
-        assert_eq!(
-            Some(&MatchingEntry::new(3, true)),
-            matchings.get_matching_entry(&left, &right)
-        )
+        let left_right_matching = matchings.get_matching_entry(&left, &right).unwrap();
+        assert_eq!(3, left_right_matching.score);
+        assert!(left_right_matching.is_perfect_match);
     }
 }
