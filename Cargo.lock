@@ -343,6 +343,7 @@ dependencies = [
  "log",
  "matching_handlers",
  "model",
+ "parsing",
  "pathfinding",
  "unordered-pair",
  "uuid",
