@@ -56,11 +56,8 @@ pub fn calculate_matchings<'a>(
 
 #[cfg(test)]
 mod tests {
+    use crate::{calculate_matchings, matching_configuration::MatchingConfiguration};
     use model::{cst_node::Terminal, CSTNode, Point};
-
-    use crate::{
-        calculate_matchings, matching_configuration::MatchingConfiguration, MatchingEntry,
-    };
 
     #[test]
     fn two_terminal_nodes_matches_with_a_score_of_one_if_they_have_the_same_kind_and_value() {
@@ -84,10 +81,9 @@ mod tests {
         let matching_configuration = MatchingConfiguration::default();
         let matchings = calculate_matchings(&left, &right, &matching_configuration);
 
-        assert_eq!(
-            Some(&MatchingEntry::new(&left, &right, 1)),
-            matchings.get_matching_entry(&left, &right)
-        )
+        let left_right_matching = matchings.get_matching_entry(&left, &right).unwrap();
+        assert_eq!(1, left_right_matching.score);
+        assert!(left_right_matching.is_perfect_match);
     }
 
     #[test]
