@@ -62,7 +62,7 @@ impl CSTNode<'_> {
     }
 
     pub fn get_tree_size(&self) -> usize {
-        return self.get_subtree_size() + 1;
+        self.get_subtree_size() + 1
     }
 }
 
