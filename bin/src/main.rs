@@ -1,27 +1,25 @@
+use clap::Parser;
+use cli_args::{CliArgs, CliSubCommands, DiffCliArgs, MergeCliArgs};
+
 mod cli_args;
 mod cli_exit_codes;
 mod control;
 mod language;
 
-use clap::Parser;
-use cli_args::CliArgs;
-
 fn main() {
-    let args = cli_args::CliArgs::parse();
-    env_logger::builder()
-        .filter_level(args.log_level.unwrap_or(log::LevelFilter::Info))
-        .init();
+    let args = CliArgs::parse();
+    env_logger::builder().filter_level(args.log_level).init();
 
     log::info!("Starting Generic Merge tool execution");
     log::debug!("Parsed arguments: {:?}", args);
 
-    match !args.diff_only {
-        true => run_merge(args),
-        false => run_diff(args),
+    match args.command {
+        CliSubCommands::Diff(args) => run_diff(args),
+        CliSubCommands::Merge(args) => run_merge(args),
     }
 }
 
-fn run_merge(args: CliArgs) {
+fn run_merge(args: MergeCliArgs) {
     let base_path = args.base_path.unwrap();
 
     let base = std::fs::read_to_string(&base_path).unwrap_or_else(|error| {
@@ -69,7 +67,7 @@ fn run_merge(args: CliArgs) {
     }
 }
 
-fn run_diff(args: CliArgs) {
+fn run_diff(args: DiffCliArgs) {
     let left = std::fs::read_to_string(&args.left_path).unwrap_or_else(|error| {
         log::error!("Error while reading left file: {}", error);
         std::process::exit(cli_exit_codes::READING_FILE_ERROR)
